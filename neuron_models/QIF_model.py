@@ -1,18 +1,20 @@
 import brainpy as bp
 import brainpy.math as bm
 
-class LIF(bp.NeuGroup):
-  def __init__(self, size, V_rest=0., V_reset=-5., V_th=20., R=1., tau=10., tau_ref=5., **kwargs):
+class QIF(bp.NeuGroup):
+  def __init__(self, size, V_rest=-65., V_reset=-68., V_th=-30., V_c=-50.0, a_0=.07, R=1., tau=10., t_ref=5., **kwargs):
     # 初始化父类
-    super(LIF, self).__init__(size=size, **kwargs)
+    super(QIF, self).__init__(size=size, **kwargs)
 
     # 初始化参数
     self.V_rest = V_rest
     self.V_reset = V_reset
     self.V_th = V_th
+    self.V_c = V_c
+    self.a_0 = a_0
     self.R = R
     self.tau = tau
-    self.tau_ref = tau_ref  # 不应期时长
+    self.t_ref = t_ref  # 不应期时长
 
     # 初始化变量
     self.V = bm.Variable(bm.random.randn(self.num) * 5. + V_reset)
@@ -25,14 +27,14 @@ class LIF(bp.NeuGroup):
     self.integral = bp.odeint(f=self.derivative, method='exponential_euler')
 
   # 定义膜电位关于时间变化的微分方程
-  def derivative(self, V, t, R, Iext):
-    dvdt = (-V + self.V_rest + R * Iext) / self.tau
+  def derivative(self, V, t, I_ext):
+    dvdt = (self.a_0 * (V - self.V_rest) * (V - self.V_c) + self.R * I_ext) / self.tau
     return dvdt
 
   def update(self, _t, _dt):
     # 以数组的方式对神经元进行更新
-    refractory = (_t - self.t_last_spike) <= self.tau_ref  # 判断神经元是否处于不应期
-    V = self.integral(self.V, _t, self.R, self.input, dt=_dt)  # 根据时间步长更新膜电位
+    refractory = (_t - self.t_last_spike) <= self.t_ref  # 判断神经元是否处于不应期
+    V = self.integral(self.V, _t, self.input, dt=_dt)  # 根据时间步长更新膜电位
     V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V
     spike = self.V_th <= V  # 将大于阈值的神经元标记为发放了脉冲
     self.spike[:] = spike  # 更新神经元脉冲发放状态
@@ -43,8 +45,7 @@ class LIF(bp.NeuGroup):
 
 
 if __name__ == '__main__':
-    group = LIF(10)
-    runner = bp.ReportRunner(group, monitors=['V'], inputs=('input', 22.), report=0.2)
-    runner.run(200)
-    bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
-
+  group = QIF(10)
+  runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 12.))
+  runner(200)
+  bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
