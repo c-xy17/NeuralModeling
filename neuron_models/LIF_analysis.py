@@ -3,40 +3,33 @@ import subprocess
 from LIF_model import *
 
 import numpy as np
+import matplotlib.pyplot as plt
 
-bm.set_platform('cpu')
+duration = 1000  # 设定仿真时长
+I_cur = np.arange(1, 1001, 10)  # 定义大小为10, 20, ..., 1000的100束电流
 
-duration = 2000  # 设定仿真时长
+neu = LIF(len(I_cur), tau=5., t_ref=5.)  # 定义神经元群
+runner = bp.StructRunner(neu, monitors=['spike'], inputs=('input', I_cur))  # 设置运行器，其中每一个神经元接收I_cur的一个恒定电流
+runner(duration=duration)  # 运行神经元模型
+f_list = runner.mon.spike.sum(axis=0) / (duration / 1000)  # 计算每个神经元的脉冲发放次数
+bp.visualize.line_plot(I_cur, f_list, xlabel='Input current', ylabel='spiking frequency', show=True)  # 画出曲线
 
-# inputs, _ = bp.inputs.constant_input([(0, duration)])
-# # inputs = inputs.astype(float)
-# I_list = [0]
-# for I_ext in range(10, 200, 10):  # 为每个神经元设定不同大小的恒定外部输入
-#   input, _ = bp.inputs.constant_input([(I_ext, duration)])
-#   # input = input.astype(float)
-#   inputs = np.vstack((inputs, input))
-#   I_list.append(I_ext)
-# I_list = bm.array(I_list)
-# inputs = bm.array(inputs)
-
-Icur = np.arange(10, 201, 2)
-Iext= bp.inputs.section_input(values=[Icur], durations=[duration])
-
-neu = LIF(len(Icur), V_rest=-5., V_th=20., t_ref=5.)  # 定义神经元群
-runner = bp.StructRunner(neu, monitors=['V', 'refractory', 'spike'], inputs=('input', Iext, 'iter'))  # 设置运行器
-runner(duration=duration)
-f_list = runner.mon.spike.sum(axis=0) / (duration / 1000)  # 计算每个神经元发放脉冲的次数
-bp.visualize.line_plot(Icur, f_list, xlabel='Input current', ylabel='spiking frequency', show=True)  # 画出曲线
+# plt.plot(I_cur, f_list, marker='.')
+# plt.xlabel('Input current')
+# plt.ylabel('spiking frequency')
+# plt.show()
 
 
 duration = 200
 
-neu = LIF(2, V_rest=-5., V_th=20., t_ref=5.)
-runner = bp.StructRunner(neu, monitors=['V', 'refractory', 'spike'], inputs=('input', bm.asarray([20, 26.])))
+neu1 = LIF(1, t_ref=5.)
+neu1.V[:] = bm.array([-5.])
+runner = bp.StructRunner(neu1, monitors=['V'], inputs=('input', 20))  # 给neu1一个大小为20的恒定电流
 runner(duration)
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, xlabel='t', ylabel='V')
-bp.visualize.line_plot(runner.mon.ts, runner.mon.V, plot_ids=[0, 1], xlabel='t', ylabel='V', show=True)
+bp.visualize.line_plot(runner.mon.ts, runner.mon.V, xlabel='t', ylabel='V', legend='input=20', show=False)
 
-# runner = bp.StructRunner(neu, monitors=['V', 'refractory', 'spike'], inputs=('input', 26))
-# runner(duration)
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V[:, 0], xlabel='t', ylabel='V', show=True)
+neu2 = LIF(1, t_ref=5.)
+neu2.V[:] = bm.array([-5.])
+runner = bp.StructRunner(neu2, monitors=['V'], inputs=('input', 21))  # 给neu2一个大小为21的恒定电流
+runner(duration)
+bp.visualize.line_plot(runner.mon.ts, runner.mon.V, xlabel='t', ylabel='V', legend='input=21', show=True)

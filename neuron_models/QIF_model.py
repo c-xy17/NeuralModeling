@@ -1,8 +1,9 @@
 import brainpy as bp
 import brainpy.math as bm
 
+
 class QIF(bp.NeuGroup):
-  def __init__(self, size, V_rest=-65., V_reset=-68., V_th=-30., V_c=-50.0, a_0=.07, R=1., tau=10., t_ref=5., **kwargs):
+  def __init__(self, size, V_rest=-65., V_reset=-68., V_th=-0., V_c=-50.0, a_0=.07, R=1., tau=10., t_ref=5., **kwargs):
     # 初始化父类
     super(QIF, self).__init__(size=size, **kwargs)
 
@@ -17,7 +18,7 @@ class QIF(bp.NeuGroup):
     self.t_ref = t_ref  # 不应期时长
 
     # 初始化变量
-    self.V = bm.Variable(bm.random.randn(self.num) * 5. + V_reset)
+    self.V = bm.Variable(bm.random.randn(self.num) + V_reset)
     self.input = bm.Variable(bm.zeros(self.num))
     self.t_last_spike = bm.Variable(bm.ones(self.num) * -1e7)  # 上一次脉冲发放时间
     self.refractory = bm.Variable(bm.zeros(self.num, dtype=bool))  # 是否处于不应期
@@ -44,8 +45,8 @@ class QIF(bp.NeuGroup):
     self.input[:] = 0.  # 重置外界输入
 
 
-if __name__ == '__main__':
-  group = QIF(10)
-  runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 12.))
-  runner(200)
-  bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
+# 运行QIF模型
+group = QIF(10)
+runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 12.))
+runner(200)  # 运行时长为200ms
+bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
