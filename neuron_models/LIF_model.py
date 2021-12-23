@@ -43,9 +43,10 @@ class LIF(bp.NeuGroup):
     self.input[:] = 0.  # 重置外界输入
 
 
-# 运行LIF模型
-group = LIF(10)
-runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 22.))
-runner(200)  # 运行时长为200ms
-bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
+if __name__ == '__main__':
+  # 运行LIF模型
+  group = LIF(10)
+  runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 22.))
+  runner(200)  # 运行时长为200ms
+  bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
 
