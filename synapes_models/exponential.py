@@ -1,9 +1,9 @@
 import brainpy as bp
 import brainpy.math as bm
 # from neuron_models.LIF_model import LIF
-from brainmodels.neurons import LIF
+# from brainmodels.neurons import LIF
 
-# LIF = bp.models.LIF
+LIF = bp.models.LIF
 
 
 class Exponential(bp.TwoEndConn):
@@ -42,6 +42,8 @@ class Exponential(bp.TwoEndConn):
 
     # transmit the spikes to postsynaptic neurons
     post_sp = bm.syn2post(spikes, self.post_ids, self.post.num)
+
+    # post_sp = bm.pre2post_event_sum(delayed_pre_spike, self.pre2post, self.post.num, self.g_max)
 
     # update the state variable
     self.s[:] = self.integral(self.s, _t, dt=_dt) + post_sp
