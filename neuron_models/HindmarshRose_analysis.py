@@ -1,6 +1,7 @@
 import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
+bp.math.enable_x64()
 
 
 class HindmarshRose(bp.NeuGroup):
@@ -64,7 +65,7 @@ phase_plane_analyzer = bp.analysis.PhasePlane2D(
 )
 phase_plane_analyzer.plot_nullcline(x_style={'fmt': '-'}, y_style={'fmt': '-'})
 phase_plane_analyzer.plot_fixed_point()
-# phase_plane_analyzer.plot_vector_field()
+phase_plane_analyzer.plot_vector_field()
 phase_plane_analyzer.plot_trajectory(
 	{'V': [1.], 'y': [0.], 'z': [1.4]},
 	duration=100.,
