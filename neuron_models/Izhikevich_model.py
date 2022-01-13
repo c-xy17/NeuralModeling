@@ -34,21 +34,22 @@ class Izhikevich(bp.NeuGroup):
 	def du(self, u, t, V):
 		return self.a * (self.b * V - u)
 
+	# 将两个微分方程联合为一个，以便同时积分
 	@property
 	def derivative(self):
 		return bp.JointEq([self.dV, self.du])
 
 	def update(self, _t, _dt):
-		V, u = self.integral(self.V, self.u, _t, self.input, dt=_dt)
-		refractory = (_t - self.t_last_spike) <= self.tau_ref
-		V = bm.where(refractory, self.V, V)
-		spike = self.V_th <= V
-		self.t_last_spike.value = bm.where(spike, _t, self.t_last_spike)
-		self.V.value = bm.where(spike, self.c, V)
-		self.u.value = bm.where(spike, u + self.d, u)
-		self.refractory.value = bm.logical_or(refractory, spike)
-		self.spike.value = spike
-		self.input[:] = 0.
+		V, u = self.integral(self.V, self.u, _t, self.input, dt=_dt)  # 更新变量V, u
+		refractory = (_t - self.t_last_spike) <= self.tau_ref  # 判断神经元是否处于不应期
+		V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V
+		spike = self.V_th <= V  # 将大于阈值的神经元标记为发放了脉冲
+		self.spike.value = spike  # 更新神经元脉冲发放状态
+		self.t_last_spike.value = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间
+		self.V.value = bm.where(spike, self.c, V)  # 将发放了脉冲的神经元的V置为c，其余不变
+		self.u.value = bm.where(spike, u + self.d, u)   # 将发放了脉冲的神经元的u增加d，其余不变
+		self.refractory.value = bm.logical_or(refractory, spike)  # 更新神经元是否处于不应期
+		self.input[:] = 0.  # 重置外界输入
 
 
 # 运行Izhikevich模型
