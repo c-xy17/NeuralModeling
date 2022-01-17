@@ -79,6 +79,6 @@ phase_plane_analyzer.plot_vector_field(plot_style=dict(color='lightgrey'))
 phase_plane_analyzer.plot_trajectory(
 	{'V': [1.], 'y': [0.], 'z': [1.4]},
 	duration=100.,
-	color='darkslateblue', linewidth=1.5, alpha=0.9,
+	color='darkslateblue', linewidth=2, alpha=0.9,
 	show=True
 )

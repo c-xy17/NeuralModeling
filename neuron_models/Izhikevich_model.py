@@ -18,8 +18,7 @@ class Izhikevich(bp.NeuGroup):
 
 		# 初始化变量
 		self.V = bm.Variable(bm.random.randn(self.num) - 70.)
-		self.u = bm.Variable(bm.ones(self.num))
-		self.w = bm.Variable(bm.zeros(self.num))
+		self.u = bm.Variable(bm.zeros(self.num))
 		self.input = bm.Variable(bm.zeros(self.num))
 		self.t_last_spike = bm.Variable(bm.ones(self.num) * -1e7)  # 上一次脉冲发放时间
 		self.refractory = bm.Variable(bm.zeros(self.num, dtype=bool))  # 是否处于不应期
