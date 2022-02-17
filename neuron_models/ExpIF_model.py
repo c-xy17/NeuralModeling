@@ -3,7 +3,7 @@ import brainpy.math as bm
 
 
 class ExpIF(bp.NeuGroup):
-	def __init__(self, size, V_rest=-65., V_reset=-68., V_th=-30., V_T=-60., delta_T=1.,
+	def __init__(self, size, V_rest=-65., V_reset=-68., V_th=20., V_T=-60., delta_T=1.,
 	             R=1., tau=10., tau_ref=2., **kwargs):
 		# 初始化父类
 		super(ExpIF, self).__init__(size=size, **kwargs)
@@ -26,7 +26,7 @@ class ExpIF(bp.NeuGroup):
 		self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))  # 脉冲发放状态
 
 		# 使用指数欧拉方法进行积分
-		self.integral = bp.odeint(f=self.derivative, method='exponential_euler')
+		self.integral = bp.odeint(f=self.derivative, method='exp_auto')
 
 	# 定义膜电位关于时间变化的微分方程
 	def derivative(self, V, t, Iext):
@@ -47,8 +47,8 @@ class ExpIF(bp.NeuGroup):
 		self.input[:] = 0.  # 重置外界输入
 
 
-# 运行ExpIF模型
-group = ExpIF(10)
-runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 7.))
-runner(200)  # 运行时长为200ms
-bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
+# # 运行ExpIF模型
+# group = ExpIF(10)
+# runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 5.), dt=0.01)
+# runner(500)
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)

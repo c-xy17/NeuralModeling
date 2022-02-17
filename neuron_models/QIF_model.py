@@ -45,8 +45,39 @@ class QIF(bp.NeuGroup):
     self.input[:] = 0.  # 重置外界输入
 
 
-# 运行QIF模型
-group = QIF(10)
-runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 12.))
-runner(200)  # 运行时长为200ms
-bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
+# # 运行QIF模型
+# group = QIF(10)
+# runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 6.))
+# runner(500)  # 运行时长为500ms
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
+
+
+# duration = 500
+#
+# neu1 = QIF(1)
+# neu1.V[:] = bm.array([-68.])
+# runner = bp.StructRunner(neu1, monitors=['V'], inputs=('input', 0.))
+# runner(duration)
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V',
+#                        color=u'#9467bd', legend='input=0', show=False)
+#
+# neu1 = QIF(1)
+# neu1.V[:] = bm.array([-68.])
+# runner = bp.StructRunner(neu1, monitors=['V'], inputs=('input', 3.))
+# runner(duration)
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V',
+#                        color=u'#d62728', legend='input=3', show=False)
+#
+# neu2 = QIF(1)
+# neu2.V[:] = bm.array([-68.])
+# runner = bp.StructRunner(neu2, monitors=['V'], inputs=('input', 4.))
+# runner(duration)
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V',
+#                        color=u'#1f77b4', legend='input=4', show=False)
+#
+# neu2 = QIF(1)
+# neu2.V[:] = bm.array([-68.])
+# runner = bp.StructRunner(neu2, monitors=['V'], inputs=('input', 5.))
+# runner(duration)
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V',
+#                        color=u'#ff7f0e', legend='input=5', show=True)
