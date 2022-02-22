@@ -1,5 +1,6 @@
 import brainpy as bp
 import brainpy.math as bm
+import matplotlib.pyplot as plt
 
 
 class LIF(bp.NeuGroup):
@@ -45,8 +46,13 @@ class LIF(bp.NeuGroup):
 
 if __name__ == '__main__':
   # 运行LIF模型
-  group = LIF(10)
+  group = LIF(1)
   runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 22.))
   runner(200)  # 运行时长为200ms
-  bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
+
+  # 结果可视化
+  plt.plot(runner.mon.ts, runner.mon.V)
+  plt.xlabel('t (ms)')
+  plt.ylabel('V')
+  plt.show()
 

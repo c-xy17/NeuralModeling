@@ -23,7 +23,7 @@ ax = axes[1]
 dvdts = qif.derivative(Vs, 0., 3.)
 ax.plot(Vs, np.zeros(200), '--', color=u'#333333')
 ax.plot(Vs, dvdts)
-ax.set_title('External Input = 10')
+ax.set_title('External Input = 3')
 ax.set_xlim(-80, -30)
 ax.set_xlabel('V')
 
