@@ -22,7 +22,8 @@ class Exponential(bp.TwoEndConn):
 
     # variables
     self.s = bm.Variable(bm.zeros(self.post.num))
-    self.pre_spike = self.register_constant_delay('pre_spike', self.pre.num, delay)
+    self.pre_spike = bp.ConstantDelay(self.pre.spike.shape, delay, self.pre.spike.dtype)
+    # self.pre_spike = self.register_constant_delay('pre_spike', self.pre.num, delay)
 
     self.integral = bp.odeint(f=self.derivative, method='exponential_euler')
 
@@ -37,13 +38,13 @@ class Exponential(bp.TwoEndConn):
     # pull the delayed pre-synaptic spikes
     delayed_pre_spike = self.pre_spike.pull()
 
-    # get the spikes of each presynaptic neuron
-    spikes = bm.pre2syn(delayed_pre_spike, self.pre_ids)
+    # # get the spikes of each presynaptic neuron
+    # spikes = bm.pre2syn(delayed_pre_spike, self.pre_ids)
+    #
+    # # transmit the spikes to postsynaptic neurons
+    # post_sp = bm.syn2post(spikes, self.post_ids, self.post.num)
 
-    # transmit the spikes to postsynaptic neurons
-    post_sp = bm.syn2post(spikes, self.post_ids, self.post.num)
-
-    # post_sp = bm.pre2post_event_sum(delayed_pre_spike, self.pre2post, self.post.num, self.g_max)
+    post_sp = bm.pre2post_event_sum(delayed_pre_spike, self.pre2post, self.post.num, 1.)
 
     # update the state variable
     self.s[:] = self.integral(self.s, _t, dt=_dt) + post_sp
