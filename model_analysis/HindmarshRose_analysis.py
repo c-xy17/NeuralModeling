@@ -73,7 +73,7 @@ phase_plane_analyzer.plot_nullcline(x_style=dict(color='cornflowerblue', fmt='--
 phase_plane_analyzer.plot_fixed_point()
 
 # 画出向量场
-phase_plane_analyzer.plot_vector_field(plot_style=dict(color='lightgrey'))
+phase_plane_analyzer.plot_vector_field(plot_style=dict(color='lightgrey', density=1.))
 
 # 画出V, y的变化轨迹
 phase_plane_analyzer.plot_trajectory(

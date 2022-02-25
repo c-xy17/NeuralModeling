@@ -1,5 +1,6 @@
 import brainpy as bp
 import brainpy.math as bm
+import matplotlib.pyplot as plt
 
 
 class QIF(bp.NeuGroup):
@@ -45,11 +46,15 @@ class QIF(bp.NeuGroup):
     self.input[:] = 0.  # 重置外界输入
 
 
-# # 运行QIF模型
-# group = QIF(10)
-# runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 6.))
-# runner(500)  # 运行时长为500ms
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
+# 运行QIF模型
+group = QIF(1)
+runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 6.))
+runner(500)  # 运行时长为500ms
+# 结果可视化
+plt.plot(runner.mon.ts, runner.mon.V)
+plt.xlabel('t (ms)')
+plt.ylabel('V')
+plt.show()
 
 
 # duration = 500
