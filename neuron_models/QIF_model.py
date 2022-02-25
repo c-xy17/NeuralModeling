@@ -26,7 +26,7 @@ class QIF(bp.NeuGroup):
     self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))  # 脉冲发放状态
 
     # 使用指数欧拉方法进行积分
-    self.integral = bp.odeint(f=self.derivative, method='exponential_euler')
+    self.integral = bp.odeint(f=self.derivative, method='exp_auto')
 
   # 定义膜电位关于时间变化的微分方程
   def derivative(self, V, t, I_ext):
@@ -46,43 +46,34 @@ class QIF(bp.NeuGroup):
     self.input[:] = 0.  # 重置外界输入
 
 
-# 运行QIF模型
-group = QIF(1)
-runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 6.))
-runner(500)  # 运行时长为500ms
-# 结果可视化
-plt.plot(runner.mon.ts, runner.mon.V)
-plt.xlabel('t (ms)')
-plt.ylabel('V')
-plt.show()
+# # 运行QIF模型
+# group = QIF(1)
+# runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 6.))
+# runner(500)  # 运行时长为500ms
+# # 结果可视化
+# plt.plot(runner.mon.ts, runner.mon.V)
+# plt.xlabel('t (ms)')
+# plt.ylabel('V')
+# plt.show()
 
 
-# duration = 500
+def QIF_plot(input, duration, color):
+  neu = QIF(1)
+  neu.V[:] = bm.array([-68.])
+  runner = bp.StructRunner(neu, monitors=['V'], inputs=('input', input))
+  runner(duration)
+  plt.plot(runner.mon.ts, runner.mon.V, color=color, label='input={}'.format(input))
+
+
+inputs = [0., 3., 4., 5.]
+# colors = [u'#9467bd', u'#d62728', u'#1f77b4', u'#ff7f0e']
+colors = [u'#2ca02c', u'#d62728', u'#1f77b4', u'#ff7f0e']
+dur = 500
+
+# for i in range(len(inputs)):
+#   QIF_plot(inputs[i], dur, colors[i])
 #
-# neu1 = QIF(1)
-# neu1.V[:] = bm.array([-68.])
-# runner = bp.StructRunner(neu1, monitors=['V'], inputs=('input', 0.))
-# runner(duration)
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V',
-#                        color=u'#9467bd', legend='input=0', show=False)
-#
-# neu1 = QIF(1)
-# neu1.V[:] = bm.array([-68.])
-# runner = bp.StructRunner(neu1, monitors=['V'], inputs=('input', 3.))
-# runner(duration)
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V',
-#                        color=u'#d62728', legend='input=3', show=False)
-#
-# neu2 = QIF(1)
-# neu2.V[:] = bm.array([-68.])
-# runner = bp.StructRunner(neu2, monitors=['V'], inputs=('input', 4.))
-# runner(duration)
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V',
-#                        color=u'#1f77b4', legend='input=4', show=False)
-#
-# neu2 = QIF(1)
-# neu2.V[:] = bm.array([-68.])
-# runner = bp.StructRunner(neu2, monitors=['V'], inputs=('input', 5.))
-# runner(duration)
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V',
-#                        color=u'#ff7f0e', legend='input=5', show=True)
+# plt.xlabel('t (ms)')
+# plt.ylabel('V (mV)')
+# plt.legend()
+# plt.show()
