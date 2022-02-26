@@ -1,5 +1,6 @@
 import brainpy as bp
 import brainpy.math as bm
+import matplotlib.pyplot as plt
 
 
 class Theta(bp.NeuGroup):
@@ -41,12 +42,8 @@ class Theta(bp.NeuGroup):
 
 
 # 根据QIF模型的参数计算theta神经元模型的参数
-V_rest = -65.
-V_c = -50.0
-a_0 = .07
-R = 1.
-tau = 10.
-t_ref = 5.
+V_rest, R, tau, t_ref = -65., 1., 10., 5.
+a_0, V_c = .07, -50.0
 b = a_0 * R / tau ** 2
 c = a_0 ** 2 / tau ** 2 * (V_rest * V_c - ((V_rest + V_c) / 2) ** 2)
 
@@ -56,11 +53,24 @@ runner = bp.StructRunner(neu, monitors=['theta'], inputs=('input', 6.))
 runner(500)
 
 # 可视化
-fig, gs = bp.visualize.get_figure(1, 2, 4.5, 6)
-fig.add_subplot(gs[0, 0])
-bp.visualize.line_plot(runner.mon.ts, runner.mon.theta, ylabel='theta', show=False)
-fig.add_subplot(gs[0, 1])
-bp.visualize.line_plot(bp.math.cos(runner.mon.theta),
-                       bp.math.sin(runner.mon.theta),
-                       xlabel='cos(theta)', ylabel='sin(theta)',
-                       show=True)
+fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(8, 4))
+
+ax1.plot(runner.mon.ts, runner.mon.theta)
+ax1.set_xlabel('t (ms)')
+ax1.set_ylabel('$\Theta$')
+
+ax2.plot(bm.cos(runner.mon.theta), bm.sin(runner.mon.theta))
+ax2.set_xlabel('$\cos(\Theta)$')
+ax2.set_ylabel('$\sin(\Theta)$')
+
+plt.tight_layout()
+plt.show()
+
+# fig, gs = bp.visualize.get_figure(1, 2, 4.5, 6)
+# fig.add_subplot(gs[0, 0])
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.theta, ylabel='theta', show=False)
+# fig.add_subplot(gs[0, 1])
+# bp.visualize.line_plot(bp.math.cos(runner.mon.theta),
+#                        bp.math.sin(runner.mon.theta),
+#                        xlabel='cos(theta)', ylabel='sin(theta)',
+#                        show=True)

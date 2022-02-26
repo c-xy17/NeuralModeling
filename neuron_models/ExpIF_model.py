@@ -1,5 +1,6 @@
 import brainpy as bp
 import brainpy.math as bm
+import matplotlib.pyplot as plt
 
 
 class ExpIF(bp.NeuGroup):
@@ -48,7 +49,13 @@ class ExpIF(bp.NeuGroup):
 
 
 # # 运行ExpIF模型
-# group = ExpIF(10)
+# group = ExpIF(1)
 # runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 5.), dt=0.01)
 # runner(500)
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
+#
+# # 结果可视化
+# plt.plot(runner.mon.ts, runner.mon.V)
+# plt.xlabel('t (ms)')
+# plt.ylabel('V (mV)')
+
+plt.show()

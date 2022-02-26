@@ -29,8 +29,8 @@ class QIF(bp.NeuGroup):
     self.integral = bp.odeint(f=self.derivative, method='exp_auto')
 
   # 定义膜电位关于时间变化的微分方程
-  def derivative(self, V, t, I_ext):
-    dvdt = (self.a_0 * (V - self.V_rest) * (V - self.V_c) + self.R * I_ext) / self.tau
+  def derivative(self, V, t, Iext):
+    dvdt = (self.a_0 * (V - self.V_rest) * (V - self.V_c) + self.R * Iext) / self.tau
     return dvdt
 
   def update(self, _t, _dt):
@@ -53,7 +53,7 @@ class QIF(bp.NeuGroup):
 # # 结果可视化
 # plt.plot(runner.mon.ts, runner.mon.V)
 # plt.xlabel('t (ms)')
-# plt.ylabel('V')
+# plt.ylabel('V (mV)')
 # plt.show()
 
 

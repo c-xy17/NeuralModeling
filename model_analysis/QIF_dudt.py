@@ -43,11 +43,25 @@ import brainpy as bp
 
 bp.math.enable_x64()
 
-pp = bp.analysis.PhasePlane1D(
-  model=QIF(1),
-  target_vars={'V': [-80, -30]},
-  pars_update={'I_ext': 0.},
-  resolutions=0.001
-)
-pp.plot_vector_field()
-pp.plot_fixed_point(show=True)
+def phase_plane_analysis(i, model, I_ext, res=0.005):
+  fig.sca(axes[i])
+  pp = bp.analysis.PhasePlane1D(
+    model=model,
+    target_vars={'V': [-80, -30]},
+    pars_update={'Iext': I_ext},
+    resolutions=res
+  )
+  pp.plot_vector_field()
+  pp.plot_fixed_point()
+  plt.title('Input = {}'.format(I_ext))
+
+fig, axes = plt.subplots(1, 3, figsize=(12, 4), sharey='all')  # 设置子图并共享y轴
+inputs = [0., 3., 10]  # 设置不同大小的电流输入
+qif = QIF(1)
+
+for i in range(len(inputs)):
+  phase_plane_analysis(i, qif, inputs[i])
+
+# plt.subplots_adjust(wspace=0.)
+plt.tight_layout()
+plt.show()
