@@ -9,3 +9,4 @@ neuron_models/__pycache__/__init__.cpython-39.pyc
 .idea/NeuralModeling.iml
 neuron_models/__pycache__/ExpIF_model.cpython-39.pyc
 neuron_models/__pycache__/QIF_model.cpython-39.pyc
+*.pyc
