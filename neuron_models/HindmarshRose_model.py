@@ -3,7 +3,7 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 
 
-class HindmarshRose(bp.NeuGroup):
+class HindmarshRose(bp.dyn.NeuGroup):
 	def __init__(self, size, a=1., b=3., c=1., d=5., r=0.002, s=4., V_rest=-1.6,
 	             V_th=1.0, **kwargs):
 		# 初始化父类

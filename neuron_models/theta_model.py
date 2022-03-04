@@ -3,7 +3,7 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 
 
-class Theta(bp.NeuGroup):
+class Theta(bp.dyn.NeuGroup):
 	def __init__(self, size, b=0., c=0., t_ref=0., **kwargs):
 		# 初始化父类
 		super(Theta, self).__init__(size=size, **kwargs)

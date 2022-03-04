@@ -3,7 +3,7 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 
 
-class LIF(bp.NeuGroup):
+class LIF(bp.dyn.NeuGroup):
   def __init__(self, size, V_rest=0., V_reset=-5., V_th=20., R=1., tau=10., t_ref=5., **kwargs):
     # 初始化父类
     super(LIF, self).__init__(size=size, **kwargs)

@@ -2,7 +2,7 @@ import brainpy as bp
 import brainpy.math as bm
 
 
-class GIF(bp.NeuGroup):
+class GIF(bp.dyn.NeuGroup):
 	def __init__(self, size, V_rest=-70., V_reset=-70., V_th_inf=-50., V_th_reset=-60.,
 	             R=20., tau=20., a=0., b=0.01, k1=0.2, k2=0.02, R1=0., R2=1., A1=0.,
 	             A2=0., **kwargs):

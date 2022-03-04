@@ -3,7 +3,7 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 
 
-class ExpIF(bp.NeuGroup):
+class ExpIF(bp.dyn.NeuGroup):
 	def __init__(self, size, V_rest=-65., V_reset=-68., V_th=20., V_T=-60., delta_T=1.,
 	             R=1., tau=10., tau_ref=2., **kwargs):
 		# 初始化父类
@@ -58,4 +58,4 @@ class ExpIF(bp.NeuGroup):
 # plt.xlabel('t (ms)')
 # plt.ylabel('V (mV)')
 
-plt.show()
+# plt.show()

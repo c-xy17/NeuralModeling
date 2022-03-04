@@ -3,11 +3,11 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 
 
-class AdExIF(bp.NeuGroup):
-  def __init__(self, size, V_rest=-65., V_reset=-68., V_th=-30., V_T=-60., delta_T=1., a=1.,
-               b=2.5, tau=10., tau_w=30., tau_ref=2., R=1., **kwargs):
+class AdEx(bp.dyn.NeuGroup):
+  def __init__(self, size, V_rest=-65., V_reset=-68., V_th=20., V_T=-60., delta_T=1., a=1.,
+               b=2.5, R=1., tau=10., tau_w=30., tau_ref=2., **kwargs):
     # 初始化父类
-    super(AdExIF, self).__init__(size=size, **kwargs)
+    super(AdEx, self).__init__(size=size, **kwargs)
 
     # 初始化参数
     self.V_rest = V_rest
@@ -62,11 +62,18 @@ class AdExIF(bp.NeuGroup):
 
 
 # 运行AdExIF模型
-group = AdExIF(10)
-runner = bp.StructRunner(group, monitors=['V', 'w'], inputs=('input', 11.))
-runner(200)  # 运行时长为200ms
+neu = AdEx(1)
+runner = bp.StructRunner(neu, monitors=['V', 'w'], inputs=('input', 9.), dt=0.01)
+runner(500)
 
-# 使用matplotlib.pyplot绘图
+# 可视化V和w的变化
+plt.plot(runner.mon.ts, runner.mon.V, label='V')
+plt.plot(runner.mon.ts, runner.mon.w, label='w')
+plt.xlabel('t (ms)')
+plt.ylabel('V (mV)')
+
+plt.show()
+
 # fig, ax1 = plt.subplots()
 # ax1.plot(runner.mon.ts, runner.mon.V[:, 0], label='V')
 # ax1.set_ylabel('V')
@@ -74,12 +81,13 @@ runner(200)  # 运行时长为200ms
 # ax2 = ax1.twinx()
 # ax2.plot(runner.mon.ts, runner.mon.w[:, 0], color='orange', label='w')
 # ax2.set_ylabel('w')
-
+#
 # fig.legend(loc="upper center")
 # plt.show()
 
-fig, ax1 = plt.subplots()
-bp.visualize.line_plot(runner.mon.ts, runner.mon.w, ax=ax1, ylabel='w', legend='w', show=False)
 
-ax2 = ax1.twinx()
-bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ax=ax2, ylabel='V', legend='V', show=True)
+# fig, ax1 = plt.subplots()
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.w, ax=ax1, ylabel='w', legend='w', show=False)
+#
+# ax2 = ax1.twinx()
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ax=ax2, ylabel='V', legend='V', show=True)

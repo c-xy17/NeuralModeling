@@ -61,8 +61,8 @@ class Izhikevich(bp.NeuGroup):
 # bp.visualize.line_plot(runner.mon.ts, runner.mon.u, legend='u', show=True)
 
 
-def subplot(i, izhi, title=None, input=('input', 10.), duration=250):
-	plt.subplot(3, 2, i)
+def subplot(i, izhi, title=None, input=('input', 10.), duration=200):
+	plt.subplot(2, 3, i)
 	runner = bp.StructRunner(izhi, monitors=['V', 'u'], inputs=input)
 	runner(duration)
 	bp.visualize.line_plot(runner.mon.ts, runner.mon.V, legend='V', show=False)
@@ -70,18 +70,37 @@ def subplot(i, izhi, title=None, input=('input', 10.), duration=250):
 	plt.title(title)
 
 
-plt.figure(figsize=(12, 12))
-# input5, duration = bp.inputs.section_input(values=[0, 10., 15., 10.],
-#                                            durations=[20, 120, 10, 100],
+plt.figure(figsize=(12, 6))
+# input5, duration = bp.inputs.section_input(values=[-5, 0., 10., 0.],
+#                                            durations=[40, 100, 10, 100],
 #                                            return_length=True)
 
 subplot(1, Izhikevich(1, d=8.), title='Regular Spiking')
-subplot(2, Izhikevich(1, c=-55., d=4.), title='Intrinsically Bursting')
-subplot(3, Izhikevich(1, a=0.1, d=2.), title='Fast Spiking')
-subplot(4, Izhikevich(1, c=-50., d=2.), title='Chattering (Bursting)')
+subplot(2, Izhikevich(1, c=-55., d=4.), title='Intrinsic Bursting')
+subplot(3, Izhikevich(1, a=0.1), title='Fast Spiking')
+subplot(4, Izhikevich(1, c=-50.), title='Chattering (Bursting)')
+
 # subplot(5, Izhikevich(2, a=0.1, b=0.26), title='Resonator', input=('input', input5, 'iter'))
 # subplot(5, Izhikevich(2, a=0.1, b=0.26), title='Resonator', input=('input', 0.))
+input5 = bp.inputs.section_input(values=[-30, 3.5], durations=[50, 150])
+subplot(5, Izhikevich(1, b=0.2), title='Rebound Bursting', input=('input', input5, 'iter'))
+
 subplot(6, Izhikevich(1, b=0.25), title='Low Threshold Spiking')
 
 plt.tight_layout()
+plt.show()
+
+
+import matplotlib.pyplot as plt
+
+# 分段电流：按照时间顺序，电流值为[-30, 3.5]，持续时长为[50, 150]
+input = bp.inputs.section_input(values=[-30, 3.5], durations=[50, 150])
+# 'iter'表示电流是可迭代的而非一个静态值
+runner = bp.StructRunner(Izhikevich(1), monitors=['V', 'u'], inputs=('input', input, 'iter'))
+runner(200)
+
+plt.plot(runner.mon.ts, runner.mon.V, label='V')
+plt.plot(runner.mon.ts, runner.mon.u, label='u')
+plt.xlabel('Time (ms)')
+plt.legend()
 plt.show()
