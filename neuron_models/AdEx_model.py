@@ -52,6 +52,7 @@ class AdEx(bp.dyn.NeuGroup):
     refractory = (_t - self.t_last_spike) <= self.tau_ref  # 判断神经元是否处于不应期
     V, w = self.integral(self.V, self.w, _t, self.input, dt=_dt)  # 更新膜电位V和权重值w
     V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V
+    w = bm.where(refractory, self.w, w)  # w同理
     spike = self.V_th <= V  # 将大于阈值的神经元标记为发放了脉冲
     self.spike.value = spike  # 更新神经元脉冲发放状态
     self.t_last_spike.value = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间

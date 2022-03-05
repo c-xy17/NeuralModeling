@@ -52,6 +52,7 @@ class AdEx(bp.dyn.NeuGroup):
     refractory = (_t - self.t_last_spike) <= self.tau_ref  # 判断神经元是否处于不应期
     V, w = self.integral(self.V, self.w, _t, self.input, dt=_dt)  # 更新膜电位V和权重值w
     V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V
+    w = bm.where(refractory, self.w, w)  # w同理
     spike = self.V_th <= V  # 将大于阈值的神经元标记为发放了脉冲
     self.spike.value = spike  # 更新神经元脉冲发放状态
     self.t_last_spike.value = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间
@@ -69,7 +70,6 @@ def subplot(i, neu, title=None, input=('input', 65.), duration=400):
   ax1.plot(runner.mon.ts, runner.mon.V, label='V')
   ax1.set_ylim(- 65, 15)
   ax1.set_xlabel('t (ms)')
-  ax1.set_xlim(0, 400)
   if i % 3 == 1:
     ax1.set_ylabel('V')
 
@@ -86,15 +86,15 @@ def subplot(i, neu, title=None, input=('input', 65.), duration=400):
   plt.title(title)
 
 
-plt.figure(figsize=(12, 6))
-
-subplot(1, AdEx(1, tau=20., a=0., tau_w=30., b=60., V_reset=-55.), title='Tonic Spiking')
-subplot(2, AdEx(1, tau=20., a=0., tau_w=100., b=5., V_reset=-55.), title='Adaptation')
-subplot(3, AdEx(1, tau=5., a=0.5, tau_w=100., b=7., V_reset=-51.), title='Initial Bursting')
-subplot(4, AdEx(1, tau=5., a=-0.5, tau_w=100., b=7., V_reset=-47.), title='Bursting')
-subplot(5, AdEx(1, tau=10., a=1., tau_w=100., b=10., V_reset=-60.), title='Transient Spiking', input=('input', 55.))
-subplot(6, AdEx(1, tau=5., a=-1., tau_w=100., b=5., V_reset=-60.), title='Delayed Spiking', input=('input', 25.))
-# subplot(7, AdEx(1, tau=9.9, a=-0.5, tau_w=100., b=7., V_reset=-46.), title='irregular')
-
-plt.tight_layout()
-plt.show()
+# plt.figure(figsize=(12, 6))
+#
+# subplot(1, AdEx(1, tau=20., a=0., tau_w=30., b=60., V_reset=-55.), title='Tonic Spiking')
+# subplot(2, AdEx(1, tau=20., a=0., tau_w=100., b=5., V_reset=-55.), title='Adaptation')
+# subplot(3, AdEx(1, tau=5., a=0.5, tau_w=100., b=7., V_reset=-51.), title='Initial Bursting')
+# subplot(4, AdEx(1, tau=5., a=-0.5, tau_w=100., b=7., V_reset=-47.), title='Bursting')
+# subplot(5, AdEx(1, tau=10., a=1., tau_w=100., b=10., V_reset=-60.), title='Transient Spiking', input=('input', 55.))
+# subplot(6, AdEx(1, tau=5., a=-1., tau_w=100., b=5., V_reset=-60.), title='Delayed Spiking', input=('input', 25.))
+# # subplot(7, AdEx(1, tau=9.9, a=-0.5, tau_w=100., b=7., V_reset=-46.), title='irregular')
+#
+# plt.tight_layout()
+# plt.show()
