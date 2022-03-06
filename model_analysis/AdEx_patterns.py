@@ -86,6 +86,31 @@ def subplot(i, neu, title=None, input=('input', 65.), duration=400):
   plt.title(title)
 
 
+def vt_plot(i, neu, title=None, input=('input', 65.), duration=400):
+  runner = bp.StructRunner(neu, monitors=['V', 'w'], inputs=input)
+  runner(duration)
+
+  ax1 = plt.subplot()
+  ax1.plot(runner.mon.ts, runner.mon.V, label='V')
+  ax1.set_ylim(- 65, 15)
+  ax1.set_xlabel('t (ms)')
+  if i % 3 == 1:
+    ax1.set_ylabel('V')
+
+  ax2 = ax1.twinx()
+  ax2.plot(runner.mon.ts, runner.mon.w, label='w', color=u'#ff7f0e')
+  w_min, w_max = min(runner.mon.w), max(runner.mon.w)
+  ax2.set_ylim(w_max - (w_max - w_min) * 3, w_max + 5)
+  if i % 3 == 0:
+    ax2.set_ylabel('w')
+
+  handles1, labels1 = ax1.get_legend_handles_labels()
+  handles2, labels2 = ax2.get_legend_handles_labels()
+  plt.legend(handles1 + handles2, labels1 + labels2, loc='upper right')
+  plt.title(title)
+  plt.show()
+
+
 # plt.figure(figsize=(12, 6))
 #
 # subplot(1, AdEx(1, tau=20., a=0., tau_w=30., b=60., V_reset=-55.), title='Tonic Spiking')
@@ -98,3 +123,12 @@ def subplot(i, neu, title=None, input=('input', 65.), duration=400):
 #
 # plt.tight_layout()
 # plt.show()
+
+
+vt_plot(1, AdEx(1, tau=20., a=0., tau_w=30., b=60., V_reset=-55.), title='Tonic Spiking')
+vt_plot(2, AdEx(1, tau=20., a=0., tau_w=100., b=5., V_reset=-55.), title='Adaptation')
+vt_plot(3, AdEx(1, tau=5., a=0.5, tau_w=100., b=7., V_reset=-51.), title='Initial Bursting')
+vt_plot(4, AdEx(1, tau=5., a=-0.5, tau_w=100., b=7., V_reset=-47.), title='Bursting')
+vt_plot(5, AdEx(1, tau=10., a=1., tau_w=100., b=10., V_reset=-60.), title='Transient Spiking', input=('input', 55.))
+vt_plot(6, AdEx(1, tau=5., a=-1., tau_w=100., b=5., V_reset=-60.), title='Delayed Spiking', input=('input', 25.))
+# vt_plot(7, AdEx(1, tau=9.9, a=-0.5, tau_w=100., b=7., V_reset=-46.), title='irregular')

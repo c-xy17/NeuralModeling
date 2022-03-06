@@ -11,6 +11,7 @@ def ppa2d(group, title, v_range=None, w_range=None, Iext=65., duration=400):
 	v_range = [-70., -40.] if not v_range else v_range
 	w_range = [-10., 50.] if not w_range else w_range
 
+	# 使用BrainPy中的相平面分析工具
 	phase_plane_analyzer = bp.analysis.PhasePlane2D(
 		model=group,
 		target_vars={'V': v_range, 'w': w_range},  # 待分析变量
@@ -27,14 +28,15 @@ def ppa2d(group, title, v_range=None, w_range=None, Iext=65., duration=400):
 
 	runner = bp.DSRunner(group, monitors=['V', 'w', 'spike'], inputs=('input', Iext))
 	runner(duration)
-	s_idx = np.where(runner.mon.spike.squeeze())[0]  # 找到所有发放动作电位对应的index
-	s_idx = np.concatenate(([0], s_idx))
+	spike = runner.mon.spike.squeeze()
+	s_idx = np.where(spike)[0]  # 找到所有发放动作电位对应的index
+	s_idx = np.concatenate(([0], s_idx, [len(spike) - 1]))  # 加上起始点和终止点的index
 	# 分段画出V, w的变化轨迹
 	for i in range(len(s_idx) - 1):
 		plt.plot(runner.mon.V[s_idx[i]: s_idx[i + 1]], runner.mon.w[s_idx[i]: s_idx[i + 1]], color='darkslateblue')
 
 	# 画出虚线 x = V_reset
-	plt.plot([group.V_reset, group.V_reset], w_range, '--', color='grey', zorder='-1')
+	plt.plot([group.V_reset, group.V_reset], w_range, '--', color='grey', zorder=-1)
 
 	plt.xlim(v_range)
 	plt.ylim(w_range)
@@ -42,6 +44,30 @@ def ppa2d(group, title, v_range=None, w_range=None, Iext=65., duration=400):
 	plt.show()
 
 
-ppa2d(AdEx(1, tau=20., a=1e-2, tau_w=30., b=60., V_reset=-55.),
-      title='tonic spiking', w_range=[-5, 75.],
-      v_range=[-70., -40.])
+y_style = dict(color='lightcoral', alpha=.7, )
+fmt = y_style.pop('fmt', '.')
+# Tonic Spiking
+plt.plot(np.linspace(-70, -40, 500),np.zeros(500), fmt, **y_style)
+ppa2d(AdEx(1, tau=20., a=0., tau_w=30., b=60., V_reset=-55.),
+      title='Tonic Spiking', w_range=[-5, 75.])
+
+# Adaptation
+plt.plot(np.linspace(-70, -40, 500),np.zeros(500), fmt, **y_style)
+ppa2d(AdEx(1, tau=20., a=0., tau_w=100., b=5., V_reset=-55.),
+      title='Adaptation', w_range=[-5, 45.])
+
+# Initial Bursting
+ppa2d(AdEx(1, tau=5., a=0.5, tau_w=100., b=7., V_reset=-51.),
+      title='Initial Bursting', w_range=[-5, 50.])
+
+# Bursting
+ppa2d(AdEx(1, tau=5., a=-0.5, tau_w=100., b=7., V_reset=-47.),
+      title='Bursting', w_range=[-5, 60.])
+
+# Transient Spiking
+ppa2d(AdEx(1, tau=10., a=1., tau_w=100., b=10., V_reset=-60.),
+      title='Transient Spiking', w_range=[-5, 60.], Iext=55.)
+
+# Delayed Spiking
+ppa2d(AdEx(1, tau=5., a=-1., tau_w=100., b=5., V_reset=-60.),
+      title='Delayed Spiking', w_range=[-30, 20.], Iext=25.)
