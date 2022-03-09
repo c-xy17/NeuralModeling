@@ -125,10 +125,10 @@ def vt_plot(i, neu, title=None, input=('input', 65.), duration=400):
 # plt.show()
 
 
-vt_plot(1, AdEx(1, tau=20., a=0., tau_w=30., b=60., V_reset=-55.), title='Tonic Spiking')
-vt_plot(2, AdEx(1, tau=20., a=0., tau_w=100., b=5., V_reset=-55.), title='Adaptation')
-vt_plot(3, AdEx(1, tau=5., a=0.5, tau_w=100., b=7., V_reset=-51.), title='Initial Bursting')
-vt_plot(4, AdEx(1, tau=5., a=-0.5, tau_w=100., b=7., V_reset=-47.), title='Bursting')
-vt_plot(5, AdEx(1, tau=10., a=1., tau_w=100., b=10., V_reset=-60.), title='Transient Spiking', input=('input', 55.))
-vt_plot(6, AdEx(1, tau=5., a=-1., tau_w=100., b=5., V_reset=-60.), title='Delayed Spiking', input=('input', 25.))
-# vt_plot(7, AdEx(1, tau=9.9, a=-0.5, tau_w=100., b=7., V_reset=-46.), title='irregular')
+# vt_plot(1, AdEx(1, tau=20., a=0., tau_w=30., b=60., V_reset=-55.), title='Tonic Spiking')
+# vt_plot(2, AdEx(1, tau=20., a=0., tau_w=100., b=5., V_reset=-55.), title='Adaptation')
+# vt_plot(3, AdEx(1, tau=5., a=0.5, tau_w=100., b=7., V_reset=-51.), title='Initial Bursting')
+# vt_plot(4, AdEx(1, tau=5., a=-0.5, tau_w=100., b=7., V_reset=-47.), title='Bursting')
+# vt_plot(5, AdEx(1, tau=10., a=1., tau_w=100., b=10., V_reset=-60.), title='Transient Spiking', input=('input', 55.))
+# vt_plot(6, AdEx(1, tau=5., a=-1., tau_w=100., b=5., V_reset=-60.), title='Delayed Spiking', input=('input', 25.))
+# # vt_plot(7, AdEx(1, tau=9.9, a=-0.5, tau_w=100., b=7., V_reset=-46.), title='irregular')
