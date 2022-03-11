@@ -48,8 +48,8 @@ def ppa2d(group, title, v_range=None, w_range=None, Iext=65., duration=400):
 # fmt = y_style.pop('fmt', '.')
 # # Tonic Spiking
 # plt.plot(np.linspace(-70, -40, 500), np.zeros(500), fmt, **y_style)
-ppa2d(AdEx(1, tau=20., a=0., tau_w=30., b=60., V_reset=-55.),
-      title='Tonic Spiking', w_range=[-5, 75.])
+# ppa2d(AdEx(1, tau=20., a=0., tau_w=30., b=60., V_reset=-55.),
+#       title='Tonic Spiking', w_range=[-5, 75.])
 
 # # Adaptation
 # plt.plot(np.linspace(-70, -40, 500), np.zeros(500), fmt, **y_style)
