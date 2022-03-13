@@ -32,7 +32,6 @@ phase_plane_analyzer.plot_vector_field(plot_style=dict(color='lightgrey'))
 # 画出V, y的变化轨迹
 phase_plane_analyzer.plot_trajectory(
 	{'x': [1.], 'y': [0.]},
-	duration=100.,
-	color='darkslateblue', linewidth=2, alpha=0.9,
+	duration=100., color='darkslateblue', linewidth=2, alpha=0.9,
 	show=True
 )
