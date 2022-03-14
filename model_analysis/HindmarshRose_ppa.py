@@ -12,8 +12,8 @@ model = HindmarshRose(1)
 # 定义分析器
 phase_plane_analyzer = bp.analysis.PhasePlane2D(
 	model=model,
-	target_vars={'x': [-1.2, -0.8], 'y': [-5., -3.]},  # 待分析变量
-	fixed_vars={'z': 1.8},                          # 固定变量
+	target_vars={'x': [-2., 3.], 'y': [-15., 2.]},  # 待分析变量
+	fixed_vars={'z': 1.6},                          # 固定变量
 	pars_update={'Iext': 2.},                       # 需要更新的变量
 	resolutions=0.01
 )
@@ -31,7 +31,7 @@ phase_plane_analyzer.plot_vector_field(plot_style=dict(color='lightgrey'))
 
 # 画出V, y的变化轨迹
 phase_plane_analyzer.plot_trajectory(
-	{'x': [1.], 'y': [0.]},
+	{'x': [-1.6], 'y': [-12.]},
 	duration=100., color='darkslateblue', linewidth=2, alpha=0.9,
 	show=True
 )

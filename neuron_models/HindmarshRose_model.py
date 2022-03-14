@@ -20,9 +20,9 @@ class HindmarshRose(bp.dyn.NeuGroup):
 		self.x_r = x_r
 
 		# 初始化变量
-		self.x = bm.Variable(bm.random.randn(self.num) * 0. + x_r)
-		self.y = bm.Variable(bm.ones(self.num) * -12.)
-		self.z = bm.Variable(bm.zeros(self.num))
+		self.x = bm.Variable(bm.random.randn(self.num) + x_r)
+		self.y = bm.Variable(bm.ones(self.num) * -10.)
+		self.z = bm.Variable(bm.ones(self.num) * 1.7)
 		self.input = bm.Variable(bm.zeros(self.num))
 		self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))  # 脉冲发放状态
 
