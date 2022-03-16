@@ -47,12 +47,12 @@ def reset():
 	return Izhikevich(1, a=0.02, b=0.2, c=-65., d=2.)
 
 
-izhi = reset()
-I = 5.
-runner = bp.DSRunner(izhi, monitors=['V', 'u'], inputs=('input', I))
-runner(200.)
-bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=False)
-bp.visualize.line_plot(runner.mon.ts, runner.mon.u, show=True)
-
-izhi = reset()
-ppa2d(izhi, title='Bursting', v_range=[-80., -40.], u_range=[-20., 5.], Iext=I)
+# izhi = reset()
+# I = 5.
+# runner = bp.DSRunner(izhi, monitors=['V', 'u'], inputs=('input', I))
+# runner(200.)
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=False)
+# bp.visualize.line_plot(runner.mon.ts, runner.mon.u, show=True)
+#
+# izhi = reset()
+# ppa2d(izhi, title='Bursting', v_range=[-80., -40.], u_range=[-20., 5.], Iext=I)
