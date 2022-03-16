@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-class Izhikevich(bp.NeuGroup):
+class Izhikevich(bp.dyn.NeuGroup):
 	def __init__(self, size, a=0.02, b=0.20, c=-65., d=2., tau_ref=0.,
 	             V_th=30., **kwargs):
 		# 初始化父类
@@ -71,25 +71,25 @@ def subplot(i, izhi, title=None, input=('input', 10.), duration=200):
 	plt.title(title)
 
 
-plt.figure(figsize=(12, 6))
-# input5, duration = bp.inputs.section_input(values=[-5, 0., 10., 0.],
-#                                            durations=[40, 100, 10, 100],
-#                                            return_length=True)
-
-subplot(1, Izhikevich(1, d=8.), title='Regular Spiking')
-subplot(2, Izhikevich(1, c=-55., d=4.), title='Intrinsic Bursting')
-subplot(3, Izhikevich(1, a=0.1), title='Fast Spiking')
-subplot(4, Izhikevich(1, c=-50.), title='Chattering (Bursting)')
-
-# subplot(5, Izhikevich(2, a=0.1, b=0.26), title='Resonator', input=('input', input5, 'iter'))
-# subplot(5, Izhikevich(2, a=0.1, b=0.26), title='Resonator', input=('input', 0.))
-input5 = bp.inputs.section_input(values=[-30, 3.5], durations=[50, 150])
-subplot(5, Izhikevich(1, b=0.2), title='Rebound Bursting', input=('input', input5, 'iter'))
-
-subplot(6, Izhikevich(1, b=0.25), title='Low Threshold Spiking')
-
-plt.tight_layout()
-plt.show()
+# plt.figure(figsize=(12, 6))
+# # input5, duration = bp.inputs.section_input(values=[-5, 0., 10., 0.],
+# #                                            durations=[40, 100, 10, 100],
+# #                                            return_length=True)
+#
+# subplot(1, Izhikevich(1, d=8.), title='Regular Spiking')
+# subplot(2, Izhikevich(1, c=-55., d=4.), title='Intrinsic Bursting')
+# subplot(3, Izhikevich(1, a=0.1), title='Fast Spiking')
+# subplot(4, Izhikevich(1, c=-50.), title='Chattering (Bursting)')
+#
+# # subplot(5, Izhikevich(2, a=0.1, b=0.26), title='Resonator', input=('input', input5, 'iter'))
+# # subplot(5, Izhikevich(2, a=0.1, b=0.26), title='Resonator', input=('input', 0.))
+# input5 = bp.inputs.section_input(values=[-30, 3.5], durations=[50, 150])
+# subplot(5, Izhikevich(1, b=0.2), title='Rebound Bursting', input=('input', input5, 'iter'))
+#
+# subplot(6, Izhikevich(1, b=0.25), title='Low Threshold Spiking')
+#
+# plt.tight_layout()
+# plt.show()
 
 
 # import matplotlib.pyplot as plt
