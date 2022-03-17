@@ -26,8 +26,8 @@ class GIF(bp.dyn.NeuGroup):
 		self.A2 = A2
 
 		# 初始化变量
-		self.V = bm.Variable(bm.random.randn(self.num) + V_reset)
-		self.V_th = bm.Variable(bm.ones(self.num) * theta_inf)
+		self.V = bm.Variable(bm.zeros(self.num) + V_reset)
+		self.theta = bm.Variable(bm.ones(self.num) * theta_inf)
 		self.input = bm.Variable(bm.zeros(self.num))
 		self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))
 		self.I1 = bm.Variable(bm.zeros(self.num))
@@ -54,8 +54,8 @@ class GIF(bp.dyn.NeuGroup):
 		return bp.JointEq([self.dI1, self.dI2, self.dVth, self.dV])
 
 	def update(self, _t, _dt):
-		I1, I2, V_th, V = self.integral(self.I1, self.I2, self.V_th, self.V, _t, self.input, dt=_dt)  # 更新变量I1, I2, V
-		spike = self.V_th <= V  # 将大于阈值的神经元标记为发放了脉冲
+		I1, I2, V_th, V = self.integral(self.I1, self.I2, self.theta, self.V, _t, self.input, dt=_dt)  # 更新变量I1, I2, V
+		spike = self.theta <= V  # 将大于阈值的神经元标记为发放了脉冲
 		V = bm.where(spike, self.V_reset, V)  # 将发放了脉冲的神经元V置为V_reset，其余赋值为更新后的V
 		I1 = bm.where(spike, self.R1 * I1 + self.A1, I1)  # 按照公式更新发放了脉冲的神经元的I1
 		I2 = bm.where(spike, self.R2 * I2 + self.A2, I2)  # 按照公式更新发放了脉冲的神经元的I2
@@ -66,7 +66,7 @@ class GIF(bp.dyn.NeuGroup):
 		self.spike.value = spike
 		self.I1.value = I1
 		self.I2.value = I2
-		self.V_th.value = V_th
+		self.theta.value = V_th
 		self.V.value = V
 		self.input[:] = 0.  # 重置外界输入
 
