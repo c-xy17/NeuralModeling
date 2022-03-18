@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 from neuron_models.GIF_model import GIF
 
+bp.math.enable_x64()
+
 
 def subplot(i, neu, title=None, input=('input', 1.), dur=200):
   plt.subplot(3, 3, i)
@@ -48,7 +50,7 @@ Iext, duration = bp.inputs.constant_current([(1.5, 200.)])
 neu = GIF(1)
 run(0, neu, duration, Iext, 'Tonic Spiking')
 
-Iext, duration = bp.inputs.constant_current([(1.+1e-4, 500.)])
+Iext, duration = bp.inputs.constant_current([(1.+1e-6, 500.)])
 neu = GIF(1)
 run(1, neu, duration, Iext, 'Class 1')
 
@@ -65,8 +67,8 @@ Iext, duration = bp.inputs.constant_current([(1.5, 100.), (0, 500.), (0.5, 100.)
 neu = GIF(1, a=0.005)
 run(4, neu, duration, Iext, 'Accomodation')
 
-Iext, duration = bp.inputs.constant_current([(1.5, 20.), (0., 180.), (-1.5, 20.),
-                                             (0., 20.), (1.5, 20.), (0., 140.)])
+Iext, duration = bp.inputs.constant_current([(1.5, 25.), (0., 175.), (-1.5, 25.),
+                                             (0., 25.), (1.5, 25.), (0., 125.)])
 neu = GIF(1, a=0.005)
 run(5, neu, duration, Iext, 'Threshold Variability')
 
