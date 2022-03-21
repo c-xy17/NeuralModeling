@@ -75,7 +75,7 @@ class GIF(bp.dyn.NeuGroup):
 #
 # # 模拟相位脉冲（phasic spiking）
 # group = GIF(10, a=0.005, A1=0., A2=0.)
-# runner = bp.StructRunner(group, monitors=['V', 'V_th'], inputs=('input', 1.5), dt=0.01)
+# runner = bp.DSRunner(group, monitors=['V', 'V_th'], inputs=('input', 1.5), dt=0.01)
 # runner(500)
 #
 # fig.add_subplot(gs[0, 0])
@@ -85,7 +85,7 @@ class GIF(bp.dyn.NeuGroup):
 #
 # # 模拟超极化爆发（hyperpolarization-induced bursting）
 # group = GIF(10, a=0.03, A1=10., A2=-0.6)
-# runner = bp.StructRunner(group, monitors=['V', 'V_th'], inputs=('input', -1), dt=0.01)
+# runner = bp.DSRunner(group, monitors=['V', 'V_th'], inputs=('input', -1), dt=0.01)
 # runner(500)
 #
 # fig.add_subplot(gs[0, 1])

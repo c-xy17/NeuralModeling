@@ -53,7 +53,7 @@ class AdEx(bp.dyn.NeuGroup):
     V, w = self.integral(self.V, self.w, _t, self.input, dt=_dt)  # 更新膜电位V和权重值w
     V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V
     w = bm.where(refractory, self.w, w)  # w同理
-    spike = self.V_th <= V  # 将大于阈值的神经元标记为发放了脉冲
+    spike = V > self.V_th  # 将大于阈值的神经元标记为发放了脉冲
     self.spike.value = spike  # 更新神经元脉冲发放状态
     self.t_last_spike.value = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间
     self.V.value = bm.where(spike, self.V_reset, V)  # 将发放了脉冲的神经元膜电位置为V_reset，其余不变
@@ -64,7 +64,7 @@ class AdEx(bp.dyn.NeuGroup):
 
 # # 运行AdExIF模型
 # neu = AdEx(1)
-# runner = bp.StructRunner(neu, monitors=['V', 'w'], inputs=('input', 9.), dt=0.01)
+# runner = bp.DSRunner(neu, monitors=['V', 'w'], inputs=('input', 9.), dt=0.01)
 # runner(500)
 #
 # # 可视化V和w的变化
