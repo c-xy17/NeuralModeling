@@ -49,7 +49,7 @@ c = a_0 ** 2 / tau ** 2 * (V_rest * V_c - ((V_rest + V_c) / 2) ** 2)
 
 # 运行theta神经元模型
 neu = Theta(1, b=b, c=c, t_ref=t_ref)
-runner = bp.StructRunner(neu, monitors=['theta'], inputs=('input', 6.))
+runner = bp.DSRunner(neu, monitors=['theta'], inputs=('input', 6.))
 runner(500)
 
 # 可视化

@@ -70,6 +70,6 @@ class HH(bp.NeuGroup):
 
 
 group = HH(10)
-runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 20.))
+runner = bp.DSRunner(group, monitors=['V'], inputs=('input', 20.))
 runner(200)  # 运行时长为200ms
 bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)

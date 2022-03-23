@@ -45,7 +45,7 @@ class Izhikevich(bp.dyn.NeuGroup):
 		refractory = (_t - self.t_last_spike) <= self.tau_ref  # 判断神经元是否处于不应期
 		V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V
 		u = bm.where(refractory, self.u, u)  # u同理
-		spike = self.V_th <= V  # 将大于阈值的神经元标记为发放了脉冲
+		spike = V > self.V_th  # 将大于阈值的神经元标记为发放了脉冲
 		self.spike.value = spike  # 更新神经元脉冲发放状态
 		self.t_last_spike.value = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间
 		self.V.value = bm.where(spike, self.c, V)  # 将发放了脉冲的神经元的V置为c，其余不变
@@ -56,7 +56,7 @@ class Izhikevich(bp.dyn.NeuGroup):
 
 # # 运行Izhikevich模型
 # group = Izhikevich(10)
-# runner = bp.StructRunner(group, monitors=['V', 'u'], inputs=('input', 10.))
+# runner = bp.DSRunner(group, monitors=['V', 'u'], inputs=('input', 10.))
 # runner(300)
 # bp.visualize.line_plot(runner.mon.ts, runner.mon.V, legend='V', show=False)
 # bp.visualize.line_plot(runner.mon.ts, runner.mon.u, legend='u', show=True)
@@ -97,7 +97,7 @@ def subplot(i, izhi, title=None, input=('input', 10.), duration=200):
 # # 分段电流：按照时间顺序，电流值为[-30, 3.5]，持续时长为[50, 150]
 # input = bp.inputs.section_input(values=[-30, 3.5], durations=[50, 150])
 # # 'iter'表示电流是可迭代的而非一个静态值
-# runner = bp.StructRunner(Izhikevich(1), monitors=['V', 'u'], inputs=('input', input, 'iter'))
+# runner = bp.DSRunner(Izhikevich(1), monitors=['V', 'u'], inputs=('input', input, 'iter'))
 # runner(200)
 #
 # plt.plot(runner.mon.ts, runner.mon.V, label='V')

@@ -35,7 +35,7 @@ class EINet(bp.Network):
 
 net = EINet(3200, 800, method='exp_auto')
 # simulation
-runner = bp.StructRunner(net,
+runner = bp.DSRunner(net,
                          monitors=['E.spike', 'I.spike'],
                          inputs=[('E.input', 20.), ('I.input', 20.)])
 t = runner.run(100.)

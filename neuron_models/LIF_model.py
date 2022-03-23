@@ -36,7 +36,7 @@ class LIF(bp.dyn.NeuGroup):
     refractory = (_t - self.t_last_spike) <= self.t_ref  # 判断神经元是否处于不应期
     V = self.integral(self.V, _t, self.input, dt=_dt)  # 根据时间步长更新膜电位
     V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V
-    spike = self.V_th <= V  # 将大于阈值的神经元标记为发放了脉冲
+    spike = V > self.V_th  # 将大于阈值的神经元标记为发放了脉冲
     self.spike[:] = spike  # 更新神经元脉冲发放状态
     self.t_last_spike[:] = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间
     self.V[:] = bm.where(spike, self.V_reset, V)  # 将发放了脉冲的神经元膜电位置为V_reset，其余不变
@@ -47,7 +47,7 @@ class LIF(bp.dyn.NeuGroup):
 if __name__ == '__main__':
   # 运行LIF模型
   group = LIF(1)
-  runner = bp.StructRunner(group, monitors=['V'], inputs=('input', 22.))
+  runner = bp.DSRunner(group, monitors=['V'], inputs=('input', 22.))
   runner(200)  # 运行时长为200ms
 
   # 结果可视化

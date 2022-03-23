@@ -53,7 +53,7 @@ class HindmarshRose(bp.dyn.NeuGroup):
 
 
 # group = HindmarshRose(10)
-# runner = bp.StructRunner(group, monitors=['V', 'y', 'z'], inputs=('input', 2.), dt=0.01)
+# runner = bp.DSRunner(group, monitors=['V', 'y', 'z'], inputs=('input', 2.), dt=0.01)
 # runner(20)
 # runner(100)  # 再运行100ms
 # plt.figure(figsize=(6, 4))

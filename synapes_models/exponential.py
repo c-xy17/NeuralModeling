@@ -62,8 +62,8 @@ conn = bp.connect.All2All()  # all-to-all connections, a subclass of bp.connect.
 exp_syn = Exponential(pre_neu, post_neu, conn, E=0., g_max=0.6, tau=5)
 
 net = bp.Network(exp_syn, pre=pre_neu, post=post_neu)
-runner = bp.StructRunner(net, monitors=['pre.V', 'post.V'], inputs=[('pre.input', 35.)])
-# runner = bp.StructRunner(net, monitors=['pre.V', 'post.V', 'post.spike'], inputs=[('pre.input', 35.)])
+runner = bp.DSRunner(net, monitors=['pre.V', 'post.V'], inputs=[('pre.input', 35.)])
+# runner = bp.DSRunner(net, monitors=['pre.V', 'post.V', 'post.spike'], inputs=[('pre.input', 35.)])
 runner.run(200)
 bp.visualize.line_plot(runner.mon.ts, runner.mon['pre.V'],
                        title='Presynaptic Spikes', show=True)
