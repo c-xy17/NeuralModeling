@@ -24,9 +24,9 @@ def phase_plane_analysis(i, model, I_ext, res=0.005):
 fig, axes = plt.subplots(1, 2, figsize=(8, 4), sharey='all')  # 设置子图并共享y轴
 inputs = [0., 20.]  # 设置不同大小的电流输入
 expif = ExpIF(1, delta_T=2., V_T=-54.03)
-qif = QIF(1)
+# qif = QIF(1)
 
-phase_plane_analysis(0, qif, inputs[0])
+# phase_plane_analysis(0, qif, inputs[0])
 phase_plane_analysis(0, expif, inputs[0])
 phase_plane_analysis(1, expif, inputs[1])
 
