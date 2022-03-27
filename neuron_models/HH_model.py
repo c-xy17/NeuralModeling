@@ -1,75 +1,102 @@
 import brainpy as bp
 import brainpy.math as bm
 
-bm.set_platform('cpu')
-
 
 class HH(bp.NeuGroup):
-  def __init__(self, size, ENa=50., gNa=120., EK=-77., gK=36., EL=-54.387, gL=0.03,
-                 V_th=20., C=1.0, **kwargs):
-    super(HH, self).__init__(size=size, **kwargs)
+	def __init__(self, size, ENa=50., gNa=120., EK=-77., gK=36., 
+                 EL=-54.387, gL=0.03, V_th=20., C=1.0, T=6.3):
+		# 初始化
+		super(HH, self).__init__(size=size)
 
-    # initialize parameters
-    self.ENa = ENa
-    self.EK = EK
-    self.EL = EL
-    self.gNa = gNa
-    self.gK = gK
-    self.gL = gL
-    self.C = C
-    self.V_th = V_th
+		# 定义神经元参数
+		self.ENa = ENa
+		self.EK = EK
+		self.EL = EL
+		self.gNa = gNa
+		self.gK = gK
+		self.gL = gL
+		self.C = C
+		self.V_th = V_th
+		self.Q10 = 3.
+		self.T_base = 6.3
+		self.phi = self.Q10 ** ((T - self.T_base) / 10)
 
-    # initialize variables
-    self.V = bm.Variable(bm.random.randn(self.num) - 70.)
-    self.m = bm.Variable(0.5 * bm.ones(self.num))
-    self.h = bm.Variable(0.6 * bm.ones(self.num))
-    self.n = bm.Variable(0.32 * bm.ones(self.num))
-    self.input = bm.Variable(bm.zeros(self.num))
-    self.t_last_spike = bm.Variable(bm.ones(self.num) * -1e7)
-    self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))
+		# 定义神经元变量
+		self.V = bm.Variable(-70.68 * bm.ones(self.num))  # 膜电位
+		self.m = bm.Variable(0.0266 * bm.ones(self.num))  # 离子通道m
+		self.h = bm.Variable(0.772 * bm.ones(self.num))  # 离子通道h
+		self.n = bm.Variable(0.235 * bm.ones(self.num))  # 离子通道n
+		# 神经元接收到的输入电流
+		self.input = bm.Variable(bm.zeros(self.num))
+		# 神经元发放状态
+		self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))
+		# 神经元上次发放的时刻
+		self.t_last_spike = bm.Variable(bm.ones(self.num) * -1e7)
 
-    # integral function
-    self.integral = bp.odeint(f=self.derivative, method='exponential_euler')
+		# 定义积分函数
+		self.integral = bp.odeint(f=self.derivative, method='exp_auto')
 
-  def derivative(self, V, m, h, n, t, Iext):
-    alpha = 0.1 * (V + 40) / (1 - bm.exp(-(V + 40) / 10))
-    beta = 4.0 * bm.exp(-(V + 65) / 18)
-    dmdt = alpha * (1 - m) - beta * m
+	@property
+	def derivative(self):
+		return bp.JointEq([self.dV, self.dm, self.dh, self.dn])
 
-    alpha = 0.07 * bm.exp(-(V + 65) / 20.)
-    beta = 1 / (1 + bm.exp(-(V + 35) / 10))
-    dhdt = alpha * (1 - h) - beta * h
+	def dm(self, m, t, V):
+		alpha = 0.1 * (V + 40) / (1 - bm.exp(-(V + 40) / 10))
+		beta = 4.0 * bm.exp(-(V + 65) / 18)
+		dmdt = alpha * (1 - m) - beta * m
+		return self.phi * dmdt
 
-    alpha = 0.01 * (V + 55) / (1 - bm.exp(-(V + 55) / 10))
-    beta = 0.125 * bm.exp(-(V + 65) / 80)
-    dndt = alpha * (1 - n) - beta * n
+	def dh(self, h, t, V):
+		alpha = 0.07 * bm.exp(-(V + 65) / 20.)
+		beta = 1 / (1 + bm.exp(-(V + 35) / 10))
+		dhdt = alpha * (1 - h) - beta * h
+		return self.phi * dhdt
 
-    I_Na = (self.gNa * m ** 3.0 * h) * (V - self.ENa)
-    I_K = (self.gK * n ** 4.0) * (V - self.EK)
-    I_leak = self.gL * (V - self.EL)
-    dVdt = (- I_Na - I_K - I_leak + Iext) / self.C
+	def dn(self, n, t, V):
+		alpha = 0.01 * (V + 55) / (1 - bm.exp(-(V + 55) / 10))
+		beta = 0.125 * bm.exp(-(V + 65) / 80)
+		dndt = alpha * (1 - n) - beta * n
+		return self.phi * dndt
 
-    return dVdt, dmdt, dhdt, dndt
+	def dV(self, V, t, m, h, n):
+		I_Na = (self.gNa * m ** 3.0 * h) * (V - self.ENa)
+		I_K = (self.gK * n ** 4.0) * (V - self.EK)
+		I_leak = self.gL * (V - self.EL)
+		dVdt = (- I_Na - I_K - I_leak + self.input) / self.C
+		return dVdt
 
-  def update(self, _t, _dt):
-    # compute V, m, h, n
-    V, m, h, n = self.integral(self.V, self.m, self.h, self.n, _t, self.input, dt=_dt)
-
-    # update the spiking state and the last spiking time
-    self.spike[:] = bm.logical_and(self.V < self.V_th, V >= self.V_th)
-    self.t_last_spike[:] = bm.where(self.spike, _t, self.t_last_spike)
-
-    # update V, m, h, n
-    self.V[:] = V
-    self.m[:] = m
-    self.h[:] = h
-    self.n[:] = n
-
-    # reset the external input
-    self.input[:] = 0.
+	def update(self, _t, _dt):
+		# 更新下一时刻变量的值
+		V, m, h, n = self.integral(self.V, self.m, self.h, self.n, _t, dt=_dt)
+		# 判断神经元是否产生膜电位
+		self.spike.value = bm.logical_and(self.V < self.V_th, V >= self.V_th)
+		# 更新神经元发放的时间
+		self.t_last_spike.value = bm.where(self.spike, _t, self.t_last_spike)
+		self.V.value = V
+		self.m.value = m
+		self.h.value = h
+		self.n.value = n
+		self.input[:] = 0.  # 重置神经元接收到的输入
 
 
-group = HH(10)
-runner = bp.DSRunner(group, monitors=['V'], inputs=('input', 20.))
-runner(200)  # 运行时长为200ms
-bp.visualize.line_plot(runner.mon.ts, runner.mon.V, show=True)
+import matplotlib.pyplot as plt
+
+# 实例化并运行模拟
+neu = HH(1)
+runner = bp.DSRunner(neu,
+                     monitors=['V', 'n', 'm', 'h'],
+                     inputs=('input', 10.))
+runner(100)
+
+# 结果可视化
+plt.plot(runner.mon.ts, runner.mon.V)
+plt.xlabel('t (ms)')
+plt.ylabel('V')
+plt.show()
+
+plt.plot(runner.mon.ts, runner.mon.n, label='n')
+plt.plot(runner.mon.ts, runner.mon.m, label='m')
+plt.plot(runner.mon.ts, runner.mon.h, label='h')
+plt.xlabel('t (ms)')
+plt.legend()
+plt.show()
