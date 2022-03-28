@@ -12,3 +12,4 @@ neuron_models/__pycache__/QIF_model.cpython-39.pyc
 *.pyc
 *.iml
 *.xml
+*.pyc
