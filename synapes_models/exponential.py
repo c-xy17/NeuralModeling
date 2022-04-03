@@ -1,12 +1,12 @@
 import brainpy as bp
 import brainpy.math as bm
 
-from run_synapse import run_syn
+from run_synapse import run_syn, run_syn2
 
 
 class Exponential(bp.dyn.TwoEndConn):
-	def __init__(self, pre, post, conn, g_max=1., tau=8.0, E=None, syn_type='CUBA', method='exp_auto',
-	             delay=2, **kwargs):
+	def __init__(self, pre, post, conn, g_max=1., tau=8.0, delay_step=2, E=None,
+	             syn_type='CUBA', method='exp_auto', **kwargs):
 		super(Exponential, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
 		self.check_pre_attrs('spike')
 		self.check_post_attrs('input', 'V')
@@ -14,10 +14,12 @@ class Exponential(bp.dyn.TwoEndConn):
 		# 初始化参数
 		self.tau = tau
 		self.g_max = g_max
-		assert syn_type == 'CUBA' or syn_type == 'COBA'  # current-based or conductance-based
+		self.delay_step = delay_step
+
+		assert syn_type == 'CUBA' or syn_type == 'COBA'  # current-based 或 conductance-based
 		self.type = syn_type
 		if syn_type == 'COBA':
-			self.E = E
+			self.E = E if E is not None else 0.
 
 		# 获取关于连接的信息
 		assert self.conn is not None
@@ -25,9 +27,7 @@ class Exponential(bp.dyn.TwoEndConn):
 
 		# 初始化变量
 		self.g = bm.Variable(bm.zeros(self.post.num))
-		# 将突触前神经元传来的信号延迟delay的时长
-		self.delay = bm.LengthDelay(self.pre.spike, delay)
-		self.delay_step = delay
+		self.delay = bm.LengthDelay(self.pre.spike, delay_step)  # 定义一个延迟处理器
 
 		# 定义积分函数
 		self.integral = bp.odeint(self.derivative, method=method)
@@ -37,7 +37,7 @@ class Exponential(bp.dyn.TwoEndConn):
 		return dgdt
 
 	def update(self, _t, _dt):
-		# 处理delay
+		# 将突触前神经元传来的信号延迟delay的时长
 		delayed_pre_spike = self.delay(self.delay_step)
 		self.delay.update(self.pre.spike)
 
@@ -53,5 +53,8 @@ class Exponential(bp.dyn.TwoEndConn):
 			self.post.input += self.g * (self.E - self.post.V)
 
 
-# run_syn(Exponential, syn_type='CUBA')
-run_syn(Exponential, syn_type='COBA', E=0.)
+run_syn2(Exponential, syn_type='CUBA')
+run_syn2(Exponential, syn_type='COBA', E=0.)
+
+# 问题：1. HH初始化的时候V=0？
+# 问题：2. Dual不工作
