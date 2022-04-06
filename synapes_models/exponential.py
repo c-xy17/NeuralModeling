@@ -1,11 +1,11 @@
 import brainpy as bp
 import brainpy.math as bm
 
-from run_synapse import run_syn, run_syn2
+from run_synapse import run_syn
 
 
 class Exponential(bp.dyn.TwoEndConn):
-	def __init__(self, pre, post, conn, g_max=1., tau=8.0, delay_step=2, E=None,
+	def __init__(self, pre, post, conn, g_max=1., tau=8.0, delay_step=2, E=0.,
 	             syn_type='CUBA', method='exp_auto', **kwargs):
 		super(Exponential, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
 		self.check_pre_attrs('spike')
@@ -15,11 +15,10 @@ class Exponential(bp.dyn.TwoEndConn):
 		self.tau = tau
 		self.g_max = g_max
 		self.delay_step = delay_step
+		self.E = E
 
 		assert syn_type == 'CUBA' or syn_type == 'COBA'  # current-based 或 conductance-based
 		self.type = syn_type
-		if syn_type == 'COBA':
-			self.E = E if E is not None else 0.
 
 		# 获取关于连接的信息
 		assert self.conn is not None
@@ -48,13 +47,10 @@ class Exponential(bp.dyn.TwoEndConn):
 
 		# 根据不同模式计算突触后电流
 		if self.type == 'CUBA':
-			self.post.input += self.g
+			self.post.input += self.g * (self.E - (-65.))  # E - V_rest
 		else:
 			self.post.input += self.g * (self.E - self.post.V)
 
 
-run_syn2(Exponential, syn_type='CUBA')
-run_syn2(Exponential, syn_type='COBA', E=0.)
-
-# 问题：1. HH初始化的时候V=0？
-# 问题：2. Dual不工作
+run_syn(Exponential, syn_type='CUBA', title='Exponential Synapse Model (Current-Based)')
+run_syn(Exponential, syn_type='COBA', title='Exponential Synapse Model (Conductance-Based)', E=0.)

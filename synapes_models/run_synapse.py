@@ -2,7 +2,7 @@ import brainpy as bp
 import matplotlib.pyplot as plt
 
 
-def run_syn(syn_model, run_duration=30., **kwargs):
+def run_syn_LIF(syn_model, run_duration=30., **kwargs):
 	# 定义突触前神经元、突触后神经元和突触连接，并构建网络
 	pre_neu = bp.dyn.LIF(5)
 	post_neu = bp.dyn.LIF(3)
@@ -20,7 +20,7 @@ def run_syn(syn_model, run_duration=30., **kwargs):
 	plt.show()
 
 
-def run_syn2(syn_model, run_duration=100., **kwargs):
+def run_syn(syn_model, title, run_duration=100., **kwargs):
 	# 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
 	neu1 = bp.dyn.HH(1)
 	neu2 = bp.dyn.HH(1)
@@ -36,6 +36,7 @@ def run_syn2(syn_model, run_duration=100., **kwargs):
 	plt.plot(runner.mon.ts, runner.mon['pre.V'], label='pre-V')
 	plt.plot(runner.mon.ts, runner.mon['post.V'], label='post-V')
 	plt.legend(loc='upper right')
+	plt.title(title)
 
 	plt.sca(gs[1])
 	plt.plot(runner.mon.ts, runner.mon['syn.g'], label='g', color=u'#d62728')
