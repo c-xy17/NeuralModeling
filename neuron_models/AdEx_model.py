@@ -62,29 +62,30 @@ class AdEx(bp.dyn.NeuGroup):
     self.input[:] = 0.  # 重置外界输入
 
 
-# # 运行AdExIF模型
-# neu = AdEx(1)
-# runner = bp.DSRunner(neu, monitors=['V', 'w'], inputs=('input', 9.), dt=0.01)
-# runner(500)
+# 运行AdEx模型
+neu = AdEx(1)
+runner = bp.DSRunner(neu, monitors=['V', 'w'], inputs=('input', 9.), dt=0.01)
+runner(500)
+
+# 可视化V和w的变化
+plt.plot(runner.mon.ts, runner.mon.V, label='V')
+plt.plot(runner.mon.ts, runner.mon.w, label='w')
+plt.xlabel('t (ms)')
+plt.ylabel('V (mV)')
+
+plt.legend(loc='upper right')
+plt.show()
+
+# fig, ax1 = plt.subplots()
+# ax1.plot(runner.mon.ts, runner.mon.V[:, 0], label='V')
+# ax1.set_ylabel('V')
 #
-# # 可视化V和w的变化
-# plt.plot(runner.mon.ts, runner.mon.V, label='V')
-# plt.plot(runner.mon.ts, runner.mon.w, label='w')
-# plt.xlabel('t (ms)')
-# plt.ylabel('V (mV)')
+# ax2 = ax1.twinx()
+# ax2.plot(runner.mon.ts, runner.mon.w[:, 0], color='orange', label='w')
+# ax2.set_ylabel('w')
 #
+# fig.legend(loc="upper center")
 # plt.show()
-#
-# # fig, ax1 = plt.subplots()
-# # ax1.plot(runner.mon.ts, runner.mon.V[:, 0], label='V')
-# # ax1.set_ylabel('V')
-# #
-# # ax2 = ax1.twinx()
-# # ax2.plot(runner.mon.ts, runner.mon.w[:, 0], color='orange', label='w')
-# # ax2.set_ylabel('w')
-# #
-# # fig.legend(loc="upper center")
-# # plt.show()
 #
 #
 # # fig, ax1 = plt.subplots()
