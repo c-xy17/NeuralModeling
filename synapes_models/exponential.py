@@ -21,8 +21,7 @@ class Exponential(bp.dyn.TwoEndConn):
 		self.type = syn_type
 
 		# 获取关于连接的信息
-		assert self.conn is not None
-		self.pre2post = self.conn.require('pre2post')
+		self.pre2post = self.conn.require('pre2post')  # 获取从pre到post的连接信息
 
 		# 初始化变量
 		self.g = bm.Variable(bm.zeros(self.post.num))
@@ -36,7 +35,7 @@ class Exponential(bp.dyn.TwoEndConn):
 		return dgdt
 
 	def update(self, _t, _dt):
-		# 将突触前神经元传来的信号延迟delay的时长
+		# 将突触前神经元传来的信号延迟delay_step的时间步长
 		delayed_pre_spike = self.delay(self.delay_step)
 		self.delay.update(self.pre.spike)
 
@@ -53,4 +52,4 @@ class Exponential(bp.dyn.TwoEndConn):
 
 
 run_syn(Exponential, syn_type='CUBA', title='Exponential Synapse Model (Current-Based)')
-run_syn(Exponential, syn_type='COBA', title='Exponential Synapse Model (Conductance-Based)', E=0.)
+run_syn(Exponential, syn_type='COBA', title='Exponential Synapse Model (Conductance-Based)')
