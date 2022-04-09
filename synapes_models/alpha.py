@@ -6,7 +6,7 @@ from run_synapse import run_syn
 
 
 class Alpha(DualExponential):
-	def __init__(self, pre, post, conn, g_max=1., tau=4.0, delay_step=2, E=0.,
+	def __init__(self, pre, post, conn, g_max=0.6, tau=4.0, delay_step=2, E=0.,
 	             syn_type='CUBA', method='exp_auto', **kwargs):
 		super(Alpha, self).__init__(pre=pre, post=post, conn=conn,
 		                            g_max=g_max, tau_decay=tau, tau_rise=tau,
