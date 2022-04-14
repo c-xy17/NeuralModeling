@@ -75,3 +75,34 @@ def run_syn_NMDA(syn_model, title, run_duration=100., Iext=5., **kwargs):
 
 	plt.tight_layout()
 	plt.show()
+
+
+def run_syn_GABAb(syn_model, title, run_duration=100., Iext=0., **kwargs):
+	# 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
+	neu1 = bp.dyn.HH(1)
+	neu2 = bp.dyn.HH(1)
+	syn1 = syn_model(neu1, neu2, conn=bp.connect.All2All(), **kwargs)
+	net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
+
+	# 运行模拟
+	runner = bp.dyn.DSRunner(net,
+	                         inputs=[('pre.input', Iext)],
+	                         monitors=['pre.V', 'post.V', 'syn.r', 'syn.G', 'syn.g'])
+	runner.run(run_duration)
+
+	# 可视化
+	fig, gs = plt.subplots(2, 1, figsize=(6, 4.5))
+	plt.sca(gs[0])
+	plt.plot(runner.mon.ts, runner.mon['pre.V'], label='pre-V')
+	plt.plot(runner.mon.ts, runner.mon['post.V'], label='post-V')
+	plt.legend(loc='upper right')
+	plt.title(title)
+
+	plt.sca(gs[1])
+	plt.plot(runner.mon.ts, runner.mon['syn.r'], label='r', color=u'#d62728')
+	plt.plot(runner.mon.ts, runner.mon['syn.G']/4, label='G/4', color='lime')
+	plt.plot(runner.mon.ts, runner.mon['syn.g'], label='g', color=u'#2ca02c')
+	plt.legend(loc='upper right')
+
+	plt.tight_layout()
+	plt.show()
