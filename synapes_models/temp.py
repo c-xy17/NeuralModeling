@@ -1,22 +1,35 @@
-import brainpy as bp
-import matplotlib.pyplot as plt
+# import numpy as bm
+import brainpy.math as bm
 
-neu1 = bp.dyn.HH(1)
-neu2 = bp.dyn.HH(1)
-syn1 = bp.dyn.NMDA(neu1, neu2, bp.connect.All2All(), E=0.)
-net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
+import numpy as np
+import jax
+import jax.numpy as jnp
 
-runner = bp.dyn.DSRunner(net, inputs=[('pre.input', 5.)], monitors=['pre.V', 'post.V', 'syn.g', 'syn.x'])
-runner.run(150.)
 
-fig, gs = bp.visualize.get_figure(2, 1, 3, 8)
-fig.add_subplot(gs[0, 0])
-plt.plot(runner.mon.ts, runner.mon['pre.V'], label='pre-V')
-plt.plot(runner.mon.ts, runner.mon['post.V'], label='post-V')
-plt.legend()
+def id_sum(v, id, num):
+	sorting = bm.argsort(id)
+	sorted_id, sorted_v = bm.asarray(id[sorting]), bm.asarray(v[sorting])
+	unique_id, count = bm.unique(sorted_id, return_counts=True)
+	id_count = bm.zeros(num, dtype=int)
+	id_count[unique_id] = count
 
-fig.add_subplot(gs[1, 0])
-plt.plot(runner.mon.ts, runner.mon['syn.g'], label='g')
-plt.plot(runner.mon.ts, runner.mon['syn.x'], label='x')
-plt.legend()
-plt.show()
+	count_cumsum = id_count.cumsum()
+	v_cumsum = sorted_v.cumsum()
+	cumsum = v_cumsum[count_cumsum - 1]
+	return bm.insert(bm.diff(cumsum), 0, cumsum[0])
+
+
+def id_sum2(v, id, num):
+	# v = jnp.asarray(v.value)
+	# id = jnp.asarray(id.value)
+	res = jax.ops.segment_sum(v.value, id.value)
+	return bm.asarray(res)
+
+
+a = bm.array([5, 4, 1, 3])
+id = bm.array([0, 1, 0, 3])
+num = 4
+
+res = id_sum2(a, id, num)
+print(res)
+print(type(res))
