@@ -1,35 +1,25 @@
-# import numpy as bm
-import brainpy.math as bm
+import brainpy as bp
+import matplotlib.pyplot as plt
 
-import numpy as np
-import jax
-import jax.numpy as jnp
+neu1 = bp.dyn.LIF(1)
+neu2 = bp.dyn.LIF(1)
+syn1 = bp.dyn.STP(neu1, neu2, bp.connect.All2All(), U=0.1, tau_d=10, tau_f=100.)
+net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
 
+runner = bp.dyn.DSRunner(net, inputs=[('pre.input', 28.)], monitors=['syn.I', 'syn.u', 'syn.x'])
+runner.run(150.)
 
-def id_sum(v, id, num):
-	sorting = bm.argsort(id)
-	sorted_id, sorted_v = bm.asarray(id[sorting]), bm.asarray(v[sorting])
-	unique_id, count = bm.unique(sorted_id, return_counts=True)
-	id_count = bm.zeros(num, dtype=int)
-	id_count[unique_id] = count
+ # plot
+fig, gs = bp.visualize.get_figure(2, 1, 3, 7)
 
-	count_cumsum = id_count.cumsum()
-	v_cumsum = sorted_v.cumsum()
-	cumsum = v_cumsum[count_cumsum - 1]
-	return bm.insert(bm.diff(cumsum), 0, cumsum[0])
+fig.add_subplot(gs[0, 0])
+plt.plot(runner.mon.ts, runner.mon['syn.u'][:, 0], label='u')
+plt.plot(runner.mon.ts, runner.mon['syn.x'][:, 0], label='x')
+plt.legend()
 
+fig.add_subplot(gs[1, 0])
+plt.plot(runner.mon.ts, runner.mon['syn.I'][:, 0], label='I')
+plt.legend()
 
-def id_sum2(v, id, num):
-	# v = jnp.asarray(v.value)
-	# id = jnp.asarray(id.value)
-	res = jax.ops.segment_sum(v.value, id.value)
-	return bm.asarray(res)
-
-
-a = bm.array([5, 4, 1, 3])
-id = bm.array([0, 1, 0, 3])
-num = 4
-
-res = id_sum2(a, id, num)
-print(res)
-print(type(res))
+plt.xlabel('Time (ms)')
+plt.show()
