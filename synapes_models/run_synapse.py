@@ -112,14 +112,13 @@ def run_syn_GABAb(syn_model, title, run_duration=100., Iext=0., **kwargs):
 def run_syn_GJ(syn_model, title, run_duration=100., Iext=7.5, **kwargs):
 	# 定义神经元组和突触连接，并构建神经网络
 	neu = bp.dyn.HH(2)
-	syn = syn_model(neu, neu, conn=bp.connect.All2All(include_self=False), **kwargs)
+	syn = syn_model(neu, neu, conn=bp.connect.All2All(include_self=False), **kwargs)  # include_self=False: 自己和自己没有连接
 	net = bp.dyn.Network(syn=syn, neu=neu)
 
 	# 运行模拟
 	runner = bp.dyn.DSRunner(net,
 	                         inputs=[('neu.input', bm.array([Iext, 0.]))],
-	                         monitors=['neu.V', 'syn.current'],
-	                         jit=True)
+	                         monitors=['neu.V', 'syn.current'])
 	runner.run(run_duration)
 
 	# 可视化
@@ -131,8 +130,10 @@ def run_syn_GJ(syn_model, title, run_duration=100., Iext=7.5, **kwargs):
 	plt.title(title)
 
 	plt.sca(gs[1])
-	plt.plot(runner.mon.ts, runner.mon['syn.current'][:, 0], label='neu1-current', color=u'#48d688')
-	plt.plot(runner.mon.ts, runner.mon['syn.current'][:, 1], label='neu0-current', color=u'#d64888')
+	plt.plot(runner.mon.ts, runner.mon['syn.current'][:, 0],
+					 label='neu0-current', color=u'#48d688')
+	plt.plot(runner.mon.ts, runner.mon['syn.current'][:, 1],
+					 label='neu1-current', color=u'#d64888')
 	plt.legend(loc='upper right')
 
 	plt.tight_layout()
