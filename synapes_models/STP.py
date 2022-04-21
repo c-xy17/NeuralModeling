@@ -22,9 +22,11 @@ class STP(bp.dyn.TwoEndConn):
     # 获取每个连接的突触前神经元pre_ids和突触后神经元post_ids
     self.pre_ids, self.post_ids = self.conn.require('pre_ids', 'post_ids')
 
-    self.x = bm.Variable(bm.ones(self.pre.num))
-    self.u = bm.Variable(bm.zeros(self.pre.num))
-    self.g = bm.Variable(bm.zeros(self.pre.num))
+    # 初始化变量
+    num = len(self.pre_ids)
+    self.x = bm.Variable(bm.ones(num))
+    self.u = bm.Variable(bm.zeros(num))
+    self.g = bm.Variable(bm.zeros(num))
     self.delay = bm.LengthDelay(self.g, delay_step)  # 定义一个处理g的延迟器
 
     # 定义积分函数
@@ -38,21 +40,20 @@ class STP(bp.dyn.TwoEndConn):
     return bp.JointEq([du, dx, dI])  # 将三个微分方程联合求解
 
   def update(self, _t, _dt):
-
-    # 将突触前神经元传来的信号延迟delay_step的时间步长
+    # 将g的计算延迟delay_step的时间步长
     delayed_g = self.delay(self.delay_step)
 
     # 计算突触后电流
     post_g = bm.syn2post(delayed_g, self.post_ids, self.post.num)
-    # self.post.input += post_g * (self.E - self.post.V)
-    self.post.input += post_g
+    self.post.input += post_g * (self.E - self.post.V)
+    # self.post.input += post_g
 
     # 更新各个变量
     syn_sps = bm.pre2syn(self.pre.spike, self.pre_ids)  # 哪些突触前神经元产生了脉冲
-    g, u, x = self.integral(self.g, self.u, self.x, _t, dt=_dt)  # 计算积分后的g, u, x
+    u, x, g = self.integral(self.u, self.x, self.g, _t)  # 计算积分后的u, x, g
     u = bm.where(syn_sps, u + self.U * (1 - self.u), u)  # 更新后的u
     x = bm.where(syn_sps, x - u * self.x, x)  # 更新后的x
-    g = bm.where(syn_sps, self.g + self.g_max * u * self.x, self.g)  # 更新后的g
+    g = bm.where(syn_sps, g + self.g_max * u * self.x, g)  # 更新后的g
     self.u.value = u
     self.x.value = x
     self.g.value = g
@@ -61,31 +62,42 @@ class STP(bp.dyn.TwoEndConn):
     self.delay.update(self.g)
 
 
-def run_STP():
+def run_STP(title=None, **kwargs):
+  # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
   neu1 = bp.dyn.LIF(1)
   neu2 = bp.dyn.LIF(1)
-  syn1 = STP(neu1, neu2, bp.connect.All2All(), U=0.1, tau_d=10, tau_f=100.)
+  syn1 = STP(neu1, neu2, bp.connect.All2All(), **kwargs)
   net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
 
+  # 分段电流
+  inputs, dur = bp.inputs.section_input(values=[22., 0., 22., 0.],
+                                   durations=[200., 200., 25., 75.],
+                                   return_length=True)
+  # 运行模拟
   runner = bp.dyn.DSRunner(net,
-                           inputs=[('pre.input', 28.)],
-                           monitors=['syn.g', 'syn.u', 'syn.x'])
-  runner.run(150.)
+                           inputs=[('pre.input', inputs, 'iter')],
+                           monitors=['syn.u', 'syn.x', 'syn.g'])
+  runner.run(dur)
 
   # 可视化
-  fig, gs = bp.visualize.get_figure(2, 1, 3, 7)
+  fig, gs = plt.subplots(2, 1, figsize=(6, 4.5))
 
-  fig.add_subplot(gs[0, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.u'][:, 0], label='u')
+  plt.sca(gs[0])
   plt.plot(runner.mon.ts, runner.mon['syn.x'][:, 0], label='x')
-  plt.legend()
+  plt.plot(runner.mon.ts, runner.mon['syn.u'][:, 0], label='u')
+  plt.legend(loc='center right')
+  if title: plt.title(title)
 
-  fig.add_subplot(gs[1, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.g'][:, 0], label='I')
-  plt.legend()
+  plt.sca(gs[1])
+  plt.plot(runner.mon.ts, runner.mon['syn.g'][:, 0], label='g', color=u'#d62728')
+  plt.legend(loc='center right')
 
   plt.xlabel('t (ms)')
+  plt.tight_layout()
   plt.show()
   
 
-run_STP()
+# 短时程易化
+run_STP(title='STF', U=0.1, tau_d=15., tau_f=200.)
+# 短时程抑制
+run_STP(title='STD', U=0.4, tau_d=200., tau_f=15.)
