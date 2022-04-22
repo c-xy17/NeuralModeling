@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 
 class STP(bp.dyn.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.1, U=0.15, tau_f=1500., tau_d=200.,
-               tau=8., E=0., delay_step=2, method='exp_auto', **kwargs):
+               tau=8., E=1., delay_step=2, method='exp_auto', **kwargs):
     super(STP, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
     self.check_pre_attrs('spike')
-    self.check_post_attrs('input', 'V')
+    self.check_post_attrs('input', 'V_rest')
 
     # 初始化参数
     self.tau_d = tau_d
@@ -36,8 +36,8 @@ class STP(bp.dyn.TwoEndConn):
   def derivative(self):
     du = lambda u, t: - u / self.tau_f
     dx = lambda x, t: (1 - x) / self.tau_d
-    dI = lambda I, t: -I / self.tau
-    return bp.JointEq([du, dx, dI])  # 将三个微分方程联合求解
+    dg = lambda g, t: -g / self.tau
+    return bp.JointEq([du, dx, dg])  # 将三个微分方程联合求解
 
   def update(self, _t, _dt):
     # 将g的计算延迟delay_step的时间步长
@@ -45,8 +45,7 @@ class STP(bp.dyn.TwoEndConn):
 
     # 计算突触后电流
     post_g = bm.syn2post(delayed_g, self.post_ids, self.post.num)
-    self.post.input += post_g * (self.E - self.post.V)
-    # self.post.input += post_g
+    self.post.input += post_g * (self.E - self.post.V_rest)
 
     # 更新各个变量
     syn_sps = bm.pre2syn(self.pre.spike, self.pre_ids)  # 哪些突触前神经元产生了脉冲
@@ -66,8 +65,8 @@ def run_STP(title=None, **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
   neu1 = bp.dyn.LIF(1)
   neu2 = bp.dyn.LIF(1)
-  syn1 = STP(neu1, neu2, bp.connect.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
+  syn = STP(neu1, neu2, bp.connect.All2All(), **kwargs)
+  net = bp.dyn.Network(pre=neu1, syn=syn, post=neu2)
 
   # 分段电流
   inputs, dur = bp.inputs.section_input(values=[22., 0., 22., 0.],
