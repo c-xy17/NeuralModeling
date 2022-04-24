@@ -28,7 +28,7 @@ class STDP(bp.dyn.TwoEndConn):
     self.At = bm.Variable(bm.zeros(num))
     self.w = bm.Variable(bm.ones(num))
     self.g = bm.Variable(bm.zeros(num))
-    self.delay = bm.LengthDelay(self.pre.spike, delay_step)  # 定义一个延迟处理器
+    self.delay = bm.LengthDelay(self.g, delay_step)  # 定义一个延迟处理器
 
     # 定义积分函数
     self.integral = bp.odeint(method=method, f=self.derivative)
