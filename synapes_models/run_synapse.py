@@ -142,13 +142,7 @@ def run_syn_GJ(syn_model, title, run_duration=100., Iext=7.5, **kwargs):
   plt.show()
 
 
-def run_FR(syn_model, **kwargs):
-  # 自定义电流
-  dur = 200
-  I1, _ = bp.inputs.constant_input([(1., 100.), (0., dur - 100.)])
-  I2, _ = bp.inputs.constant_input([(1., dur)])
-  I_pre = bm.stack((I1, I2))
-
+def run_FR(syn_model, I_pre, dur, **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
   pre = FR(2)
   post = FR(1)
@@ -159,7 +153,7 @@ def run_FR(syn_model, **kwargs):
   runner = bp.dyn.DSRunner(net,
                            # inputs=[('pre.input', I_pre.T, 'iter'), ('post.input', I2, 'iter')],
                            inputs=[('pre.input', I_pre.T, 'iter')],
-                           monitors=['pre.r', 'post.r', 'syn.w'])
+                           monitors=['pre.r', 'post.r', 'syn.w'], jit=False)
   runner(dur)
 
   # 可视化
@@ -185,3 +179,5 @@ def run_FR(syn_model, **kwargs):
   plt.tight_layout()
   plt.subplots_adjust(hspace=0.)
   plt.show()
+
+  print(runner.mon['syn.w'][:, 0][:20])

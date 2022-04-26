@@ -15,7 +15,7 @@ class Hebb(bp.dyn.TwoEndConn):
     self.delay_step = delay_step
 
     # 获取每个连接的突触前神经元pre_ids和突触后神经元post_ids
-    self.pre_ids, self.post_ids, self.pre2post = self.conn.require('pre_ids', 'post_ids', 'pre2post')
+    self.pre_ids, self.post_ids = self.conn.require('pre_ids', 'post_ids')
 
     # 初始化变量
     num = len(self.pre_ids)
@@ -25,8 +25,8 @@ class Hebb(bp.dyn.TwoEndConn):
     # 定义积分函数
     self.integral = bp.odeint(self.derivative, method=method)
 
-  def derivative(self, w, t, eta, x, y):
-    dwdt = eta * x * y
+  def derivative(self, w, t, x, y):
+    dwdt = self.eta * x * y
     return dwdt
 
   def update(self, _t, _dt):
@@ -40,8 +40,13 @@ class Hebb(bp.dyn.TwoEndConn):
     self.post.r.value += post_r
 
     # 更新w
-    self.w.value = self.integral(self.w, _t, self.eta, self.pre.r[self.pre_ids],
-                                 self.post.r[self.post_ids])
+    self.w.value = self.integral(self.w, _t, self.pre.r[self.pre_ids], self.post.r[self.post_ids])
 
 
-run_FR(Hebb)
+# 自定义电流
+dur = 200.
+I1, _ = bp.inputs.constant_input([(1., 100.), (0., dur - 100.)])
+I2, _ = bp.inputs.constant_input([(1., dur)])
+I_pre = bm.stack((I1, I2))
+
+run_FR(Hebb, I_pre, dur)
