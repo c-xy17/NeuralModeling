@@ -4,8 +4,9 @@ import brainpy.math as bm
 from run_synapse import run_syn
 
 
+# [T] modeling
 class AMPA(bp.dyn.TwoEndConn):
-	def __init__(self, pre, post, conn, g_max=1., E=0., alpha=0.98, beta=0.18,
+	def __init__(self, pre, post, conn, g_max=0.08, E=0., alpha=0.98, beta=0.18,
 	             T_0=0.5, T_dur=0.5, delay_step=2, method='exp_auto', **kwargs):
 		super(AMPA, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
 		self.check_pre_attrs('spike')

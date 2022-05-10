@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 
 
 class STDP(bp.dyn.TwoEndConn):
-  def __init__(self, pre, post, conn, tau_s=10., tau_t=10., tau=8., delta_As=0.5,
-               delta_At=0.5, E=1., delay_step=0, method='exp_auto', **kwargs):
+  def __init__(self, pre, post, conn, tau_s=16.8, tau_t=33.7, tau=8., delta_As=0.96,
+               delta_At=0.53, E=1., delay_step=0, method='exp_auto', **kwargs):
     super(STDP, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
     self.check_pre_attrs('spike')
     self.check_post_attrs('spike', 'input', 'V_rest')
@@ -122,10 +122,10 @@ duration = 300.
 I_pre, _ = bp.inputs.constant_input([(0, 5), (30, 15),
                                      (0, 15), (30, 15),
                                      (0, 15), (30, 15),
-                                     (0, 98), (30, 15),  # switch order: t_interval=98ms
+                                     (0, 100), (30, 15),  # switch order: t_interval=98ms
                                      (0, 15), (30, 15),
                                      (0, 15), (30, 15),
-                                     (0, duration - 155 - 98)])
+                                     (0, duration - 155 - 100)])
 I_post, _ = bp.inputs.constant_input([(0, 10), (30, 15),
                                       (0, 15), (30, 15),
                                       (0, 15), (30, 15),

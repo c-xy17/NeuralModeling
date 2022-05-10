@@ -5,7 +5,7 @@ from run_synapse import run_syn_GABAb
 
 
 class GABAb(bp.dyn.TwoEndConn):
-	def __init__(self, pre, post, conn, g_max=25., E=-95., alpha=0.09, beta=0.0012,
+	def __init__(self, pre, post, conn, g_max=1., E=-95., alpha=0.09, beta=0.0012,
 	             T_0=0.5, T_dur=0.5, k1=0.18, k2=0.034, K_d=0.1, delay_step=2,
 							 method='exp_auto', **kwargs):
 		super(GABAb, self).__init__(pre=pre, post=post, conn=conn, **kwargs)

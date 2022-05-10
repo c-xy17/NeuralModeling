@@ -5,7 +5,7 @@ from run_synapse import run_syn
 
 
 class DualExponential(bp.dyn.TwoEndConn):
-	def __init__(self, pre, post, conn, g_max=0.6, tau_decay=8., tau_rise=2., delay_step=2,
+	def __init__(self, pre, post, conn, g_max=0.01, tau_decay=20., tau_rise=2., delay_step=2,
 	             E=0., syn_type='CUBA', method='exp_auto', **kwargs):
 		super(DualExponential, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
 		self.check_pre_attrs('spike')
@@ -51,5 +51,5 @@ class DualExponential(bp.dyn.TwoEndConn):
 			self.post.input += self.g * (self.E - self.post.V)
 
 
-# run_syn(DualExponential, syn_type='CUBA', title='Dual Exponential Synapse Model (Current-Based)')
-# run_syn(DualExponential, syn_type='COBA', title='Dual Exponential Synapse Model (Conductance-Based)')
+run_syn(DualExponential, syn_type='CUBA', title='Dual Exponential Synapse Model (Current-Based)')
+run_syn(DualExponential, syn_type='COBA', title='Dual Exponential Synapse Model (Conductance-Based)')

@@ -5,7 +5,7 @@ from run_synapse import run_syn
 
 
 class VoltageJump(bp.dyn.TwoEndConn):
-	def __init__(self, pre, post, conn, g_max=5., delay_step=2, E=0.,
+	def __init__(self, pre, post, conn, g_max=1., delay_step=2, E=0.,
 	             syn_type='CUBA', **kwargs):
 		super().__init__(pre=pre, post=post, conn=conn, **kwargs)
 		self.check_pre_attrs('spike')

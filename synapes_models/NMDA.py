@@ -1,11 +1,11 @@
 import brainpy as bp
 import brainpy.math as bm
 
-from run_synapse import run_syn
+from run_synapse import run_syn_NMDA
 
 
 class NMDA(bp.dyn.TwoEndConn):
-	def __init__(self, pre, post, conn, g_max=0.1, c_Mg=1.2, tau_decay=150., tau_rise=3.,
+	def __init__(self, pre, post, conn, g_max=0.02, c_Mg=1.2, tau_decay=150., tau_rise=3.,
 	             delay_step=2, E=0., syn_type='CUBA', method='exp_auto', **kwargs):
 		super(NMDA, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
 		self.check_pre_attrs('spike')
@@ -47,8 +47,8 @@ class NMDA(bp.dyn.TwoEndConn):
 		self.g.value = self.int_g(self.g, _t, self.h)
 
 		# 计算b和突触后电流
-		self.b = 1 / (1 + bm.exp(-0.062 * self.post.V) * self.c_Mg / 3.57)
+		self.b.value = 1 / (1 + bm.exp(-0.062 * self.post.V) * self.c_Mg / 3.57)
 		self.post.input += self.g * self.b * (self.E - self.post.V)
 
 
-run_syn(NMDA, title='NMDA Synapse Model (Phenomenological)')
+run_syn_NMDA(NMDA, title='NMDA Synapse Model (Phenomenological)')
