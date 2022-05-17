@@ -1,6 +1,6 @@
 
 neuron_models/__pycache__/
-synapes_models/__pycache__/
+synapse_models/__pycache__/
 .idea/
 *.pyc
 *.iml
