@@ -1,17 +1,18 @@
 import brainpy as bp
 import brainpy.math as bm
 
-from run_synapse import run_FR
+# from run_synapse import run_FR
 
 
 class Hebb(bp.dyn.TwoEndConn):
-  def __init__(self, pre, post, conn, eta=0.05, delay_step=0, method='exp_auto', **kwargs):
+  def __init__(self, pre, post, conn, eta=0.05, w_max=5., delay_step=0, method='exp_auto', **kwargs):
     super(Hebb, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
     self.check_pre_attrs('r', 'input')
     self.check_post_attrs('r', 'input')
 
     # 初始化参数
     self.eta = eta
+    self.w_max = w_max
     self.delay_step = delay_step
 
     # 获取每个连接的突触前神经元pre_ids和突触后神经元post_ids
@@ -19,7 +20,8 @@ class Hebb(bp.dyn.TwoEndConn):
 
     # 初始化变量
     num = len(self.pre_ids)
-    self.w = bm.Variable(bm.zeros(num) + 0.01)
+    # self.w = bm.Variable(bm.zeros(num) + 1. / bm.sqrt(num))
+    self.w = bm.Variable(bm.random.uniform(size=num) * 2./bm.sqrt(num))
     self.delay = bm.LengthDelay(self.pre.r, delay_step)  # 定义一个延迟处理器
 
     # 定义积分函数
@@ -40,13 +42,15 @@ class Hebb(bp.dyn.TwoEndConn):
     self.post.r.value += post_r
 
     # 更新w
-    self.w.value = self.integral(self.w, _t, self.pre.r[self.pre_ids], self.post.r[self.post_ids])
+    w = self.integral(self.w, _t, self.pre.r[self.pre_ids], self.post.r[self.post_ids])
+    w = bm.where(w > self.w_max, self.w_max, w)
+    self.w.value = w
 
 
-# 自定义电流
-dur = 200.
-I1, _ = bp.inputs.constant_input([(1., 100.), (0., dur - 100.)])
-I2, _ = bp.inputs.constant_input([(1., dur)])
-I_pre = bm.stack((I1, I2))
-
-run_FR(Hebb, I_pre, dur)
+# # 自定义电流
+# dur = 200.
+# I1, _ = bp.inputs.constant_input([(1., 100.), (0., dur - 100.)])
+# I2, _ = bp.inputs.constant_input([(1., dur)])
+# I_pre = bm.stack((I1, I2))
+#
+# run_FR(Hebb, I_pre, dur)

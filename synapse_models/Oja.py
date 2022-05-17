@@ -1,7 +1,7 @@
 import brainpy as bp
 import brainpy.math as bm
 
-from run_synapse import run_FR
+# from run_synapse import run_FR
 
 
 class Oja(bp.dyn.TwoEndConn):
@@ -19,7 +19,8 @@ class Oja(bp.dyn.TwoEndConn):
 
     # 初始化变量
     num = len(self.pre_ids)
-    self.w = bm.Variable(bm.zeros(num) + 0.01)
+    # self.w = bm.Variable(bm.zeros(num) + 1. / bm.sqrt(num))
+    self.w = bm.Variable(bm.random.uniform(size=num) * 2./bm.sqrt(num))
     self.delay = bm.LengthDelay(self.pre.r, delay_step)  # 定义一个延迟处理器
 
     # 定义积分函数
@@ -43,10 +44,10 @@ class Oja(bp.dyn.TwoEndConn):
     self.w.value = self.integral(self.w, _t, self.pre.r[self.pre_ids], self.post.r[self.post_ids])
 
 
-# 自定义电流
-dur = 200.
-I1, _ = bp.inputs.constant_input([(1., 100.), (0., dur - 100.)])
-I2, _ = bp.inputs.constant_input([(1., dur)])
-I_pre = bm.stack((I1, I2))
-
-run_FR(Oja, I_pre, dur)
+# # 自定义电流
+# dur = 200.
+# I1, _ = bp.inputs.constant_input([(1., 100.), (0., dur - 100.)])
+# I2, _ = bp.inputs.constant_input([(1., dur)])
+# I_pre = bm.stack((I1, I2))
+#
+# run_FR(Oja, I_pre, dur)

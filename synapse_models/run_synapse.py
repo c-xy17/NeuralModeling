@@ -235,44 +235,6 @@ def run_FR(syn_model, I_pre, dur, **kwargs):
   plt.subplots_adjust(hspace=0.)
   plt.show()
 
-  def run_FR(syn_model, I_pre, dur, **kwargs):
-    # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
-    pre = FR(2)
-    post = FR(1)
-    syn = syn_model(pre, post, conn=bp.conn.All2All())
-    net = bp.dyn.Network(pre=pre, post=post, syn=syn, **kwargs)
-
-    # 运行模拟
-    runner = bp.dyn.DSRunner(net,
-                             # inputs=[('pre.input', I_pre.T, 'iter'), ('post.input', I2, 'iter')],
-                             inputs=[('pre.input', I_pre.T, 'iter')],
-                             monitors=['pre.r', 'post.r', 'syn.w'])
-    runner(dur)
-
-    # 可视化
-    fig, gs = plt.subplots(3, 1, figsize=(6, 6))
-
-    plt.sca(gs[0])
-    plt.plot(runner.mon.ts, runner.mon['pre.r'][:, 0], label='pre0 $r$', color=u'#ff7f0e')
-    plt.plot(runner.mon.ts, runner.mon['pre.r'][:, 1], label='pre1 $r$', color=u'#1f77b4')
-
-    plt.sca(gs[1])
-    plt.plot(runner.mon.ts, runner.mon['post.r'], label='post $r$', color=u'#d62728')
-
-    plt.sca(gs[2])
-    plt.plot(runner.mon.ts, runner.mon['syn.w'][:, 0], label='$w0$', color=u'#ff7f0e')
-    plt.plot(runner.mon.ts, runner.mon['syn.w'][:, 1], label='$w1$', color=u'#1f77b4')
-
-    for i in range(2):
-      gs[i].set_xticks([])
-    for i in range(3):
-      gs[i].legend(loc='center right')
-
-    plt.xlabel('t (ms)')
-    plt.tight_layout()
-    plt.subplots_adjust(hspace=0.)
-    plt.show()
-
 
 def run_BCM(syn_model, I_pre, dur, **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
