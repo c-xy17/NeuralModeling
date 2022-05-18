@@ -19,8 +19,7 @@ class Oja(bp.dyn.TwoEndConn):
 
     # 初始化变量
     num = len(self.pre_ids)
-    # self.w = bm.Variable(bm.zeros(num) + 1. / bm.sqrt(num))
-    self.w = bm.Variable(bm.random.uniform(size=num) * 2./bm.sqrt(num))
+    self.w = bm.Variable(bm.random.uniform(size=num) * 2./bm.sqrt(num)) # 令初始时||w||=1
     self.delay = bm.LengthDelay(self.pre.r, delay_step)  # 定义一个延迟处理器
 
     # 定义积分函数

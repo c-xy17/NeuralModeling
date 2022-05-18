@@ -9,10 +9,10 @@ from run_FR import run_FR, visualize_cos
 
 
 bm.random.seed(299)
-n_pre = 32
-num_sample = 20
-dur = 100.
-n_steps = int(dur / bm.get_dt())
+n_pre = 32  # 32个突触前神经元
+num_sample = 20  # 挑选20个时间点可视化
+dur = 100.  # 模拟总时长
+n_steps = int(dur / bm.get_dt())  # 模拟总步长
 
 I_pre = bm.random.normal(scale=0.1, size=(n_steps, n_pre)) + bm.random.uniform(size=n_pre)
 step_m = np.linspace(0, n_steps - 1, num_sample).astype(int)
@@ -41,8 +41,7 @@ visualize_cos(ax2, x, np.ones((num_sample, n_pre)) * largest,
 ax1.set_xlabel('t (ms)')
 ax1.set_ylabel('$||w||$')
 ax1.legend()
-
-ax2.set_ylim(0.5-0.05, 1.05)
+# ax2.set_ylim(0.45, 1.05)
 ax2.legend()
 plt.tight_layout()
 plt.show()
