@@ -80,23 +80,19 @@ class HH(bp.dyn.NeuGroup):
 
 
 import matplotlib.pyplot as plt
+import numpy as np
 
-# 实例化并运行模拟
-neu = HH(1)
-runner = bp.DSRunner(neu,
-                     monitors=['V', 'n', 'm', 'h'],
-                     inputs=('input', 10.))
-runner(100)
+currents, length = bp.inputs.section_input(values=[0., bm.asarray([1., 2., 4., 8., 10., 15.]), 0.],
+																					 durations=[10, 2, 25],
+																					 return_length=True)
 
-# 结果可视化
-plt.plot(runner.mon.ts, runner.mon.V)
-plt.xlabel('t (ms)')
-plt.ylabel('V')
+hh = HH(currents.shape[1])
+runner = bp.DSRunner(hh, monitors=['V', 'm', 'h', 'n'], inputs=['input', currents, 'iter'])
+runner.run(length)
+
+bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V (mV)',
+											 plot_ids=np.arange(currents.shape[1]))
+plt.plot(runner.mon.ts, bm.where(currents[:, -1] > 0, 10., 0.).numpy() - 90) # 将电流变化画在点位变化的下方
+plt.tight_layout()
 plt.show()
 
-plt.plot(runner.mon.ts, runner.mon.n, label='n')
-plt.plot(runner.mon.ts, runner.mon.m, label='m')
-plt.plot(runner.mon.ts, runner.mon.h, label='h')
-plt.xlabel('t (ms)')
-plt.legend()
-plt.show()
