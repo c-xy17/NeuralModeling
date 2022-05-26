@@ -10,7 +10,7 @@ from network_models.EI_balance import EINet
 net = EINet(3200, 800)
 runner = bp.DSRunner(net,
                      monitors=['E.spike', 'I.spike', 'E.input', 'E.V'],
-                     inputs=[('E.input', 12.), ('I.input', 12.)])
+                     inputs=[('E.input', 12.), ('I.input', 12.)], jit=False)
 runner(200.)
 
 # 可视化
@@ -29,21 +29,21 @@ def fr_plot(t, spikes):
   plt.ylabel('firing rate')
   plt.xlabel('t (ms)')
 
-# # 可视化脉冲发放
-# fig, gs = plt.subplots(2, 2, gridspec_kw={'height_ratios': [3, 1]}, figsize=(12, 8), sharex='all')
-# plt.sca(gs[0, 0])
-# raster_plot(runner.mon['E.spike'], 'Spikes of Excitatory Neurons')
-# plt.sca(gs[0, 1])
-# raster_plot(runner.mon['I.spike'], 'Spikes of Inhibitory Neurons')
-#
-# # 可视化平均发放速率
-# plt.sca(gs[1, 0])
-# fr_plot(runner.mon.ts, runner.mon['E.spike'])
-# plt.sca(gs[1, 1])
-# fr_plot(runner.mon.ts, runner.mon['I.spike'])
-#
-# plt.subplots_adjust(hspace=0.1)
-# plt.show()
+# 可视化脉冲发放
+fig, gs = plt.subplots(2, 2, gridspec_kw={'height_ratios': [3, 1]}, figsize=(12, 8), sharex='all')
+plt.sca(gs[0, 0])
+raster_plot(runner.mon['E.spike'], 'Spikes of Excitatory Neurons')
+plt.sca(gs[0, 1])
+raster_plot(runner.mon['I.spike'], 'Spikes of Inhibitory Neurons')
+
+# 可视化平均发放速率
+plt.sca(gs[1, 0])
+fr_plot(runner.mon.ts, runner.mon['E.spike'])
+plt.sca(gs[1, 1])
+fr_plot(runner.mon.ts, runner.mon['I.spike'])
+
+plt.subplots_adjust(hspace=0.1)
+plt.show()
 
 
 fig, gs = plt.subplots(2, 1, figsize=(6, 4), sharex='all')
