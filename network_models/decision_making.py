@@ -160,10 +160,8 @@ class DecisionMaking(bp.dyn.Network):
 
 
 # 数值模拟
-net = DecisionMaking(coherence=5.5)
-runner = bp.dyn.DSRunner(net,
-                         monitors=['A.spike', 'B.spike', 'IA.freq', 'IB.freq'],
-                         dyn_vars=net.vars().unique())
+net = DecisionMaking(coherence=25.6)
+runner = bp.dyn.DSRunner(net, monitors=['A.spike', 'B.spike', 'IA.freq', 'IB.freq'])
 t = runner(total_period)
 
 # 可视化
@@ -207,7 +205,7 @@ for i in range(4):
 plt.xlim(t_start, total_period + 1)
 plt.xlabel("Time [ms]")
 plt.tight_layout()
-# plt.show()
+plt.show()
 
-plt.savefig('E:\\2021-2022RA\\神经计算建模实战\\NeuralModeling\\'
-            'images_network_models\\decision_making_output_c=5.5.png')
+# plt.savefig('E:\\2021-2022RA\\神经计算建模实战\\NeuralModeling\\'
+#             'images_network_models\\decision_making_output_c=-25.6-3.png')
