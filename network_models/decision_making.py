@@ -44,11 +44,10 @@ class PoissonStim(bp.dyn.NeuGroup):
 
 
 class DecisionMaking(bp.dyn.Network):
-  def __init__(self, scale=1., mu0=40., coherence=25.6, dt=0.1):
+  def __init__(self, scale=1., mu0=40., coherence=25.6, f=0.15, dt=bm.get_dt()):
     super(DecisionMaking, self).__init__()
 
     # 初始神经元化参数
-    f = 0.15
     num_exc = int(1600 * scale)
     num_inh = int(400 * scale)
     num_A = int(f * num_exc)
@@ -59,30 +58,30 @@ class DecisionMaking(bp.dyn.Network):
     # 初始化突触参数
     w_pos = 1.7
     w_neg = 1. - f * (w_pos - 1.) / (1. - f)
-    g_max_ext2E_AMPA = 2.1 * 1e-3  # uS
-    g_max_ext2I_AMPA = 1.62 * 1e-3  # uS
-    g_max_E2E_AMPA = 0.05 * 1e-3 / scale  # uS
-    g_max_E2E_NMDA = 0.165 * 1e-3 / scale  # uS
-    g_max_E2I_AMPA = 0.04 * 1e-3 / scale  # uS
-    g_max_E2I_NMDA = 0.13 * 1e-3 / scale  # uS
-    g_max_I2E_GABAa = 1.3 * 1e-3 / scale  # uS
-    g_max_I2I_GABAa = 1.0 * 1e-3 / scale  # uS
+    g_ext2E_AMPA = 2.1  # nS
+    g_ext2I_AMPA = 1.62  # nS
+    g_E2E_AMPA = 0.05 / scale  # nS
+    g_E2I_AMPA = 0.04 / scale  # nS
+    g_E2E_NMDA = 0.165 / scale  # nS
+    g_E2I_NMDA = 0.13 / scale  # nS
+    g_I2E_GABAa = 1.3 / scale  # nS
+    g_I2I_GABAa = 1.0 / scale  # nS
 
     ampa_par = dict(delay_step=int(0.5 / dt), E=0., tau=2.0)  # AMP受体的参数
     gaba_par = dict(delay_step=int(0.5 / dt), E=-70., tau=5.0)  # GABA受体的参数
     nmda_par = dict(delay_step=int(0.5 / dt), tau_decay=100, tau_rise=2., E=0., cc_Mg=1., a=0.5)  # NMDA受体的参数
 
     # 兴奋性神经元群（锥体神经元）
-    A = bp.dyn.LIF(num_A, V_rest=-70., V_reset=-55., V_th=-50., tau=20., R=40.,
-                   tau_ref=2., V_initializer=bp.init.OneInit(-55.))
-    B = bp.dyn.LIF(num_B, V_rest=-70., V_reset=-55., V_th=-50., tau=20., R=40.,
-                   tau_ref=2., V_initializer=bp.init.OneInit(-55.))
-    N = bp.dyn.LIF(num_N, V_rest=-70., V_reset=-55., V_th=-50., tau=20., R=40.,
-                   tau_ref=2., V_initializer=bp.init.OneInit(-55.))
+    A = bp.dyn.LIF(num_A, V_rest=-70., V_reset=-55., V_th=-50., tau=20., R=0.04,
+                   tau_ref=2., V_initializer=bp.init.OneInit(-70.))
+    B = bp.dyn.LIF(num_B, V_rest=-70., V_reset=-55., V_th=-50., tau=20., R=0.04,
+                   tau_ref=2., V_initializer=bp.init.OneInit(-70.))
+    N = bp.dyn.LIF(num_N, V_rest=-70., V_reset=-55., V_th=-50., tau=20., R=0.04,
+                   tau_ref=2., V_initializer=bp.init.OneInit(-70.))
 
     # 抑制性神经元细胞（中间神经元）
-    I = bp.dyn.LIF(num_inh, V_rest=-70., V_reset=-55., V_th=-50., tau=10., R=50.,
-                   tau_ref=1., V_initializer=bp.init.OneInit(-55.))
+    I = bp.dyn.LIF(num_inh, V_rest=-70., V_reset=-55., V_th=-50., tau=10., R=0.05,
+                   tau_ref=1., V_initializer=bp.init.OneInit(-70.))
 
     # 产生输入信号的神经元群（给予神经元群A和B泊松刺激）
     IA = PoissonStim(num_A, freq_var=10., t_interval=50., freq_mean=mu0 + mu0 / 100. * coherence)
@@ -95,60 +94,48 @@ class DecisionMaking(bp.dyn.Network):
     self.noise_I = bp.dyn.PoissonGroup(num_inh, freqs=poisson_freq)
 
     # IA和A的连接、IB和B的连接
-    self.IA2A = bp.dyn.ExpCOBA(IA, A, bp.conn.One2One(), g_max=g_max_ext2E_AMPA, **ampa_par)
-    self.IB2B = bp.dyn.ExpCOBA(IB, B, bp.conn.One2One(), g_max=g_max_ext2E_AMPA, **ampa_par)
+    self.IA2A = bp.dyn.ExpCOBA(IA, A, bp.conn.One2One(), g_max=g_ext2E_AMPA, **ampa_par)
+    self.IB2B = bp.dyn.ExpCOBA(IB, B, bp.conn.One2One(), g_max=g_ext2E_AMPA, **ampa_par)
 
-    # 兴奋性神经元群A、B、N内部和之间的连接（每个突触都同时有AMPA和NMDA受体）
-    self.A2A_AMPA = bp.dyn.ExpCOBA(A, A, bp.conn.All2All(), g_max=g_max_E2E_AMPA * w_pos, **ampa_par)
-    self.A2A_NMDA = bp.dyn.NMDA(A, A, bp.conn.All2All(), g_max=g_max_E2E_NMDA * w_pos, **nmda_par)
+    # 兴奋性神经元群A、B、N到A、B、N、I的连接（每个突触都同时有AMPA和NMDA受体）
+    self.N2B_AMPA = bp.dyn.ExpCOBA(N, B, bp.conn.All2All(), g_max=g_E2E_AMPA * w_neg, **ampa_par)
+    self.N2A_AMPA = bp.dyn.ExpCOBA(N, A, bp.conn.All2All(), g_max=g_E2E_AMPA * w_neg, **ampa_par)
+    self.N2N_AMPA = bp.dyn.ExpCOBA(N, N, bp.conn.All2All(), g_max=g_E2E_AMPA, **ampa_par)
+    self.N2I_AMPA = bp.dyn.ExpCOBA(N, I, bp.conn.All2All(), g_max=g_E2I_AMPA, **ampa_par)
+    self.N2B_NMDA = bp.dyn.NMDA(N, B, bp.conn.All2All(), g_max=g_E2E_NMDA * w_neg, **nmda_par)
+    self.N2A_NMDA = bp.dyn.NMDA(N, A, bp.conn.All2All(), g_max=g_E2E_NMDA * w_neg, **nmda_par)
+    self.N2N_NMDA = bp.dyn.NMDA(N, N, bp.conn.All2All(), g_max=g_E2E_NMDA, **nmda_par)
+    self.N2I_NMDA = bp.dyn.NMDA(N, I, bp.conn.All2All(), g_max=g_E2I_NMDA, **nmda_par)
 
-    self.A2B_AMPA = bp.dyn.ExpCOBA(A, B, bp.conn.All2All(), g_max=g_max_E2E_AMPA * w_neg, **ampa_par)
-    self.A2B_NMDA = bp.dyn.NMDA(A, B, bp.conn.All2All(), g_max=g_max_E2E_NMDA * w_neg, **nmda_par)
+    self.B2B_AMPA = bp.dyn.ExpCOBA(B, B, bp.conn.All2All(), g_max=g_E2E_AMPA * w_pos, **ampa_par)
+    self.B2A_AMPA = bp.dyn.ExpCOBA(B, A, bp.conn.All2All(), g_max=g_E2E_AMPA * w_neg, **ampa_par)
+    self.B2N_AMPA = bp.dyn.ExpCOBA(B, N, bp.conn.All2All(), g_max=g_E2E_AMPA, **ampa_par)
+    self.B2I_AMPA = bp.dyn.ExpCOBA(B, I, bp.conn.All2All(), g_max=g_E2I_AMPA, **ampa_par)
+    self.B2B_NMDA = bp.dyn.NMDA(B, B, bp.conn.All2All(), g_max=g_E2E_NMDA * w_pos, **nmda_par)
+    self.B2A_NMDA = bp.dyn.NMDA(B, A, bp.conn.All2All(), g_max=g_E2E_NMDA * w_neg, **nmda_par)
+    self.B2N_NMDA = bp.dyn.NMDA(B, N, bp.conn.All2All(), g_max=g_E2E_NMDA, **nmda_par)
+    self.B2I_NMDA = bp.dyn.NMDA(B, I, bp.conn.All2All(), g_max=g_E2I_NMDA, **nmda_par)
 
-    self.A2N_AMPA = bp.dyn.ExpCOBA(A, N, bp.conn.All2All(), g_max=g_max_E2E_AMPA, **ampa_par)
-    self.A2N_NMDA = bp.dyn.NMDA(A, N, bp.conn.All2All(), g_max=g_max_E2E_NMDA, **nmda_par)
+    self.A2B_AMPA = bp.dyn.ExpCOBA(A, B, bp.conn.All2All(), g_max=g_E2E_AMPA * w_neg, **ampa_par)
+    self.A2A_AMPA = bp.dyn.ExpCOBA(A, A, bp.conn.All2All(), g_max=g_E2E_AMPA * w_pos, **ampa_par)
+    self.A2N_AMPA = bp.dyn.ExpCOBA(A, N, bp.conn.All2All(), g_max=g_E2E_AMPA, **ampa_par)
+    self.A2I_AMPA = bp.dyn.ExpCOBA(A, I, bp.conn.All2All(), g_max=g_E2I_AMPA, **ampa_par)
+    self.A2B_NMDA = bp.dyn.NMDA(A, B, bp.conn.All2All(), g_max=g_E2E_NMDA * w_neg, **nmda_par)
+    self.A2A_NMDA = bp.dyn.NMDA(A, A, bp.conn.All2All(), g_max=g_E2E_NMDA * w_pos, **nmda_par)
+    self.A2N_NMDA = bp.dyn.NMDA(A, N, bp.conn.All2All(), g_max=g_E2E_NMDA, **nmda_par)
+    self.A2I_NMDA = bp.dyn.NMDA(A, I, bp.conn.All2All(), g_max=g_E2I_NMDA, **nmda_par)
 
-    self.B2A_AMPA = bp.dyn.ExpCOBA(B, A, bp.conn.All2All(), g_max=g_max_E2E_AMPA * w_neg)
-    self.B2A_NMDA = bp.dyn.NMDA(B, A, bp.conn.All2All(), g_max=g_max_E2E_NMDA * w_neg, **nmda_par)
-
-    self.B2B_AMPA = bp.dyn.ExpCOBA(B, B, bp.conn.All2All(), g_max=g_max_E2E_AMPA * w_pos, **ampa_par)
-    self.B2B_NMDA = bp.dyn.NMDA(B, B, bp.conn.All2All(), g_max=g_max_E2E_NMDA * w_pos, **nmda_par)
-
-    self.B2N_AMPA = bp.dyn.ExpCOBA(B, N, bp.conn.All2All(), g_max=g_max_E2E_AMPA, **ampa_par)
-    self.B2N_NMDA = bp.dyn.NMDA(B, N, bp.conn.All2All(), g_max=g_max_E2E_NMDA, **nmda_par)
-
-    self.N2A_AMPA = bp.dyn.ExpCOBA(N, A, bp.conn.All2All(), g_max=g_max_E2E_AMPA * w_neg, **ampa_par)
-    self.N2A_NMDA = bp.dyn.NMDA(N, A, bp.conn.All2All(), g_max=g_max_E2E_NMDA * w_neg, **nmda_par)
-
-    self.N2B_AMPA = bp.dyn.ExpCOBA(N, B, bp.conn.All2All(), g_max=g_max_E2E_AMPA * w_neg, **ampa_par)
-    self.N2B_NMDA = bp.dyn.NMDA(N, B, bp.conn.All2All(), g_max=g_max_E2E_NMDA * w_neg, **nmda_par)
-
-    self.N2N_AMPA = bp.dyn.ExpCOBA(N, N, bp.conn.All2All(), g_max=g_max_E2E_AMPA, **ampa_par)
-    self.N2N_NMDA = bp.dyn.NMDA(N, N, bp.conn.All2All(), g_max=g_max_E2E_NMDA, **nmda_par)
-
-    # 兴奋性神经元群A、B、N到抑制性神经元群I的连接（每个突触都同时有AMPA和NMDA受体）
-    self.A2I_AMPA = bp.dyn.ExpCOBA(A, I, bp.conn.All2All(), g_max=g_max_E2I_AMPA, **ampa_par)
-    self.A2I_NMDA = bp.dyn.NMDA(A, I, bp.conn.All2All(), g_max=g_max_E2I_NMDA, **nmda_par)
-
-    self.B2I_AMPA = bp.dyn.ExpCOBA(B, I, bp.conn.All2All(), g_max=g_max_E2I_AMPA, **ampa_par)
-    self.B2I_NMDA = bp.dyn.NMDA(B, I, bp.conn.All2All(), g_max=g_max_E2I_NMDA, **nmda_par)
-
-    self.N2I_AMPA = bp.dyn.ExpCOBA(N, I, bp.conn.All2All(), g_max=g_max_E2I_AMPA, **ampa_par)
-    self.N2I_NMDA = bp.dyn.NMDA(N, I, bp.conn.All2All(), g_max=g_max_E2I_NMDA, **nmda_par)
-
-    # 抑制性神经元群I到兴奋性神经元群A、B、N的连接
-    self.I2A = bp.dyn.ExpCOBA(I, A, bp.conn.All2All(), g_max=g_max_I2E_GABAa, **gaba_par)
-    self.I2B = bp.dyn.ExpCOBA(I, B, bp.conn.All2All(), g_max=g_max_I2E_GABAa, **gaba_par)
-    self.I2N = bp.dyn.ExpCOBA(I, N, bp.conn.All2All(), g_max=g_max_I2E_GABAa, **gaba_par)
-
-    # 抑制性神经元群I内部的连接
-    self.I2I = bp.dyn.ExpCOBA(I, I, bp.conn.All2All(), g_max=g_max_I2I_GABAa, **gaba_par)
+    # 抑制性神经元群I到A、B、N、I的连接
+    self.I2B = bp.dyn.ExpCOBA(I, B, bp.conn.All2All(), g_max=g_I2E_GABAa, **gaba_par)
+    self.I2A = bp.dyn.ExpCOBA(I, A, bp.conn.All2All(), g_max=g_I2E_GABAa, **gaba_par)
+    self.I2N = bp.dyn.ExpCOBA(I, N, bp.conn.All2All(), g_max=g_I2E_GABAa, **gaba_par)
+    self.I2I = bp.dyn.ExpCOBA(I, I, bp.conn.All2All(), g_max=g_I2I_GABAa, **gaba_par)
 
     # 产生噪声的神经元群到神经元群A、B、N、I的连接
-    self.noise2A = bp.dyn.ExpCOBA(self.noise_A, A, bp.conn.One2One(), g_max=g_max_ext2E_AMPA, **ampa_par)
-    self.noise2B = bp.dyn.ExpCOBA(self.noise_B, B, bp.conn.One2One(), g_max=g_max_ext2E_AMPA, **ampa_par)
-    self.noise2N = bp.dyn.ExpCOBA(self.noise_N, N, bp.conn.One2One(), g_max=g_max_ext2E_AMPA, **ampa_par)
-    self.noise2I = bp.dyn.ExpCOBA(self.noise_I, I, bp.conn.One2One(), g_max=g_max_ext2I_AMPA, **ampa_par)
+    self.noise2B = bp.dyn.ExpCOBA(self.noise_B, B, bp.conn.One2One(), g_max=g_ext2E_AMPA, **ampa_par)
+    self.noise2A = bp.dyn.ExpCOBA(self.noise_A, A, bp.conn.One2One(), g_max=g_ext2E_AMPA, **ampa_par)
+    self.noise2N = bp.dyn.ExpCOBA(self.noise_N, N, bp.conn.One2One(), g_max=g_ext2E_AMPA, **ampa_par)
+    self.noise2I = bp.dyn.ExpCOBA(self.noise_I, I, bp.conn.One2One(), g_max=g_ext2I_AMPA, **ampa_par)
 
     # 将各个神经元群的变量保存到类中
     self.A = A
@@ -160,7 +147,8 @@ class DecisionMaking(bp.dyn.Network):
 
 
 # 数值模拟
-net = DecisionMaking(coherence=25.6)
+coherence = 25.6
+net = DecisionMaking(scale=1., coherence=coherence, mu0=40.)
 runner = bp.dyn.DSRunner(net, monitors=['A.spike', 'B.spike', 'IA.freq', 'IB.freq'])
 t = runner(total_period)
 
@@ -205,7 +193,7 @@ for i in range(4):
 plt.xlim(t_start, total_period + 1)
 plt.xlabel("Time [ms]")
 plt.tight_layout()
-plt.show()
+# plt.show()
 
-# plt.savefig('E:\\2021-2022RA\\神经计算建模实战\\NeuralModeling\\'
-#             'images_network_models\\decision_making_output_c=-25.6-3.png')
+plt.savefig('E:\\2021-2022RA\\神经计算建模实战\\NeuralModeling\\images_network_models\\'
+            'decision_making_output_c={}.png'.format(coherence))

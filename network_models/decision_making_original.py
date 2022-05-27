@@ -123,7 +123,7 @@ class DecisionMaking(bp.dyn.Network):
     self.A2N_AMPA = bp.dyn.ExpCOBA(A, N, bp.conn.All2All(), g_max=g_max_E2E_AMPA, **ampa_par)
     self.A2N_NMDA = bp.dyn.NMDA(A, N, bp.conn.All2All(), g_max=g_max_E2E_NMDA, **nmda_par)
 
-    self.B2A_AMPA = bp.dyn.ExpCOBA(B, A, bp.conn.All2All(), g_max=g_max_E2E_AMPA * w_neg)
+    self.B2A_AMPA = bp.dyn.ExpCOBA(B, A, bp.conn.All2All(), g_max=g_max_E2E_AMPA * w_neg, **ampa_par)
     self.B2A_NMDA = bp.dyn.NMDA(B, A, bp.conn.All2All(), g_max=g_max_E2E_NMDA * w_neg, **nmda_par)
 
     self.B2B_AMPA = bp.dyn.ExpCOBA(B, B, bp.conn.All2All(), g_max=g_max_E2E_AMPA * w_pos, **ampa_par)
@@ -179,11 +179,11 @@ class DecisionMaking(bp.dyn.Network):
   #   for node in nodes.values():
   #     node.update(_t, _dt)
 
-
-net = DecisionMaking(scale=1., coherence=-25.6)
+coherence = 25.6
+net = DecisionMaking(scale=1., coherence=coherence)
 
 runner = bp.dyn.DSRunner(net, monitors=['A.spike', 'B.spike', 'IA.freq', 'IB.freq'])
-pre_stimulus_period = 1000.
+pre_stimulus_period = 100.
 stimulus_period = 1000.
 delay_period = 500.
 total_period = pre_stimulus_period + stimulus_period + delay_period
@@ -236,4 +236,7 @@ plt.axvline(pre_stimulus_period + stimulus_period + delay_period, linestyle='das
 plt.legend()
 
 plt.xlabel("Time [ms]")
-plt.show()
+# plt.show()
+
+plt.savefig('E:\\2021-2022RA\\神经计算建模实战\\NeuralModeling\\images_network_models\\'
+            'decision_making_output_c={}.png'.format(coherence))
