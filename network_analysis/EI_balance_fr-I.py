@@ -7,12 +7,15 @@ from sklearn import linear_model
 from network_models.EI_balance import EINet
 
 
+# 构建分段电流
 dur_per_I = 500.
 Is = np.array([10., 15., 20., 30., 40., 50., 60., 70.])
 inputs, total_dur = bp.inputs.constant_input([(Is[0], dur_per_I), (Is[1], dur_per_I),
                                               (Is[2], dur_per_I), (Is[3], dur_per_I),
                                               (Is[4], dur_per_I), (Is[5], dur_per_I),
                                               (Is[6], dur_per_I), (Is[7], dur_per_I),])
+
+# 运行数值模拟
 net = EINet(3200, 800)
 runner = bp.DSRunner(net,
                      monitors=['E.spike', 'I.spike'],
@@ -52,6 +55,7 @@ runner(total_dur)
 # plt.show()
 
 def fit_fr(neuron_type, color):
+  # 计算各个电流下网络稳定后的发放率
   firing_rates = []
   for i in range(8):
     start = int((i * dur_per_I + 100) / bm.get_dt())  # 从每一阶段的第100ms开始计算
@@ -61,7 +65,7 @@ def fit_fr(neuron_type, color):
 
   plt.scatter(Is, firing_rates, color=color, alpha=0.7)
 
-  # 线性拟合
+  # 使用sklearn中的线性回归工具进行线性拟合
   model = linear_model.LinearRegression()
   model.fit(Is.reshape(-1, 1), firing_rates.reshape(-1, 1))
   # 画出拟合直线
@@ -69,6 +73,7 @@ def fit_fr(neuron_type, color):
   y = model.coef_[0] * x + model.intercept_[0]
   plt.plot(x, y, color=color, label=neuron_type + ' neurons')
 
+# 可视化
 fit_fr('E', u'#d62728')
 fit_fr('I', u'#1f77b4')
 

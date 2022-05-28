@@ -46,17 +46,3 @@ plt.subplots_adjust(hspace=0.1)
 plt.show()
 
 
-fig, gs = plt.subplots(2, 1, figsize=(6, 4), sharex='all')
-
-i = 299  # 随机指定一个神经元序号
-print(runner.mon['E.spike'][:, i].sum())
-gs[0].plot(runner.mon.ts, runner.mon['E.input'][:, i] + 12.)  # input中不包括外部输入，在此需加上12
-gs[0].set_ylabel('input current')
-
-gs[1].plot(runner.mon.ts, runner.mon['E.V'][:, i])
-gs[1].plot([0., 200.], [net.E.V_th, net.E.V_th], '--')
-gs[1].set_ylabel('V')
-
-plt.xlabel('t (ms)')
-plt.show()
-
