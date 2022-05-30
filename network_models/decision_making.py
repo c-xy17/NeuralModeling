@@ -67,7 +67,7 @@ class DecisionMaking(bp.dyn.Network):
     g_I2E_GABAa = 1.3 / scale  # nS
     g_I2I_GABAa = 1.0 / scale  # nS
 
-    ampa_par = dict(delay_step=int(0.5 / dt), E=0., tau=2.0)  # AMP受体的参数
+    ampa_par = dict(delay_step=int(0.5 / dt), E=0., tau=2.0)  # AMPA受体的参数
     gaba_par = dict(delay_step=int(0.5 / dt), E=-70., tau=5.0)  # GABA受体的参数
     nmda_par = dict(delay_step=int(0.5 / dt), tau_decay=100, tau_rise=2., E=0., cc_Mg=1., a=0.5)  # NMDA受体的参数
 
