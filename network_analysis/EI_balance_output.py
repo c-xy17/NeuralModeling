@@ -11,7 +11,7 @@ net = EINet(3200, 800)
 runner = bp.DSRunner(net,
                      monitors=['E.spike', 'I.spike', 'E.input', 'E.V'],
                      inputs=[('E.input', 12.), ('I.input', 12.)])
-runner(200.)
+runner.run(200.)
 
 # 可视化
 # 定义可视化脉冲发放的函数
