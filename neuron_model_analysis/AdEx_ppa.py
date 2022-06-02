@@ -21,7 +21,7 @@ def ppa2d(group, title, v_range=None, w_range=None, Iext=65., duration=400):
 
 	# 画出V, w的零增长曲线
 	phase_plane_analyzer.plot_nullcline()
-	# 画出固定点
+	# 画出奇点
 	phase_plane_analyzer.plot_fixed_point()
 	# 画出向量场
 	phase_plane_analyzer.plot_vector_field(plot_style=dict(color='lightgrey', density=1.))
