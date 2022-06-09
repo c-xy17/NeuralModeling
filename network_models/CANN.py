@@ -27,9 +27,10 @@ class CANN1D(bp.dyn.NeuGroup):
     self.input = bm.Variable(bm.zeros(num))
     self.conn_mat = self.make_conn(self.x)  # 连接矩阵
 
-    # function
+    # 定义积分函数
     self.integral = bp.odeint(self.derivative)
 
+  # 微分方程
   def derivative(self, u, t, Iext):
     u2 = bm.square(u)
     r = u2 / (1.0 + self.k * bm.sum(u2))
@@ -37,11 +38,13 @@ class CANN1D(bp.dyn.NeuGroup):
     du = (-u + Irec + Iext) / self.tau
     return du
 
+  # 将距离转换到[-z_range/2, z_range/2)之间
   def dist(self, d):
     d = bm.remainder(d, self.z_range)
     d = bm.where(d > 0.5 * self.z_range, d - self.z_range, d)
     return d
 
+  # 计算连接矩阵
   def make_conn(self, x):
     assert bm.ndim(x) == 1
     x_left = bm.reshape(x, (-1, 1))
@@ -50,12 +53,13 @@ class CANN1D(bp.dyn.NeuGroup):
     Jxx = self.J0 * bm.exp(-0.5 * bm.square(d / self.a)) / (bm.sqrt(2 * bm.pi) * self.a)
     return Jxx
 
+  # 获取各个神经元到pos处神经元的输入
   def get_stimulus_by_pos(self, pos):
     return self.A * bm.exp(-0.25 * bm.square(self.dist(self.x - pos) / self.a))
 
   def update(self, _t, _dt):
     self.u[:] = self.integral(self.u, _t, self.input)
-    self.input[:] = 0.
+    self.input[:] = 0.  # 重置外部电流
 
 
 # class CANN1D(bp.dyn.NeuGroup):
