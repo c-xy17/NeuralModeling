@@ -4,6 +4,16 @@ import matplotlib.pyplot as plt
 
 from network_models.CANN import CANN1D
 
+# 可视化
+def plot_response(ax, t):
+  ts = int(t / bm.get_dt())
+  I, u = Iext[ts], runner.mon.u[ts]
+  ax.plot(cann.x, I, label='Iext')
+  ax.plot(cann.x, u, label='U')
+  ax.set_title('t = {} ms'.format(t))
+  ax.set_xlabel('x')
+  ax.legend()
+
 # 生成CANN
 cann = CANN1D(num=512, k=0.1)
 
@@ -25,21 +35,9 @@ runner.run(duration)
 
 # 可视化
 fig, gs = plt.subplots(1, 2, figsize=(12, 4.5), sharey='all')
-ts1 = int(10. / bm.get_dt())
-Iext1, u1 = Iext[ts1], runner.mon.u[ts1]
-gs[0].plot(cann.x, Iext1, label='Iext')
-gs[0].plot(cann.x, u1, label='U')
-gs[0].set_title('t = 10 ms')
-gs[0].set_xlabel('x')
-gs[0].legend()
 
-ts2 = int(20. / bm.get_dt())
-Iext2, u2 = Iext[ts2], runner.mon.u[ts2]
-gs[1].plot(cann.x, Iext2, label='Iext')
-gs[1].plot(cann.x, u2, label='U')
-gs[1].set_title('t = 20 ms')
-gs[1].set_xlabel('x')
-gs[1].legend()
+plot_response(gs[0], t=10.)
+plot_response(gs[1], t=20.)
 
 plt.tight_layout()
 plt.show()
