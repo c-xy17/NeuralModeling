@@ -150,7 +150,7 @@ class DecisionMaking(bp.dyn.Network):
 coherence = 25.6
 net = DecisionMaking(scale=1., coherence=coherence, mu0=40.)
 runner = bp.dyn.DSRunner(net, monitors=['A.spike', 'B.spike', 'IA.freq', 'IB.freq'])
-t = runner(total_period)
+runner.run(total_period)
 
 # 可视化
 fig, gs = plt.subplots(4, 1, figsize=(10, 12), sharex='all')
