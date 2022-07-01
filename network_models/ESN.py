@@ -13,10 +13,8 @@ class ESN(bp.dyn.TrainingSystem):
                                  conn_type='dense')
     self.o = bp.layers.Dense(num_hidden, num_out, W_initializer=bp.init.Normal())
 
-  def forward(self, shared_args, x):
-    rec = self.r(shared_args, x)
-    output = self.o(shared_args, rec)
-    return output
+  def update(self, shared_args, x):
+    return self.o(shared_args, self.r(shared_args, x))
 
   # def update(self, sha: dict, x):
   #   self.forward(x=x, shared_args=sha)
@@ -26,8 +24,7 @@ def train_esn_with_ridge(num_in=100, num_out=30):
   model = ESN(num_in, 2000, num_out)
 
   # input-output
-  print(model(bm.ones((1, num_in))))
-  # print(model(x=bm.ones((1, num_in)), sha=None))
+  print(model(dict(), bm.ones((1, num_in))))
 
   X = bm.random.random((1, 200, num_in))
   Y = bm.random.random((1, 200, num_out))
