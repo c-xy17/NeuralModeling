@@ -16,9 +16,6 @@ class ESN(bp.dyn.TrainingSystem):
   def update(self, shared_args, x):
     return self.o(shared_args, self.r(shared_args, x))
 
-  # def update(self, sha: dict, x):
-  #   self.forward(x=x, shared_args=sha)
-
 
 def train_esn_with_ridge(num_in=100, num_out=30):
   model = ESN(num_in, 2000, num_out)
