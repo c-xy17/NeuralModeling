@@ -58,14 +58,18 @@ class InputSpike(bp.dyn.NeuGroup):
 
 
 class LSM(bp.dyn.TrainingSystem):
-  def __init__(self, num_input=1, num_readout=1, input_freq=1600.):
+  def __init__(self, num_input=1, num_readout=1):
     super(LSM, self).__init__()
+
+    self.num_input = num_input
+    self.num_res = total_num
+    self.num_output = num_readout
 
     # reservoir层的兴奋性神经元群E和抑制性神经元群I
     E = bp.dyn.LIF(size=int(total_num * (1 - f_inh)), tau=30., V_th=15., V_reset=13.5, V_rest=13.5, R=1.,
-                   tau_ref=3., V_initializer=bp.init.Uniform(13.5, 15.))
+                   tau_ref=3., V_initializer=bp.init.Uniform(13.5, 15.), trainable=True)
     I = bp.dyn.LIF(size=int(total_num * f_inh), tau=30., V_th=15., V_reset=13.5, V_rest=13.5, R=1.,
-                   tau_ref=2., V_initializer=bp.init.Uniform(13.5, 15.))
+                   tau_ref=2., V_initializer=bp.init.Uniform(13.5, 15.), trainable=True)
 
     # 将E和I排列在15x3x3的网格中，每个神经元对应一个序号
     indices = np.random.permutation(total_num)
@@ -92,35 +96,54 @@ class LSM(bp.dyn.TrainingSystem):
 
     # 生成reservoir层的突触连接
     # todo: what is s in STP?
-    E2E = bp.dyn.synapses.STP(E, E, conn=bp.conn.MatConn(conn_E2E), tau_d=.5, tau_f=1.1, U=.05,
-                              A=30., tau=3., delay_step=int(1.5 / bm.get_dt()))
-    E2I = bp.dyn.synapses.STP(E, I, conn=bp.conn.MatConn(conn_E2I), tau_d=.05, tau_f=.125, U=1.2,
-                              A=60., tau=3., delay_step=int(0.8 / bm.get_dt()))
-    I2E = bp.dyn.synapses.STP(I, E, conn=bp.conn.MatConn(conn_I2E), tau_d=.25, tau_f=.7, U=.02,
-                              A=-19., tau=6., delay_step=int(0.8 / bm.get_dt()))
-    I2I = bp.dyn.synapses.STP(I, I, conn=bp.conn.MatConn(conn_I2I), tau_d=.32, tau_f=.144, U=.06,
-                              A=-19., tau=6., delay_step=int(0.8 / bm.get_dt()))
+    E2E = bp.dyn.synapses.Exponential(E, E, conn=bp.conn.MatConn(conn_E2E), tau=3.,
+                                      delay_step=int(1.5 / bm.get_dt()), g_max=30.,
+                                      stp=bp.dyn.synplast.STP(tau_d=.5, tau_f=1.1, U=.05),
+                                      trainable=True)
+    E2I = bp.dyn.synapses.Exponential(E, I, conn=bp.conn.MatConn(conn_E2I), tau=3.,
+                                      delay_step=int(0.8 / bm.get_dt()), g_max=60.,
+                                      stp=bp.dyn.synplast.STP(tau_d=.05, tau_f=.125, U=0.12),
+                                      trainable=True)
+    I2E = bp.dyn.synapses.Exponential(I, E, conn=bp.conn.MatConn(conn_I2E), tau=6.,
+                                      delay_step=int(0.8 / bm.get_dt()), g_max=-19.,
+                                      stp=bp.dyn.synplast.STP(tau_d=.25, tau_f=.7, U=.02),
+                                      trainable=True)
+    I2I = bp.dyn.synapses.Exponential(I, I, conn=bp.conn.MatConn(conn_I2I), tau=6.,
+                                      delay_step=int(0.8 / bm.get_dt()), g_max=-19.,
+                                      stp=bp.dyn.synplast.STP(tau_d=.32, tau_f=.144, U=.06),
+                                      trainable=True)
+
+    # E2E = bp.dyn.synapses.STP(E, E, conn=bp.conn.MatConn(conn_E2E), tau_d=.5, tau_f=1.1, U=.05,
+    #                           A=30., tau=3., delay_step=int(1.5 / bm.get_dt()), trainable=True)
+    # E2I = bp.dyn.synapses.STP(E, I, conn=bp.conn.MatConn(conn_E2I), tau_d=.05, tau_f=.125, U=0.12,
+    #                           A=60., tau=3., delay_step=int(0.8 / bm.get_dt()))
+    # I2E = bp.dyn.synapses.STP(I, E, conn=bp.conn.MatConn(conn_I2E), tau_d=.25, tau_f=.7, U=.02,
+    #                           A=-19., tau=6., delay_step=int(0.8 / bm.get_dt()))
+    # I2I = bp.dyn.synapses.STP(I, I, conn=bp.conn.MatConn(conn_I2I), tau_d=.32, tau_f=.144, U=.06,
+    #                           A=-19., tau=6., delay_step=int(0.8 / bm.get_dt()))
 
     # 输入神经元
-    # input_neuron = InputSpike(num_input)
-    input_neuron = bp.dyn.PoissonGroup(num_input, freqs=input_freq)
+    # i = InputSpike(num_input)
+    # i = bp.dyn.PoissonGroup(num_input, freqs=input_freq)
+    i = bp.neurons.InputGroup(num_input, trainable=True)
 
     # input到reservoir的连接
-    input2E = bp.dyn.synapses.Delta(input_neuron, E, bp.conn.FixedProb(f_input))
-    input2I = bp.dyn.synapses.Delta(input_neuron, I, bp.conn.FixedProb(f_input))
+    input2E = bp.dyn.synapses.Exponential(i, E, bp.conn.FixedProb(f_input), trainable=True)
+    input2I = bp.dyn.synapses.Exponential(i, I, bp.conn.FixedProb(f_input), trainable=True)
 
     # readout神经元
-    readout = bp.dyn.LIF(num_readout, tau=30., V_th=15., V_reset=13.5, R=1., tau_ref=3.,
-                         V_initializer=bp.init.Uniform(13.5, 15.))
+    # o = bp.dyn.LIF(num_readout, tau=30., V_th=15., V_reset=13.5, R=1., tau_ref=3.,
+    #                      V_initializer=bp.init.Uniform(13.5, 15.))
+    o = bp.layers.Dense(total_num, num_readout, trainable=True, fit_online=True)
 
-    # reservoir到readout的连接
-    E2readout = bp.dyn.ExpCOBA(E, readout, bp.conn.All2All())
-    I2readout = bp.dyn.ExpCOBA(I, readout, bp.conn.All2All())
+    # # reservoir到readout的连接
+    # E2readout = bp.dyn.ExpCOBA(E, o, bp.conn.All2All())
+    # I2readout = bp.dyn.ExpCOBA(I, o, bp.conn.All2All())
 
-    self.input_neuron = input_neuron
+    self.i = i
     self.E = E
     self.I = I
-    self.readout = readout
+    self.o = o
 
     self.input2E = input2E
     self.input2I = input2I
@@ -129,8 +152,24 @@ class LSM(bp.dyn.TrainingSystem):
     self.E2I = E2I
     self.I2E = I2E
     self.I2I = I2I
+    #
+    # self.E2readout = E2readout
+    # self.I2readout = I2readout
 
-    self.E2readout = E2readout
-    self.I2readout = I2readout
+  def update(self, tdi, input_spike):
+    # 更新突触连接
+    self.input2E(tdi, input_spike)
+    self.input2I(tdi, input_spike)
+    self.E2E(tdi)
+    self.E2I(tdi)
+    self.I2E(tdi)
+    self.I2I(tdi)
 
-  # def update(self, shared_args, x):
+    # 更新神经元群
+    self.E(tdi)
+    self.I(tdi)
+
+    res_spike = bm.concatenate([self.E.spike, self.I.spike])
+
+    # 更新输出
+    return self.o(tdi, res_spike)

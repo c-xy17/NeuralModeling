@@ -6,34 +6,67 @@ import matplotlib.pyplot as plt
 from network_models.LSM import LSM, euclidean_dist
 
 
-duration = 500.
+num_step = 5000
+num_sample = 256
 
-def compare_state(freq1, freq2, dur):
-  lsm1 = LSM(input_freq=freq1)
+def run_lsm(runner, spike_train):
+  runner.run(inputs=spike_train, duration=num_step * bm.get_dt(), inputs_are_batching=True, reset_state=True)
+  res_state = np.concatenate([runner.mon['E.spike'], runner.mon['I.spike']], axis=1)
+  return res_state
 
-  runner = bp.dyn.DSRunner(lsm1, monitors=['input_neuron.spike', 'E.spike', 'I.spike'])
-  runner.run(dur)
+lsm = LSM()
 
-  res_state1 = np.concatenate([runner.mon['E.spike'], runner.mon['I.spike']], axis=1)
+runner = bp.dyn.DSRunner(lsm, monitors={'E.spike': lsm.E.spike, 'I.spike': lsm.I.spike}, jit=False)
 
-  lsm2 = LSM(input_freq=freq2)
+mask = bm.random.rand(num_sample, num_step, lsm.num_input)
+input_spike = bm.zeros((num_sample, num_step, lsm.num_input), dtype=bool)
+input_spike[mask < 1600. * bm.get_dt() / 1000.] = True
+print(input_spike.shape)
+print(lsm.input2E.pre.size)
+state1 = run_lsm(runner, input_spike)
 
-  runner = bp.dyn.DSRunner(lsm2, monitors=['input_neuron.spike', 'E.spike', 'I.spike'])
-  runner.run(dur)
+mask = bm.random.rand(num_sample, num_step, lsm.num_input)
+input_spike = bm.zeros((num_sample, num_step, lsm.num_input), dtype=bool)
+input_spike[mask < 800. * bm.get_dt() / 1000.] = True
+state2 = run_lsm(runner, input_spike)
 
-  res_state2 = np.concatenate([runner.mon['E.spike'], runner.mon['I.spike']], axis=1)
-  ts = runner.mon.ts
+dists = []
+for i in range(len(state1)):
+  dists.append(euclidean_dist(state1, state2))
+dists = np.asarray(dists)
 
-  # 计算两个LSM中liquid state的差别
-  dists = []
-  for i in range(len(res_state1)):
-    dists.append(euclidean_dist(res_state1, res_state2))
+plt.plot(np.arange(len(dists)), dists)
 
-  plt.plot(ts, dists)
+# duration = 500.
+#
+# def compare_state(freq1, freq2, dur):
+#   lsm1 = LSM(input_freq=freq1)
+#
+#   runner = bp.dyn.DSRunner(lsm1, monitors=['input_neuron.spike', 'E.spike', 'I.spike'])
+#   runner.run(dur)
+#
+#   res_state1 = np.concatenate([runner.mon['E.spike'], runner.mon['I.spike']], axis=1)
+#
+#   lsm2 = LSM(input_freq=freq2)
+#
+#   runner = bp.dyn.DSRunner(lsm2, monitors=['input_neuron.spike', 'E.spike', 'I.spike'])
+#   runner.run(dur)
+#
+#   res_state2 = np.concatenate([runner.mon['E.spike'], runner.mon['I.spike']], axis=1)
+#   ts = runner.mon.ts
+#
+#   # 计算两个LSM中liquid state的差别
+#   dists = []
+#   for i in range(len(res_state1)):
+#     dists.append(euclidean_dist(res_state1, res_state2))
+#   dists = np.asarray(dists)
+#
+#   plt.plot(ts, dists)
+#
+# compare_state(1600, 800, duration)
+#
+# plt.show()
 
-compare_state(1600, 800, duration)
-
-plt.show()
 
 
 # pre = bp.dyn.PoissonGroup(1, freqs=1600)
