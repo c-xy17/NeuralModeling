@@ -3,13 +3,14 @@ import brainpy.math as bm
 
 
 class ESN(bp.dyn.TrainingSystem):
-  def __init__(self, num_in, num_hidden, num_out):
+  def __init__(self, num_in, num_hidden, num_out, lambda_max=None):
     super(ESN, self).__init__()
     self.r = bp.layers.Reservoir(num_in, num_hidden,
                                  Win_initializer=bp.init.Uniform(-0.1, 0.1),
                                  Wrec_initializer=bp.init.Normal(scale=0.1),
                                  in_connectivity=0.02,
                                  rec_connectivity=0.02,
+                                 spectral_radius=lambda_max,
                                  conn_type='dense')
     self.o = bp.layers.Dense(num_hidden, num_out, W_initializer=bp.init.Normal())
 
@@ -47,4 +48,4 @@ def train_esn_with_ridge(num_in=100, num_out=30):
   outputs = trainer.predict(X)
   print(bp.losses.mean_absolute_error(outputs, Y))
 
-train_esn_with_ridge(10, 30)
+# train_esn_with_ridge(10, 30)

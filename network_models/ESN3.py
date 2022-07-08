@@ -23,7 +23,8 @@ class ESN(bp.dyn.TrainingSystem):
     conn_mat = self.rng.random(self.W.shape) > rec_connectivity
     self.W[conn_mat] = 0.  # 按连接概率削减连接度
 
-    self.W_out = bp.init.Normal()((num_rec, num_out))
+    # 用BrainPy库里的Dense作为库到输出的全连接层
+    self.readout = bp.layers.Dense(num_rec, num_out, W_initializer=bp.init.Normal())
 
     # 缩放W，使ESN具有回声性质
     spectral_radius = max(abs(bm.linalg.eig(self.W)[0]))
@@ -38,23 +39,10 @@ class ESN(bp.dyn.TrainingSystem):
       self.state.value = bm.zeros(self.state.shape)
       self.y.value = bm.zeros(self.y.shape)
     else:
-      # todo: to be checked
       self.state.value = bm.zeros((int(batch_size),) + self.state.shape)
-  #
-  # def offline_fit(self,
-  #                 target: Tensor,
-  #                 fit_record: Dict[str, Tensor]):
-
 
   def update(self, sha, u):
     self.state.value = bm.tanh(bm.dot(u, self.W_in) + bm.dot(self.state, self.W))
-    out = bm.dot(self.state, self.W_out)
+    out = self.readout(sha, self.state.value)
     self.y.value = out
-    #
-    # if sha.fit:
-    #   self.fit_record['input'] = self.state.value
-    #   self.fit_record['output'] = out
-
     return out
-
-
