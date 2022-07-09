@@ -9,7 +9,7 @@ class ESN(bp.dyn.TrainingSystem):
                                  Win_initializer=bp.init.Uniform(-0.1, 0.1),
                                  Wrec_initializer=bp.init.Normal(scale=0.1),
                                  in_connectivity=0.02,
-                                 rec_connectivity=0.02,
+                                 rec_connectivity=0.05,
                                  spectral_radius=lambda_max,
                                  conn_type='dense')
     self.o = bp.layers.Dense(num_hidden, num_out, W_initializer=bp.init.Normal())

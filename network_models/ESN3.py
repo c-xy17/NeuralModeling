@@ -6,7 +6,7 @@ class ESN(bp.dyn.TrainingSystem):
   def __init__(self, num_in, num_rec, num_out, lambda_max=0.9,
                W_in_initializer=bp.init.Uniform(-0.1, 0.1),
                W_rec_initializer=bp.init.Normal(scale=0.1),
-               in_connectivity=0.02, rec_connectivity=0.02):
+               in_connectivity=0.05, rec_connectivity=0.05):
     super(ESN, self).__init__()
 
     self.num_in = num_in
@@ -25,6 +25,7 @@ class ESN(bp.dyn.TrainingSystem):
 
     # 用BrainPy库里的Dense作为库到输出的全连接层
     self.readout = bp.layers.Dense(num_rec, num_out, W_initializer=bp.init.Normal())
+    # self.readout = bp.layers.Dense(num_in + num_rec + num_out, num_out, W_initializer=bp.init.Normal())
 
     # 缩放W，使ESN具有回声性质
     spectral_radius = max(abs(bm.linalg.eig(self.W)[0]))
@@ -34,15 +35,18 @@ class ESN(bp.dyn.TrainingSystem):
     self.state = bm.Variable(bm.zeros((1, num_rec)), batch_axis=0)
     self.y = bm.Variable(bm.zeros((1, num_out)), batch_axis=0)
 
+  # 重置函数：重置模型中各变量的值
   def reset(self, batch_size=None):
     if batch_size is None:
       self.state.value = bm.zeros(self.state.shape)
       self.y.value = bm.zeros(self.y.shape)
     else:
-      self.state.value = bm.zeros((int(batch_size),) + self.state.shape)
+      self.state.value = bm.zeros((int(batch_size),) + self.state.shape[1:])
+      self.y.value = bm.zeros((int(batch_size),) + self.y.shape[1:])
 
   def update(self, sha, u):
     self.state.value = bm.tanh(bm.dot(u, self.W_in) + bm.dot(self.state, self.W))
     out = self.readout(sha, self.state.value)
+    # out = self.readout(sha, bm.concatenate([u, self.state.value, self.y.value], axis=-1))
     self.y.value = out
     return out

@@ -10,22 +10,23 @@ num_in = 10
 num_res = 500
 num_out = 30
 num_step = 500  # 模拟总步长
+num_batch = 1
 
 # 生成网络，运行两次模拟，两次模拟的输入相同，但网络的初始化状态不同
 def get_esn_states(lambda_max):
   model = ESN(num_in, num_res, num_out, lambda_max=lambda_max)
-  _, s, _ = bm.linalg.svd(model.W)
-  print(s.max())
-  inputs = bm.random.randn(1, num_step, num_in)  # 第0个维度为batch的大小
+  model.reset(batch_size=num_batch)
+
+  inputs = bm.random.randn(num_batch, int(num_step/num_batch), num_in)  # 第0个维度为batch的大小
 
   # 第一次运行
-  model.state.value = bp.init.Uniform(-1., 1.)(model.state.shape)  # 随机初始化网络状态
+  model.state.value = bp.init.Uniform(-1., 1.)((num_batch, num_res))  # 随机初始化网络状态
   runner = bp.train.DSTrainer(model, monitors=['state'])
   runner.predict(inputs)
   state1 = np.concatenate(runner.mon['state'], axis=0)
 
   # 第二次运行
-  model.state.value = bp.init.Uniform(-1., 1.)(model.state.shape)  # 再次随机初始化网络状态
+  model.state.value = bp.init.Uniform(-1., 1.)((num_batch, num_res))  # 再次随机初始化网络状态
   runner = bp.train.DSTrainer(model, monitors=['state'])
   runner.predict(inputs)
   state2 = np.concatenate(runner.mon['state'], axis=0)
@@ -78,9 +79,9 @@ plt.subplot(236)
 plot_states(state5[-1], state6[-1], title='$|\lambda_{}|={}$, n={}'.format('{max}', lambda3, num_step))
 
 plt.tight_layout()
-# plt.show()
-plt.savefig('E:\\2021-2022RA\\神经计算建模实战\\NeuralModeling\\images_network_models\\'
-            'ESN_state_distance.png')
+plt.show()
+# plt.savefig('E:\\2021-2022RA\\神经计算建模实战\\NeuralModeling\\images_network_models\\'
+#             'ESN_state_distance.png')
 
 
 
