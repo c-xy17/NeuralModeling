@@ -16,8 +16,6 @@ class Theta(bp.dyn.NeuGroup):
 		# 初始化变量
 		self.theta = bm.Variable(bm.random.randn(self.num) * bm.pi / 18)
 		self.input = bm.Variable(bm.zeros(self.num))
-		self.t_last_spike = bm.Variable(bm.ones(self.num) * -1e7)  # 上一次脉冲发放时间
-		self.refractory = bm.Variable(bm.zeros(self.num, dtype=bool))  # 是否处于不应期
 		self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))  # 脉冲发放状态
 
 		# 使用指数欧拉方法进行积分
@@ -30,14 +28,10 @@ class Theta(bp.dyn.NeuGroup):
 
 	def update(self, _t, _dt):
 		# 以数组的方式对神经元进行更新
-		refractory = (_t - self.t_last_spike) <= self.t_ref  # 判断神经元是否处于不应期
 		theta = self.integral(self.theta, _t, self.input, dt=_dt) % (2 * bm.pi)  # 根据时间步长更新theta
-		theta = bm.where(refractory, self.theta, theta)  # 若处于不应期，则返回原始膜电位self.theta，否则返回更新后的膜电位V
 		spike = (theta < bm.pi) & (self.theta > bm.pi)  # 将theta从2*pi跳跃到0的神经元标记为发放了脉冲
 		self.spike[:] = spike  # 更新神经元脉冲发放状态
-		self.t_last_spike[:] = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间
 		self.theta[:] = theta
-		self.refractory[:] = bm.logical_or(refractory, spike)  # 更新神经元是否处于不应期
 		self.input[:] = 0.  # 重置外界输入
 
 

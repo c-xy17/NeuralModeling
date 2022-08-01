@@ -1,7 +1,7 @@
 import brainpy as bp
 import brainpy.math as bm
 
-# from run_synapse import run_FR
+from synapse_models.run_synapse import run_FR
 
 
 class Hebb(bp.dyn.TwoEndConn):
@@ -20,7 +20,7 @@ class Hebb(bp.dyn.TwoEndConn):
 
     # 初始化变量
     num = len(self.pre_ids)
-    self.w = bm.Variable(bm.random.uniform(size=num) * 2./bm.sqrt(num)) # 令初始时||w||=1
+    self.w = bm.Variable(bm.random.uniform(size=num) * 2. / bm.sqrt(num))  # 令初始时||w||=1
     self.delay = bm.LengthDelay(self.pre.r, delay_step)  # 定义一个延迟处理器
 
     # 定义积分函数
@@ -30,7 +30,7 @@ class Hebb(bp.dyn.TwoEndConn):
     dwdt = self.eta * x * y
     return dwdt
 
-  def update(self, _t, _dt):
+  def update(self, tdi):
     # 将突触前的信号延迟delay_step的时间步长
     delayed_pre_r = self.delay(self.delay_step)
     self.delay.update(self.pre.r)
@@ -41,15 +41,16 @@ class Hebb(bp.dyn.TwoEndConn):
     self.post.r.value += post_r
 
     # 更新w
-    w = self.integral(self.w, _t, self.pre.r[self.pre_ids], self.post.r[self.post_ids])
+    w = self.integral(self.w, tdi.t, self.pre.r[self.pre_ids], self.post.r[self.post_ids], tdi.dt)
     w = bm.where(w > self.w_max, self.w_max, w)
     self.w.value = w
 
 
-# # 自定义电流
-# dur = 200.
-# I1, _ = bp.inputs.constant_input([(1., 100.), (0., dur - 100.)])
-# I2, _ = bp.inputs.constant_input([(1., dur)])
-# I_pre = bm.stack((I1, I2))
-#
-# run_FR(Hebb, I_pre, dur)
+if __name__ == '__main__':
+  # 自定义电流
+  dur = 200.
+  I1, _ = bp.inputs.constant_input([(1., 100.), (0., dur - 100.)])
+  I2, _ = bp.inputs.constant_input([(1., dur)])
+  I_pre = bm.stack((I1, I2))
+
+  run_FR(Hebb, I_pre, dur)

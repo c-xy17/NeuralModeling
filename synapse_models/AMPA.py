@@ -37,21 +37,22 @@ class AMPA(bp.dyn.TwoEndConn):
 		dsdt = self.alpha * T * (1 - s) - self.beta * s
 		return dsdt
 
-	def update(self, _t, _dt):
+	def update(self, tdi):
 		# 将突触前神经元传来的信号延迟delay_step的时间步长
 		delayed_pre_spike = self.delay(self.delay_step)
 		self.delay.update(self.pre.spike)
 
 		# 更新脉冲到达的时间，并以此计算T
-		self.spike_arrival_time.value = bm.where(delayed_pre_spike, _t, self.spike_arrival_time)
-		T = ((_t - self.spike_arrival_time) < self.T_dur) * self.T_0
+		self.spike_arrival_time.value = bm.where(delayed_pre_spike, tdi.t, self.spike_arrival_time)
+		T = ((tdi.t - self.spike_arrival_time) < self.T_dur) * self.T_0
 
 		# 更新s和g
-		self.s.value = self.integral(self.s, _t, T, dt=_dt)
+		self.s.value = self.integral(self.s, tdi.t, T, tdi.dt)
 		self.g.value = self.g_max * self.s
 
 		# 电导模式下计算突触后电流大小
 		self.post.input += self.g * (self.E - self.post.V)
 
 
-run_syn(AMPA, title='AMPA Synapse Model')
+if __name__ == '__main__':
+	run_syn(AMPA, title='AMPA Synapse Model')
