@@ -5,3 +5,4 @@ synapse_models/__pycache__/
 *.pyc
 *.iml
 *.xml
+.idea
