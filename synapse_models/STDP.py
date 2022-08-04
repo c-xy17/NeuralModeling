@@ -40,7 +40,7 @@ class STDP(bp.dyn.TwoEndConn):
     dg = lambda g, t: -g / self.tau
     return bp.JointEq([dAs, dAt, dg])  # 将三个微分方程联合求解
 
-  def update(self, _t, _dt):
+  def update(self, tdi):
     # 将g的计算延迟delay_step的时间步长
     delayed_g = self.delay(self.delay_step)
 
@@ -53,7 +53,7 @@ class STDP(bp.dyn.TwoEndConn):
     post_spikes = bm.pre2syn(self.post.spike, self.post_ids)  # 哪些突触后神经元产生了脉冲
 
     # 计算积分后的As, At, g
-    self.As.value, self.At.value, self.g.value = self.integral(self.As, self.At, self.g, _t)
+    self.As.value, self.At.value, self.g.value = self.integral(self.As, self.At, self.g, tdi.t, tdi.dt)
 
     # if (pre spikes)
     As = bm.where(pre_spikes, self.As + self.delta_As, self.As)
@@ -79,9 +79,11 @@ def run_STDP(I_pre, I_post, dur, **kwargs):
   net = bp.dyn.Network(pre=pre, syn=syn, post=post)
 
   # 运行模拟
-  runner = bp.dyn.DSRunner(net,
-                           inputs=[('pre.input', I_pre, 'iter'), ('post.input', I_post, 'iter')],
-                           monitors=['pre.spike', 'post.spike', 'syn.g', 'syn.w', 'syn.As', 'syn.At'])
+  runner = bp.dyn.DSRunner(
+    net,
+    inputs=[('pre.input', I_pre, 'iter'), ('post.input', I_post, 'iter')],
+    monitors=['pre.spike', 'post.spike', 'syn.g', 'syn.w', 'syn.As', 'syn.At']
+  )
   runner(dur)
 
   # 可视化
@@ -117,21 +119,12 @@ def run_STDP(I_pre, I_post, dur, **kwargs):
   plt.show()
 
 
-# 设置输入给pre和post的电流
-duration = 300.
-I_pre, _ = bp.inputs.constant_input([(0, 5), (30, 15),
-                                     (0, 15), (30, 15),
-                                     (0, 15), (30, 15),
-                                     (0, 100), (30, 15),  # switch order: t_interval=98ms
-                                     (0, 15), (30, 15),
-                                     (0, 15), (30, 15),
-                                     (0, duration - 155 - 100)])
-I_post, _ = bp.inputs.constant_input([(0, 10), (30, 15),
-                                      (0, 15), (30, 15),
-                                      (0, 15), (30, 15),
-                                      (0, 90), (30, 15),  # switch order: t_interval=90ms
-                                      (0, 15), (30, 15),
-                                      (0, 15), (30, 15),
-                                      (0, duration - 160 - 90)])
+if __name__ == '__main__':
+  # 设置输入给pre和post的电流
+  duration = 300.
+  I_pre = bp.inputs.section_input([0, 30, 0, 30, 0, 30, 0, 30, 0, 30, 0, 30, 0],
+                                  [5, 15, 15, 15, 15, 15, 98, 15, 15, 15, 15, 15, duration - 255])
+  I_post = bp.inputs.section_input([0, 30, 0, 30, 0, 30, 0, 30, 0, 30, 0, 30, 0],
+                                   [10, 15, 15, 15, 15, 15, 90, 15, 15, 15, 15, 15, duration - 250])
 
-run_STDP(I_pre, I_post, duration)
+  run_STDP(I_pre, I_post, duration)

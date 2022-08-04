@@ -17,19 +17,15 @@ class GapJunction(bp.dyn.TwoEndConn):
 		# 获取每个连接的突触前神经元pre_ids和突触后神经元post_ids
 		self.pre_ids, self.post_ids = self.conn.require('pre_ids', 'post_ids')
 
-		# 初始化变量
-		self.current = bm.Variable(bm.zeros(self.post.num))
-
-	def update(self, _t, _dt):
-		# 计算突触后电流（）
+	def update(self, tdi):
+		# 计算突触后电流
 		inputs = self.g * (self.pre.V[self.pre_ids.value] - self.post.V[self.post_ids.value])
 
 		# 从synapse到post的计算：post id相同电流加到一起
-		self.current.value = bm.syn2post(inputs, self.post_ids, self.post.num)
-		self.post.input += self.current
+		self.post.input += bm.syn2post(inputs, self.post_ids, self.post.num)
 
 
-run_syn_GJ(GapJunction, title='Gap Junction Model')
+run_syn_GJ(GapJunction, Iext=7.5, title='Gap Junction Model')
 run_syn_GJ(GapJunction, Iext=5., title='Gap Junction Model')
 
 

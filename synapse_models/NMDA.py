@@ -35,7 +35,7 @@ class NMDA(bp.dyn.TwoEndConn):
 		self.int_h = bp.odeint(method=method, f=lambda h, t: -h / self.tau_rise)
 		self.int_g = bp.odeint(method=method, f=lambda g, t, h: -g / self.tau_decay + h)
 
-	def update(self, _t, _dt):
+	def update(self, tdi):
 		# 将突触前神经元传来的信号延迟delay_step的时间步长
 		delayed_pre_spike = self.delay(self.delay_step)
 		self.delay.update(self.pre.spike)
@@ -43,12 +43,13 @@ class NMDA(bp.dyn.TwoEndConn):
 		# 根据连接模式计算各个突触后神经元收到的信号强度
 		post_sp = bm.pre2post_event_sum(delayed_pre_spike, self.pre2post, self.post.num, self.g_max)
 		# 更新h和g
-		self.h.value = self.int_h(self.h, _t) + post_sp
-		self.g.value = self.int_g(self.g, _t, self.h)
+		self.h.value = self.int_h(self.h, tdi.t, tdi.dt) + post_sp
+		self.g.value = self.int_g(self.g, tdi.t, self.h, tdi.dt)
 
 		# 计算b和突触后电流
 		self.b.value = 1 / (1 + bm.exp(-0.062 * self.post.V) * self.c_Mg / 3.57)
 		self.post.input += self.g * self.b * (self.E - self.post.V)
 
 
-run_syn_NMDA(NMDA, title='NMDA Synapse Model (Phenomenological)')
+if __name__ == '__main__':
+	run_syn_NMDA(NMDA, title='NMDA Synapse Model (Phenomenological)')

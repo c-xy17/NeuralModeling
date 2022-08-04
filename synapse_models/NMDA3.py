@@ -38,7 +38,7 @@ class NMDA(bp.dyn.TwoEndConn):
 		                       f=lambda s, t, x: self.alpha1 * x * (1 - s) - self.beta1 * s)
 		self.int_x = bp.odeint(method=method, f=lambda x, t,: - self.beta2 * x)
 
-	def update(self, _t, _dt):
+	def update(self, tdi):
 		# 将突触前神经元传来的信号延迟delay_step的时间步长
 		delayed_pre_spike = self.delay(self.delay_step)
 		self.delay.update(self.pre.spike)
@@ -47,8 +47,8 @@ class NMDA(bp.dyn.TwoEndConn):
 		post_sp = bm.pre2post_event_sum(delayed_pre_spike, self.pre2post, self.post.num, 1.)
 
 		# 更新x，s和g
-		self.x.value = self.int_x(self.x, _t) + self.alpha2 * post_sp
-		self.s.value = self.int_s(self.s, _t, self.x)
+		self.x.value = self.int_x(self.x, tdi.t) + self.alpha2 * post_sp
+		self.s.value = self.int_s(self.s, tdi.t, self.x, tdi.t)
 		self.g.value = self.g_max * self.s
 
 		# 更新b

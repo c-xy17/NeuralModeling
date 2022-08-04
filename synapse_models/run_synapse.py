@@ -13,7 +13,9 @@ def run_syn_LIF(syn_model, run_duration=30., **kwargs):
   net = bp.dyn.Network(pre=pre_neu, syn=syn, post=post_neu)
 
   # 运行模拟
-  runner = bp.DSRunner(net, monitors=['pre.V', 'syn.g', 'post.V'], inputs=('pre.input', 35.))
+  runner = bp.dyn.DSRunner(net,
+                           monitors=['pre.V', 'syn.g', 'post.V'],
+                           inputs=('pre.input', 35.))
   runner(run_duration)
 
   # 只选取第0个突触后神经元可视化
@@ -92,77 +94,79 @@ def run_syn_NMDA(syn_model, title, run_duration=200., Iext=None, **kwargs):
   # 运行模拟
   if Iext is None:
     # 生成一个脉冲序列的电流输入
-    Iext = bp.inputs.spike_input(sp_times=[20, 60, 100, 125, 150], sp_lens=2., sp_sizes=6.,
+    Iext = bp.inputs.spike_input(sp_times=[20, 60, 100, 125, 150],
+                                 sp_lens=2.,
+                                 sp_sizes=6.,
                                  duration=run_duration)
-  post_Iext = bp.inputs.spike_input(sp_times=[130,], sp_lens=2., sp_sizes=6.,
-                                 duration=run_duration)
+  post_Iext = bp.inputs.spike_input(sp_times=[130],
+                                    sp_lens=2.,
+                                    sp_sizes=6.,
+                                    duration=run_duration)
   runner = bp.dyn.DSRunner(net,
-                           inputs=[('pre.input', Iext, 'iter'), ('post.input', post_Iext, 'iter')],
+                           inputs=[('pre.input', Iext, 'iter'),
+                                   ('post.input', post_Iext, 'iter')],
                            monitors=['pre.V', 'post.V', 'syn.g', 'syn.b', 'post.input'])
   runner.run(run_duration)
 
   # 可视化
-  fig, gs = plt.subplots(3, 1, figsize=(6, 6))
-  plt.sca(gs[0])
+  fig, gs = bp.visualize.get_figure(4, 1, 1.5, 4)
+  fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon['pre.V'], label='pre-V')
   plt.plot(runner.mon.ts, runner.mon['post.V'], label='post-V')
   plt.legend(loc='upper right')
+  plt.ylabel('Potential [mV]')
+  plt.xticks([])
   plt.title(title)
 
-  plt.sca(gs[1])
+  fig.add_subplot(gs[1, 0])
   plt.plot(runner.mon.ts, runner.mon['syn.g'], label='g', color=u'#d62728')
-  gs[1].set_ylabel('g', rotation='horizontal')
-  twinx = gs[1].twinx()
-  twinx.plot(runner.mon.ts, runner.mon['syn.b'], label='b', color=u'#2ca02c')
-  twinx.set_ylabel('b', rotation='horizontal')
-  lines, labels = gs[1].get_legend_handles_labels()
-  lines2, labels2 = twinx.get_legend_handles_labels()
-  gs[1].legend(lines + lines2, labels + labels2, loc='upper right')
+  plt.xticks([])
+  plt.ylabel('g', )
 
-  plt.sca(gs[2])
+  fig.add_subplot(gs[2, 0])
+  plt.plot(runner.mon.ts, runner.mon['syn.b'], label='b', color=u'#2ca02c')
+  plt.xticks([])
+  plt.ylabel('b',)
+
+  fig.add_subplot(gs[3, 0])
   plt.plot(runner.mon.ts, runner.mon['post.input'], label='PSC', color=u'#2cc0e0')
-  plt.legend(loc='upper right')
+  plt.ylabel('PSC',)
 
-  plt.tight_layout()
+  plt.xlabel('Time [ms]')
   plt.show()
 
 
-def run_syn_GABAb(syn_model, title, run_duration=200., Iext=None, **kwargs):
+def run_syn_GABAb(syn_model, title, run_duration=200., Iext=0., **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
-  neu1 = bp.dyn.HH(1)
-  neu2 = bp.dyn.HH(1)
+  neu1 = bp.neurons.SpikeTimeGroup(1, [10., ], [0.])
+  neu2 = bp.neurons.HH(1)
   syn1 = syn_model(neu1, neu2, conn=bp.connect.All2All(), **kwargs)
   net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
 
-  # 运行模拟
-  if Iext is None:
-    # 生成一个脉冲序列的电流输入
-    Iext = bp.inputs.spike_input(sp_times=[20, 60, 100, 125, 150], sp_lens=2., sp_sizes=6.,
-                                 duration=run_duration)
   runner = bp.dyn.DSRunner(net,
-                           inputs=[('pre.input', Iext)],
-                           monitors=['pre.V', 'post.V', 'syn.r', 'syn.G', 'syn.g'])
+                           monitors=['pre.spike', 'syn.r', 'syn.G', 'syn.g'],
+                           dt=0.01)
   runner.run(run_duration)
 
   # 可视化
-  fig, gs = plt.subplots(2, 1, figsize=(6, 4.5))
-  plt.sca(gs[0])
-  plt.plot(runner.mon.ts, runner.mon['pre.V'], label='pre-V')
-  plt.plot(runner.mon.ts, runner.mon['post.V'], label='post-V')
-  plt.legend(loc='upper right')
+  fig, gs = bp.visualize.get_figure(3, 1, 2, 4.5)
+  fig.add_subplot(gs[0, 0])
+  plt.plot(runner.mon.ts, runner.mon['pre.spike'], label='pre.spike')
   plt.title(title)
+  plt.xticks([])
+  plt.legend()
 
-  plt.sca(gs[1])
+  fig.add_subplot(gs[1, 0])
   plt.plot(runner.mon.ts, runner.mon['syn.r'], label='r', color=u'#d62728')
-  plt.plot(runner.mon.ts, runner.mon['syn.G']/4, label='G/4', color='lime')
-  twinx = gs[1].twinx()
-  twinx.plot(runner.mon.ts, runner.mon['syn.g'], label='g', color=u'#2ca02c')
-  twinx.set_ylabel('g', rotation='horizontal')
-  lines, labels = gs[1].get_legend_handles_labels()
-  lines2, labels2 = twinx.get_legend_handles_labels()
-  gs[1].legend(lines + lines2, labels + labels2, loc='upper right')
+  plt.plot(runner.mon.ts, runner.mon['syn.G'] / 4, label='G/4', color='lime')
+  plt.legend()
+  plt.xticks([])
 
-  plt.tight_layout()
+  fig.add_subplot(gs[2, 0])
+  plt.plot(runner.mon.ts, runner.mon['syn.g'], label='g', color=u'#2ca02c')
+  plt.legend()
+  plt.xlabel('Time [ms]')
+
   plt.show()
 
 
@@ -173,27 +177,32 @@ def run_syn_GJ(syn_model, title, run_duration=100., Iext=7.5, **kwargs):
   net = bp.dyn.Network(syn=syn, neu=neu)
 
   # 运行模拟
+  Iext = bm.array([Iext, 0.])
   runner = bp.dyn.DSRunner(net,
-                           inputs=[('neu.input', bm.array([Iext, 0.]))],
-                           monitors=['neu.V', 'syn.current'])
+                           inputs=[('neu.input', Iext)],
+                           monitors=['neu.V', 'neu.input'])
   runner.run(run_duration)
 
   # 可视化
-  fig, gs = plt.subplots(2, 1, figsize=(6, 4.5))
-  plt.sca(gs[0])
+  fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
+  fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon['neu.V'][:, 0], label='neu0-V')
   plt.plot(runner.mon.ts, runner.mon['neu.V'][:, 1], label='neu1-V')
   plt.legend(loc='upper right')
+  plt.ylabel('Potential [mV]')
   plt.title(title)
+  plt.xticks([])
 
-  plt.sca(gs[1])
-  plt.plot(runner.mon.ts, runner.mon['syn.current'][:, 0],
+  fig.add_subplot(gs[1, 0])
+  runner.mon['neu.input'] = runner.mon['neu.input'] - bm.as_ndarray(Iext)
+  plt.plot(runner.mon.ts, runner.mon['neu.input'][:, 0],
            label='neu0-current', color=u'#48d688')
-  plt.plot(runner.mon.ts, runner.mon['syn.current'][:, 1],
+  plt.plot(runner.mon.ts, runner.mon['neu.input'][:, 1],
            label='neu1-current', color=u'#d64888')
   plt.legend(loc='upper right')
+  plt.ylabel('Current')
+  plt.xlabel('Time [ms]')
 
-  plt.tight_layout()
   plt.show()
 
 
