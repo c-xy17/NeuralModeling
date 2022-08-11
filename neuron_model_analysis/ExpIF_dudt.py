@@ -1,13 +1,12 @@
+import brainpy as bp
 import matplotlib.pyplot as plt
 import numpy as np
 
 from neuron_models.ExpIF_model import ExpIF
-from neuron_models.QIF_model import QIF
 
+fig, gs = bp.visualize.get_figure(1, 2, 4.5, 6)
 
-plt.figure(figsize=(12, 4.5))
-plt.subplot(1, 2, 1)
-
+ax = fig.add_subplot(gs[0, 0])
 expif = ExpIF(1)
 Vs = np.linspace(-80, -50, 500)
 y1 = - 1 / expif.tau * (Vs - expif.V_rest)
@@ -20,28 +19,30 @@ plt.plot(x2, y2, '--', color='grey')
 
 expif = ExpIF(1, delta_T=5.)
 dvdts = expif.derivative(Vs, 0., 0.)
-plt.plot(Vs, dvdts, label='delta_T=5')
+plt.plot(Vs, dvdts, label=r'$\Delta_T$=5')
 
 expif = ExpIF(1, delta_T=1.)
 dvdts = expif.derivative(Vs, 0., 0.)
-plt.plot(Vs, dvdts, label='delta_T=1')
+plt.plot(Vs, dvdts, label=r'$\Delta_T$=1')
 
 expif = ExpIF(1, delta_T=0.2)
 dvdts = expif.derivative(Vs, 0., 0.)
-plt.plot(Vs, dvdts, label='delta_T=0.2')
+plt.plot(Vs, dvdts, label=r'$\Delta_T$=0.2')
 
 expif = ExpIF(1, delta_T=0.05)
 dvdts = expif.derivative(Vs, 0., 0.)
-plt.plot(Vs, dvdts, label='delta_T=0.05')
+plt.plot(Vs, dvdts, label=r'$\Delta_T$=0.05')
 
 plt.xlim(-80, -50)
 plt.ylim(-1, 6)
-plt.xlabel('V')
+plt.xlabel('V [mV]')
 plt.ylabel('dV/dt')
 plt.legend()
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
 
 
-plt.subplot(1, 2, 2)
+ax = fig.add_subplot(gs[0, 1])
 
 expif = ExpIF(1)
 Vs = np.linspace(-80, -40, 500)
@@ -56,23 +57,27 @@ expif = ExpIF(1, delta_T=0.2, V_T=-70)
 x2 = np.ones(500) * expif.V_T
 plt.plot(x2, y2, '--', color='grey')
 dvdts = expif.derivative(Vs, 0., 0.)
-plt.plot(Vs, dvdts, label='V_T=-70')
+plt.plot(Vs, dvdts, label=r'$V_T$=-70')
 
 expif = ExpIF(1, delta_T=0.2, V_T=-60)
 x2 = np.ones(500) * expif.V_T
 plt.plot(x2, y2, '--', color='grey')
 dvdts = expif.derivative(Vs, 0., 0.)
-plt.plot(Vs, dvdts, label='V_T=-60')
+plt.plot(Vs, dvdts, label=r'$V_T$=-60')
 
 expif = ExpIF(1, delta_T=0.2, V_T=-50)
 x2 = np.ones(500) * expif.V_T
 plt.plot(x2, y2, '--', color='grey')
 dvdts = expif.derivative(Vs, 0., 0.)
-plt.plot(Vs, dvdts, label='V_T=-50', color=u'#d62728')
+plt.plot(Vs, dvdts, label=r'$V_T$=-50', color=u'#d62728')
 
 plt.xlim(-80, -40)
 plt.ylim(-3, 6)
-plt.xlabel('V')
+plt.xlabel('V [mV]')
 plt.ylabel('dV/dt')
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
 plt.legend()
+
+
 plt.show()

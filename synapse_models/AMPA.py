@@ -55,4 +55,4 @@ class AMPA(bp.dyn.TwoEndConn):
 
 
 if __name__ == '__main__':
-	run_syn(AMPA, title='AMPA Synapse Model')
+	run_syn(AMPA, title='AMPA Synapse Model', sp_times=[25, 50, 75, 100, 160], g_max=0.2)

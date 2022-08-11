@@ -115,6 +115,10 @@ class NMDA_with_DE(bp.dyn.TwoEndConn):
 
 
 if __name__ == '__main__':
-  run_syn_NMDA(NMDA, title='NMDA Synapse (Kinetic)')
+  run_syn_NMDA(NMDA,
+               title='NMDA Synapse (Kinetic)',
+               sp_times=[25, 50, 75, 100, 160],)
 
-  run_syn_NMDA(NMDA_with_DE, title='NMDA Synapse (Phenomenological)')
+  run_syn_NMDA(NMDA_with_DE,
+               title='NMDA Synapse (Phenomenological)',
+               sp_times=[25, 50, 75, 100, 160],)

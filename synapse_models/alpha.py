@@ -15,5 +15,11 @@ class Alpha(DualExponential):
 
 
 if __name__ == '__main__':
-  run_syn(Alpha, syn_type='CUBA', title='Alpha Synapse Model (Current-Based)')
-  run_syn(Alpha, syn_type='COBA', title='Alpha Synapse Model (Conductance-Based)')
+  run_syn(Alpha,
+          syn_type='CUBA',
+          title='Alpha Synapse Model (Current-Based)',
+          sp_times=[25, 50, 75, 100, 150], g_max=5.)
+  run_syn(Alpha,
+          syn_type='COBA',
+          title='Alpha Synapse Model (Conductance-Based)',
+          sp_times=[25, 50, 75, 100, 150], g_max=5.)

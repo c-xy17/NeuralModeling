@@ -99,7 +99,9 @@ def run_STP(title=None, **kwargs):
 
 def run_STP2(title=None, **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
-  neu1 = bp.dyn.LIF(1)
+  neu1 = bp.neurons.SpikeTimeGroup(1,
+                                   times=[100, 150, 200, 250, 300, 350, 400, 450, 500, 1000],
+                                   indices=[0] * 10)
   neu2 = bp.dyn.LIF(1)
   syn = STP(neu1, neu2, bp.connect.All2All(), **kwargs)
   net = bp.dyn.Network(pre=neu1, syn=syn, post=neu2)
@@ -110,12 +112,11 @@ def run_STP2(title=None, **kwargs):
                                         return_length=True)
   # 运行模拟
   runner = bp.dyn.DSRunner(net,
-                           inputs=[('pre.input', inputs, 'iter')],
                            monitors=['syn.u', 'syn.x', 'syn.g', 'pre.spike'])
-  runner.run(dur)
+  runner.run(1200)
 
   # 可视化
-  fig, gs = bp.visualize.get_figure(3, 1, 1.5, 6.)
+  fig, gs = bp.visualize.get_figure(3, 1, 1.5, 8.)
 
   ax = fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon['pre.spike'][:, 0], label='pre.spike')

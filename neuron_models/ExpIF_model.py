@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 
 class ExpIF(bp.dyn.NeuGroup):
 	def __init__(self, size, V_rest=-65., V_reset=-68., V_th=20., V_T=-60., delta_T=1.,
-	             R=1., tau=10., tau_ref=2., **kwargs):
+	             R=1., tau=10., tau_ref=2., method='exp_euler'):
 		# 初始化父类
-		super(ExpIF, self).__init__(size=size, **kwargs)
+		super(ExpIF, self).__init__(size=size)
 
 		# 初始化参数
 		self.V_rest = V_rest
@@ -27,7 +27,7 @@ class ExpIF(bp.dyn.NeuGroup):
 		self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))  # 脉冲发放状态
 
 		# 使用指数欧拉方法进行积分
-		self.integral = bp.odeint(f=self.derivative, method='exp_auto')
+		self.integral = bp.odeint(f=self.derivative, method=method)
 
 	# 定义膜电位关于时间变化的微分方程
 	def derivative(self, V, t, Iext):
