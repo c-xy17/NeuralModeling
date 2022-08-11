@@ -52,5 +52,25 @@ class Exponential(bp.dyn.TwoEndConn):
 
 
 if __name__ == '__main__':
-  run_syn(Exponential, syn_type='CUBA', title='Exponential Synapse Model (Current-Based)')
-  run_syn(Exponential, syn_type='COBA', title='Exponential Synapse Model (Conductance-Based)')
+  run_syn(Exponential,
+          sp_times=[25, 50, 75, 100, 160],
+          title='Exponential Synapse Model (Current-Based)',
+          syn_type='CUBA', )
+  run_syn(Exponential,
+          sp_times=[25, 50, 75, 100, 150],
+          title='Exponential Synapse Model (Conductance-Based)',
+          syn_type='COBA', )
+
+  run_syn(Exponential,
+          sp_times=[25, 50, 75, 100, 160],
+          title='Exponential Synapse Model (Current-Based)',
+          syn_type='CUBA',
+          g_max=5.)
+  run_syn(Exponential,
+          sp_times=[25, 50, 75, 100, 150],
+          title='Exponential Synapse Model (Conductance-Based)',
+          syn_type='COBA',
+          g_max=5.)
+
+
+

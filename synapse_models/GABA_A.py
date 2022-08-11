@@ -12,4 +12,4 @@ class GABAa(AMPA):
 
 
 if __name__ == '__main__':
-  run_syn(GABAa, title='GABA$_\mathrm{A}$ Synapse Model')
+  run_syn(GABAa, title='GABA$_\mathrm{A}$ Synapse Model', sp_times=[25, 50, 75, 100, 160],)

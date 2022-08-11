@@ -1,12 +1,11 @@
 import brainpy as bp
 import brainpy.math as bm
 
-from run_synapse import run_syn
+from run_synapse import run_delta_syn
 
 
 class VoltageJump(bp.dyn.TwoEndConn):
-  def __init__(self, pre, post, conn, g_max=1., delay_step=2, E=0.,
-               syn_type='CUBA', **kwargs):
+  def __init__(self, pre, post, conn, g_max=1., delay_step=2, E=0., **kwargs):
     super().__init__(pre=pre, post=post, conn=conn, **kwargs)
     self.check_pre_attrs('spike')
     self.check_post_attrs('input', 'V')
@@ -15,9 +14,6 @@ class VoltageJump(bp.dyn.TwoEndConn):
     self.g_max = g_max
     self.delay_step = delay_step
     self.E = E
-
-    assert syn_type == 'CUBA' or syn_type == 'COBA'  # current-based 或 conductance-based
-    self.type = syn_type
 
     # 获取关于连接的信息
     self.pre2post = self.conn.require('pre2post')  # 获取从pre到post的连接信息
@@ -35,13 +31,9 @@ class VoltageJump(bp.dyn.TwoEndConn):
     post_sp = bm.pre2post_event_sum(delayed_pre_spike, self.pre2post, self.post.num, self.g_max)
     self.g.value = post_sp
 
-    # 根据不同模式计算突触后电流
-    if self.type == 'CUBA':
-      self.post.input += self.g * (self.E - (-65.))  # E - V_rest
-    else:
-      self.post.input += self.g * (self.E - self.post.V)
+    # 计算突触后电流
+    self.post.V += self.g  # E - V_rest
 
 
 if __name__ == '__main__':
-  run_syn(VoltageJump, syn_type='CUBA', title='Delta Synapse Model (Current-Based)')
-  run_syn(VoltageJump, syn_type='COBA', title='Delta Synapse Model (Conductance-Based)')
+  run_delta_syn(VoltageJump, title='Delta Synapse Model', g_max=2.)
