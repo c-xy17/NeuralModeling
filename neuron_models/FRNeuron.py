@@ -7,6 +7,6 @@ class FR(bp.dyn.NeuGroup):
     self.r = bm.Variable(bm.zeros(self.num))
     self.input = bm.Variable(bm.zeros(self.num))
 
-  def update(self, _t, _dt):
+  def update(self, tdi):
     self.r.value = self.input  # 将输入直接视为r
     self.input[:] = 0.

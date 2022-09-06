@@ -1,6 +1,7 @@
 import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class STP(bp.dyn.TwoEndConn):
@@ -39,7 +40,7 @@ class STP(bp.dyn.TwoEndConn):
     dg = lambda g, t: -g / self.tau
     return bp.JointEq([du, dx, dg])  # 将三个微分方程联合求解
 
-  def update(self, _t, _dt):
+  def update(self, tdi):
     # 将g的计算延迟delay_step的时间步长
     delayed_g = self.delay(self.delay_step)
 
@@ -49,7 +50,7 @@ class STP(bp.dyn.TwoEndConn):
 
     # 更新各个变量
     syn_sps = bm.pre2syn(self.pre.spike, self.pre_ids)  # 哪些突触前神经元产生了脉冲
-    u, x, g = self.integral(self.u, self.x, self.g, _t)  # 计算积分后的u, x, g
+    u, x, g = self.integral(self.u, self.x, self.g, tdi.t, tdi.dt)  # 计算积分后的u, x, g
     u = bm.where(syn_sps, u + self.U * (1 - self.u), u)  # 更新后的u
     x = bm.where(syn_sps, x - u * self.x, x)  # 更新后的x
     g = bm.where(syn_sps, g + self.g_max * u * self.x, g)  # 更新后的g
@@ -70,8 +71,8 @@ def run_STP(title=None, **kwargs):
 
   # 分段电流
   inputs, dur = bp.inputs.section_input(values=[22., 0., 22., 0.],
-                                   durations=[200., 200., 25., 75.],
-                                   return_length=True)
+                                        durations=[200., 200., 25., 75.],
+                                        return_length=True)
   # 运行模拟
   runner = bp.dyn.DSRunner(net,
                            inputs=[('pre.input', inputs, 'iter')],
@@ -94,9 +95,53 @@ def run_STP(title=None, **kwargs):
   plt.xlabel('t (ms)')
   plt.tight_layout()
   plt.show()
-  
 
-# 短时程易化
-run_STP(title='STF', U=0.1, tau_d=15., tau_f=200.)
-# 短时程抑制
-run_STP(title='STD', U=0.4, tau_d=200., tau_f=15.)
+
+def run_STP2(title=None, **kwargs):
+  # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
+  neu1 = bp.neurons.SpikeTimeGroup(1,
+                                   times=[100, 150, 200, 250, 300, 350, 400, 450, 500, 1000],
+                                   indices=[0] * 10)
+  neu2 = bp.dyn.LIF(1)
+  syn = STP(neu1, neu2, bp.connect.All2All(), **kwargs)
+  net = bp.dyn.Network(pre=neu1, syn=syn, post=neu2)
+
+  # 分段电流
+  inputs, dur = bp.inputs.section_input(values=[22., 0., 22., 0.],
+                                        durations=[200., 200., 25., 75.],
+                                        return_length=True)
+  # 运行模拟
+  runner = bp.dyn.DSRunner(net,
+                           monitors=['syn.u', 'syn.x', 'syn.g', 'pre.spike'])
+  runner.run(1200)
+
+  # 可视化
+  fig, gs = bp.visualize.get_figure(3, 1, 1.5, 8.)
+
+  ax = fig.add_subplot(gs[0, 0])
+  plt.plot(runner.mon.ts, runner.mon['pre.spike'][:, 0], label='pre.spike')
+  ax.spines['right'].set_color('none')
+  ax.spines['top'].set_color('none')
+  plt.ylabel('Pre Spike')
+
+  ax = fig.add_subplot(gs[1:, 0])
+  g = runner.mon['syn.g'][:, 0] * 10
+  noise_g = g + np.random.normal(0., 0.005, g.shape)
+  plt.plot(runner.mon.ts, noise_g, label='Data')
+  plt.plot(runner.mon.ts, g, label='Fit', color=u'#d62728')
+  plt.legend()
+  plt.xlabel('Time [ms]')
+  plt.ylabel('Post Voltage [mV]')
+  ax.spines['right'].set_color('none')
+  ax.spines['top'].set_color('none')
+  plt.show()
+
+
+# if __name__ == '__main__':
+  # # 短时程易化
+  # run_STP(title='STF', U=0.1, tau_d=15., tau_f=200.)
+  # 短时程抑制
+  # run_STP(title='STD', U=0.4, tau_d=200., tau_f=15.)
+
+if __name__ == '__main__':
+  run_STP2(title='STD', U=0.4, tau_d=200., tau_f=15.)
