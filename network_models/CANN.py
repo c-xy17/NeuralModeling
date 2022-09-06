@@ -50,14 +50,16 @@ class CANN1D(bp.dyn.NeuGroup):
     x_left = bm.reshape(x, (-1, 1))
     x_right = bm.repeat(x.reshape((1, -1)), len(x), axis=0)
     d = self.dist(x_left - x_right)  # 距离矩阵
-    Jxx = self.J0 * bm.exp(-0.5 * bm.square(d / self.a)) / (bm.sqrt(2 * bm.pi) * self.a)
+    Jxx = self.J0 * bm.exp(
+      -0.5 * bm.square(d / self.a)) / (bm.sqrt(2 * bm.pi) * self.a)
     return Jxx
 
   # 获取各个神经元到pos处神经元的输入
   def get_stimulus_by_pos(self, pos):
     return self.A * bm.exp(-0.25 * bm.square(self.dist(self.x - pos) / self.a))
 
-  def update(self, _t, _dt):
+  def update(self, tdi, x=None):
+    _t = tdi['t']
     self.u[:] = self.integral(self.u, _t, self.input)
     self.input[:] = 0.  # 重置外部电流
 

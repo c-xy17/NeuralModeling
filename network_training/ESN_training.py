@@ -29,6 +29,7 @@ U = U.reshape((1, -1, num_in))  # 维度：(num_batch, num_step, num_dim)
 Y = bm.power(bm.sin(10 * n), 7)  # 输出
 Y = Y.reshape((1, -1, num_out))  # 维度：(num_batch, num_step, num_dim)
 
+# 生成模型
 model = ESN(num_in, num_res, num_out, lambda_max=0.95)
 
 # 训练前，运行模型得到结果

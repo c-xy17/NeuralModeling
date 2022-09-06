@@ -34,22 +34,22 @@ runner = bp.dyn.DSRunner(cann,
 runner.run(duration)
 
 # 可视化
-fig, gs = plt.subplots(1, 2, figsize=(12, 4.5), sharey='all')
+# fig, gs = plt.subplots(1, 2, figsize=(12, 4.5), sharey='all')
+#
+# plot_response(gs[0], t=10.)
+# plot_response(gs[1], t=20.)
+#
+# plt.tight_layout()
+# plt.show()
 
-plot_response(gs[0], t=10.)
-plot_response(gs[1], t=20.)
-
-plt.tight_layout()
-plt.show()
-
-# bp.visualize.animate_1D(
-#   dynamical_vars=[{'ys': runner.mon.u, 'xs': cann.x, 'legend': 'u'},
-#                   {'ys': Iext, 'xs': cann.x, 'legend': 'Iext'}],
-#   frame_step=1,
-#   frame_delay=40,
-#   show=True,
-#   # save_path='../../images/cann-encoding.gif'
-# )
+bp.visualize.animate_1D(
+  dynamical_vars=[{'ys': runner.mon.u, 'xs': cann.x, 'legend': 'u'},
+                  {'ys': Iext, 'xs': cann.x, 'legend': 'Iext'}],
+  frame_step=1,
+  frame_delay=40,
+  show=True,
+  # save_path='../../images/cann-encoding.gif'
+)
 
 # cann.k = 8.1
 #
