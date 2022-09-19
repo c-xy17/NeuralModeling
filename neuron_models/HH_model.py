@@ -65,13 +65,15 @@ class HH(bp.dyn.NeuGroup):
 		dVdt = (- I_Na - I_K - I_leak + self.input) / self.C
 		return dVdt
 
-	def update(self, _t, _dt):
+	# 更新函数：每个时间步都会运行此函数完成变量更新
+	def update(self, tdi):
+		t, dt = tdi.t, tdi.dt
 		# 更新下一时刻变量的值
-		V, m, h, n = self.integral(self.V, self.m, self.h, self.n, _t, dt=_dt)
+		V, m, h, n = self.integral(self.V, self.m, self.h, self.n, t, dt=dt)
 		# 判断神经元是否产生膜电位
 		self.spike.value = bm.logical_and(self.V < self.V_th, V >= self.V_th)
 		# 更新神经元发放的时间
-		self.t_last_spike.value = bm.where(self.spike, _t, self.t_last_spike)
+		self.t_last_spike.value = bm.where(self.spike, t, self.t_last_spike)
 		self.V.value = V
 		self.m.value = m
 		self.h.value = h
@@ -90,9 +92,11 @@ hh = HH(currents.shape[1])
 runner = bp.DSRunner(hh, monitors=['V', 'm', 'h', 'n'], inputs=['input', currents, 'iter'])
 runner.run(length)
 
+# 可视化
 bp.visualize.line_plot(runner.mon.ts, runner.mon.V, ylabel='V (mV)',
 											 plot_ids=np.arange(currents.shape[1]))
-plt.plot(runner.mon.ts, bm.where(currents[:, -1] > 0, 10., 0.).numpy() - 90) # 将电流变化画在点位变化的下方
+# 将电流变化画在膜电位变化的下方
+plt.plot(runner.mon.ts, bm.where(currents[:, -1] > 0, 10., 0.).numpy() - 90)
 plt.tight_layout()
 plt.show()
 
