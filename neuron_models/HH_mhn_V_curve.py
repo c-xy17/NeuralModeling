@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def tau_inf_alpha_beta(var, alpha_x, beta_x):
+def tau_inf_alpha_beta(var, alpha_x, beta_x, fn=None):
   V = np.arange(-110, 50, 0.1)
   alpha = alpha_x(V)
   beta = beta_x(V)
@@ -24,6 +24,8 @@ def tau_inf_alpha_beta(var, alpha_x, beta_x):
   plt.plot(V, beta)
   plt.title(r'$\beta_{}$'.format(var))
   plt.xlabel('V (mV)')
+  if fn:
+    plt.savefig(fn, transparent=True, dpi=500)
   plt.show()
 
 
@@ -36,7 +38,9 @@ beta_h = lambda V: 1. / (np.exp(-(V + 35.) / 10) + 1.)
 alpha_m = lambda V: 0.1 * (V + 40.) / (1 - np.exp(-(V + 40.) / 10.))
 beta_m = lambda V: 4. * np.exp(-(V + 65.) / 18.)
 
-tau_inf_alpha_beta('n', alpha_n, beta_n)
-tau_inf_alpha_beta('h', alpha_h, beta_h)
-tau_inf_alpha_beta('m', alpha_m, beta_m)
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
+tau_inf_alpha_beta('n', alpha_n, beta_n, '../images_conductance_models/n_tau_inf_alpha_beta.png')
+tau_inf_alpha_beta('h', alpha_h, beta_h, '../images_conductance_models/h_tau_inf_alpha_beta.png')
+tau_inf_alpha_beta('m', alpha_m, beta_m, '../images_conductance_models/m_tau_inf_alpha_beta.png')
 
