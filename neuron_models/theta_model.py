@@ -26,7 +26,8 @@ class Theta(bp.dyn.NeuGroup):
 		dthetadt = -bm.cos(theta) + (1. + bm.cos(theta)) * (2 * self.c + 1 / 2 + 2 * self.b * I_ext)
 		return dthetadt
 
-	def update(self, _t, _dt):
+	def update(self, tdi):
+		_t, _dt = tdi.t, tdi.dt
 		# 以数组的方式对神经元进行更新
 		theta = self.integral(self.theta, _t, self.input, dt=_dt) % (2 * bm.pi)  # 根据时间步长更新theta
 		spike = (theta < bm.pi) & (self.theta > bm.pi)  # 将theta从2*pi跳跃到0的神经元标记为发放了脉冲

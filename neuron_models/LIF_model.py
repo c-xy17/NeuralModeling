@@ -31,7 +31,8 @@ class LIF(bp.dyn.NeuGroup):
     dvdt = (-V + self.V_rest + self.R * Iext) / self.tau
     return dvdt
 
-  def update(self, _t, _dt):
+  def update(self, tdi):
+    _t, _dt = tdi.t, tdi.dt
     # 以数组的方式对神经元进行更新
     refractory = (_t - self.t_last_spike) <= self.t_ref  # 判断神经元是否处于不应期
     V = self.integral(self.V, _t, self.input, dt=_dt)  # 根据时间步长更新膜电位

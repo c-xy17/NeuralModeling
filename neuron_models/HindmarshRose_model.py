@@ -43,8 +43,8 @@ class HindmarshRose(bp.dyn.NeuGroup):
 	def derivative(self):
 		return bp.JointEq([self.dV, self.dy, self.dz])
 
-	def update(self, _t, _dt):
-		x, y, z = self.integral(self.x, self.y, self.z, _t, self.input, dt=_dt)  # 更新变量V, y, z
+	def update(self, tdi):
+		x, y, z = self.integral(self.x, self.y, self.z, tdi.t, self.input, tdi.dt)  # 更新变量V, y, z
 		self.spike.value = bm.logical_and(x >= self.theta, self.x < self.theta)  # 判断神经元是否发放脉冲
 		self.x.value = x
 		self.y.value = y
