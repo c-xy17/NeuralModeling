@@ -1,6 +1,10 @@
 import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
+import numpy as np
+
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
 class LIF(bp.dyn.NeuGroup):
@@ -45,15 +49,68 @@ class LIF(bp.dyn.NeuGroup):
     self.input[:] = 0.  # 重置外界输入
 
 
-if __name__ == '__main__':
+def run_LIF():
   # 运行LIF模型
+
   group = LIF(1)
   runner = bp.DSRunner(group, monitors=['V'], inputs=('input', 22.))
   runner(200)  # 运行时长为200ms
 
   # 结果可视化
+  fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+  fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon.V)
-  plt.xlabel('t (ms)')
-  plt.ylabel('V')
+  plt.xlabel(r'$t$ (ms)')
+  plt.ylabel(r'$V$')
+  # plt.savefig('LIF_output.png', transparent=True, dpi=500)
   plt.show()
 
+
+def fi_curve():
+  duration = 1000  # 设定仿真时长
+  I_cur = np.arange(0, 600, 2)  # 定义大小为10, 20, ..., 1000的100束电流
+
+  neu = LIF(len(I_cur), tau=5., t_ref=5.)  # 定义神经元群
+  runner = bp.DSRunner(neu, monitors=['spike'], inputs=('input', I_cur), dt=0.01)  # 设置运行器，其中每一个神经元接收I_cur的一个恒定电流
+  runner(duration=duration)  # 运行神经元模型
+  f_list = runner.mon.spike.sum(axis=0) / (duration / 1000)  # 计算每个神经元的脉冲发放次数
+
+  fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+  fig.add_subplot(gs[0, 0])
+  plt.plot(I_cur, f_list)
+  plt.xlabel('Input current')
+  plt.ylabel('spiking frequency')
+  # plt.savefig('LIF_fi_curve.png', transparent=True, dpi=500)
+  plt.show()
+
+
+def threshold():
+  fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+  fig.add_subplot(gs[0, 0])
+
+  duration = 200
+  neu1 = LIF(1, t_ref=5.)
+  neu1.V[:] = bm.array([-5.])  # 设置V的初始值
+  runner = bp.DSRunner(neu1, monitors=['V'], inputs=('input', 20))  # 给neu1一个大小为20的恒定电流
+  runner(duration)
+  plt.plot(runner.mon.ts, runner.mon.V, label='$I = 20$')
+  plt.text(153, 21, r'$I = 20$')
+
+  neu2 = LIF(1, t_ref=5.)
+  neu2.V[:] = bm.array([-5.])  # 设置V的初始值
+  runner = bp.DSRunner(neu2, monitors=['V'], inputs=('input', 21))  # 给neu2一个大小为21的恒定电流
+  runner(duration)
+  plt.plot(runner.mon.ts, runner.mon.V, label='$I = 21$')
+  plt.text(153, -2, r'$I = 21$')
+
+  plt.xlabel(r'$t$ (ms)')
+  plt.ylabel(r'$V$ (mV)')
+  plt.ylim(-6, 23)
+  # plt.savefig('LIF_input_threshold.png', transparent=True, dpi=500)
+  plt.show()
+
+
+if __name__ == '__main__':
+  run_LIF()
+  fi_curve()
+  threshold()

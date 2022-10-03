@@ -4,6 +4,10 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
+plt.rcParams['axes.unicode_minus'] = False
+
 
 class HH(bp.dyn.NeuGroup):
   def __init__(self, size, ENa=50., gNa=120., EK=-77., gK=36.,
@@ -140,9 +144,7 @@ def visualize_hh_responses_in_book():
   runner.run(length)
 
   # visualization
-  plt.rcParams.update({"font.size": 15})
-  plt.rcParams['font.sans-serif'] = ['Times New Roman']
-  plt.rcParams['axes.unicode_minus'] = False
+
   plt.plot(runner.mon.ts, runner.mon.V[:, 0])
   plt.annotate(f'I={current_sizes[0]} mA', xy=(12.2, -69), xytext=(14.2, -83),
                arrowprops=dict(arrowstyle="->"))
@@ -168,7 +170,7 @@ def visualize_hh_responses_in_book():
   plt.plot(runner.mon.ts, bm.where(currents[:, -1] > 0, 10., 0.).to_numpy() - 90)
   plt.annotate('Current', xy=(30, -87), xytext=(30, -87), )
   plt.tight_layout()
-  plt.savefig('../images_conductance_models/HH_responses_with_different_currents.png',
+  plt.savefig('HH_responses_with_different_currents.png',
               transparent=True, dpi=500)
   plt.show()
 
@@ -185,18 +187,14 @@ def visualize_constant_current_response_in_book():
   runner.run(length)
 
   # visualization
-  plt.rcParams.update({"font.size": 15})
-  plt.rcParams['font.sans-serif'] = ['Times New Roman']
-  plt.rcParams['axes.unicode_minus'] = False
-
   plt.plot(runner.mon.ts, runner.mon.V, label='V')
   plt.plot(runner.mon.ts, currents - 90, label='Current (I=5mA)')
-  plt.xlabel('Time (ms)')
-  plt.ylabel('V (mV)')
-  plt.legend()
+  plt.xlabel(r'$t$ (ms)')
+  plt.ylabel(r'$V$ (mV)')
+  plt.text(0, -67, r'$V$')
+  plt.text(0, -88, r'$I$=5mA')
   plt.tight_layout()
-  plt.savefig('../images_conductance_models/HH_responses_with_constant_current.png',
-              transparent=True, dpi=500)
+  plt.savefig('HH_responses_with_constant_current.png', transparent=True, dpi=500)
   plt.show()
 
 
@@ -210,9 +208,7 @@ def conductance_during_action_potential():
   runner.run(length)
 
   # visualization
-  plt.rcParams.update({"font.size": 15})
-  plt.rcParams['font.sans-serif'] = ['Times New Roman']
-  plt.rcParams['axes.unicode_minus'] = False
+
 
   fig, gs = bp.visualize.get_figure(3, 1, 2, 8)
 
@@ -237,7 +233,7 @@ def conductance_during_action_potential():
   plt.ylabel('Channel')
   plt.xlabel('Time (ms)')
 
-  plt.savefig('../images_conductance_models/HH_conductance_during_AP.png',
+  plt.savefig('HH_conductance_during_AP.png',
               transparent=True, dpi=500)
   plt.show()
 
@@ -245,7 +241,7 @@ def conductance_during_action_potential():
 if __name__ == '__main__':
   pass
   # simple_run()
-  visualize_hh_responses_in_book()
-  # visualize_constant_current_response_in_book()
+  # visualize_hh_responses_in_book()
+  visualize_constant_current_response_in_book()
   # conductance_during_action_potential()
 

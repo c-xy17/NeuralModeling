@@ -34,42 +34,42 @@ plt.tight_layout()
 plt.show()
 
 
-# expif = ExpIF(1, delta_T=2., V_T=-54.03)
-# qif = QIF(1)
-# Vs = np.linspace(-80, -45, 200)
-#
-# fig, axes = plt.subplots(1, 2, figsize=(10, 4.5), sharey='all')
-#
-# # I_ext = 0
-# ax = axes[0]
-# dvdts = qif.derivative(Vs, 0., 0.)
-# ax.plot(Vs, dvdts, color=u'#d62728', label='QIF')
-# dvdts = expif.derivative(Vs, 0., 0.)
-# ax.plot(Vs, np.zeros(200), '--', color=u'#333333')
-# ax.plot(Vs, dvdts, label='ExpIF')
-# ax.set_title('External Input = 0')
-# ax.set_xlim(-80, -45)
-# ax.set_ylim(-3, 10)
-# ax.set_xlabel('V')
-# ax.set_ylabel('dV/dt')
-# ax.legend()
-#
-# ax = axes[1]
+expif = ExpIF(1, delta_T=2., V_T=-54.03)
+qif = QIF(1)
+Vs = np.linspace(-80, -45, 200)
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 4.5), sharey='all')
+
+# I_ext = 0
+ax = axes[0]
+dvdts = qif.derivative(Vs, 0., 0.)
+ax.plot(Vs, dvdts, color=u'#d62728', label='QIF')
+dvdts = expif.derivative(Vs, 0., 0.)
+ax.plot(Vs, np.zeros(200), '--', color=u'#333333')
+ax.plot(Vs, dvdts, label='ExpIF')
+ax.set_title('External Input = 0')
+ax.set_xlim(-80, -45)
+ax.set_ylim(-3, 10)
+ax.set_xlabel('V')
+ax.set_ylabel('dV/dt')
+ax.legend()
+
+ax = axes[1]
+dvdts = expif.derivative(Vs, 0., 20.)
+ax.plot(Vs, np.zeros(200), '--', color=u'#333333')
+ax.plot(Vs, dvdts)
+ax.set_title('External Input = 10')
+ax.set_xlim(-80, -45)
+ax.set_xlabel('V')
+
+# ax = axes[2]
 # dvdts = expif.derivative(Vs, 0., 20.)
 # ax.plot(Vs, np.zeros(200), '--', color=u'#333333')
 # ax.plot(Vs, dvdts)
-# ax.set_title('External Input = 10')
+# ax.set_title('External Input = 20')
 # ax.set_xlim(-80, -45)
 # ax.set_xlabel('V')
-#
-# # ax = axes[2]
-# # dvdts = expif.derivative(Vs, 0., 20.)
-# # ax.plot(Vs, np.zeros(200), '--', color=u'#333333')
-# # ax.plot(Vs, dvdts)
-# # ax.set_title('External Input = 20')
-# # ax.set_xlim(-80, -45)
-# # ax.set_xlabel('V')
-#
-# # ax.get_shared_y_axes().join(axes[0], axes[1], axes[2])
-# ax.get_shared_y_axes().join(axes[0], axes[1])
-# plt.show()
+
+# ax.get_shared_y_axes().join(axes[0], axes[1], axes[2])
+ax.get_shared_y_axes().join(axes[0], axes[1])
+plt.show()
