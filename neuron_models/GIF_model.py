@@ -73,177 +73,223 @@ class GIF(bp.dyn.NeuGroup):
     self.input[:] = 0.  # 重置外界输入
 
 
-# fig, gs = bp.visualize.get_figure(1, 2, 4, 6)
-#
-# # 模拟相位脉冲（phasic spiking）
-# group = GIF(10, a=0.005, A1=0., A2=0.)
-# runner = bp.DSRunner(group, monitors=['V', 'V_th'], inputs=('input', 1.5), dt=0.01)
-# runner(500)
-#
-# fig.add_subplot(gs[0, 0])
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, legend='V', zorder=10, show=False)
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V_th, legend='V_th',
-#                        title='phasic spiking', show=False)
-#
-# # 模拟超极化爆发（hyperpolarization-induced bursting）
-# group = GIF(10, a=0.03, A1=10., A2=-0.6)
-# runner = bp.DSRunner(group, monitors=['V', 'V_th'], inputs=('input', -1), dt=0.01)
-# runner(500)
-#
-# fig.add_subplot(gs[0, 1])
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V, legend='V', zorder=10, show=False)
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.V_th, legend='V_th',
-#                        title='hyperpolarization-induced bursting', show=True)
+def run_GIF():
+  fig, gs = bp.visualize.get_figure(1, 2, 4, 6)
 
-def run(ax1, model, duration, I_ext, title=''):
-  runner = bp.dyn.DSRunner(model,
-                           inputs=('input', I_ext, 'iter'),
-                           monitors=['V', 'theta'])
-  runner.run(duration)
-  ts = runner.mon.ts
-  ax1.plot(ts, runner.mon.V[:, 0], label='V')
-  ax1.plot(ts, runner.mon.theta[:, 0], label=r'$\theta$')
-  ax1.set_xlabel('Time (ms)')
-  ax1.set_ylabel('Membrane potential')
-  ax1.set_xlim(-0.1, ts[-1] + 0.1)
-  if title:
-    plt.title(title)
-  plt.legend()
-  ax2 = ax1.twinx()
-  ax2.plot(ts, I_ext, color='turquoise', label='input')
-  ax2.set_xlabel('Time (ms)')
-  ax2.set_ylabel('External input')
-  ax2.set_xlim(-0.1, ts[-1] + 0.1)
-  ax2.set_ylim(-5., 20.)
-  plt.legend(loc='lower left')
+  # 模拟相位脉冲（phasic spiking）
+  group = GIF(10, a=0.005, A1=0., A2=0.)
+  runner = bp.DSRunner(group, monitors=['V', 'theta'], inputs=('input', 1.5), dt=0.01)
+  runner(500)
+
+  fig.add_subplot(gs[0, 0])
+  bp.visualize.line_plot(runner.mon.ts, runner.mon.V, legend='V', zorder=10, show=False)
+  bp.visualize.line_plot(runner.mon.ts, runner.mon.theta, legend='theta',
+                         title='phasic spiking', show=False)
+
+  # 模拟超极化爆发（hyperpolarization-induced bursting）
+  group = GIF(10, a=0.03, A1=10., A2=-0.6)
+  runner = bp.DSRunner(group, monitors=['V', 'theta'], inputs=('input', -1), dt=0.01)
+  runner(500)
+
+  fig.add_subplot(gs[0, 1])
+  bp.visualize.line_plot(runner.mon.ts, runner.mon.V, legend='V', zorder=10, show=False)
+  bp.visualize.line_plot(runner.mon.ts, runner.mon.theta, legend='theta',
+                         title='hyperpolarization-induced bursting', show=True)
 
 
-def plot_gallary():
-  fig, gs = bp.visualize.get_figure(5, 4, 3, 4.5)
+def plot_gallery():
+  def _run(ax1, model, duration, I_ext, title=''):
+    runner = bp.dyn.DSRunner(model,
+                             inputs=('input', I_ext, 'iter'),
+                             monitors=['V', 'theta'])
+    runner.run(duration)
+    ts = runner.mon.ts
+    ax1.plot(ts, runner.mon.V[:, 0], label=r'$V$', linestyle='-')
+    ax1.plot(ts, runner.mon.theta[:, 0], label=r'$\theta$', linestyle='--')
+    ax1.set_ylabel('Potential (mV)')
+    ax1.set_xlabel(r'$t$ (ms)')
+    ax1.set_xlim(-0.1, ts[-1] + 0.1)
+    if title: plt.title(title)
+    plt.legend()
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+
+  row, col = 7, 3
+  fig, gs = bp.visualize.get_figure(row, col, 3, 5)
 
   # Tonic Spiking
-  ax = fig.add_subplot(gs[0, 0])
+  ax = fig.add_subplot(gs[0 // col, 0 % col])
   Iext, duration = bp.inputs.section_input((1.5,), (200.,), return_length=True)
-  run(ax, GIF(1), duration, Iext, 'A. Tonic Spiking')
+  _run(ax, GIF(1), duration, Iext, 'A. Tonic Spiking')
 
   # Class 1 Excitability
-  ax = fig.add_subplot(gs[0, 1])
+  ax = fig.add_subplot(gs[1 // col, 1 % col])
   Iext, duration = bp.inputs.section_input([1. + 1e-6], [500.], return_length=True)
-  run(ax, GIF(1), duration, Iext, 'B. Class 1 Excitability')
+  _run(ax, GIF(1), duration, Iext, 'B. Class 1 Excitability')
 
   # Spike Frequency Adaptation
-  ax = fig.add_subplot(gs[0, 2])
+  ax = fig.add_subplot(gs[2 // col, 2 % col])
   Iext, duration = bp.inputs.section_input([2.], [200.], return_length=True)
-  run(ax, GIF(1, a=0.005), duration, Iext, 'C. Spike Frequency Adaptation')
+  _run(ax, GIF(1, a=0.005), duration, Iext, 'C. Spike Frequency Adaptation')
 
   # Phasic Spiking
-  ax = fig.add_subplot(gs[0, 3])
+  ax = fig.add_subplot(gs[3 // col, 3% col])
   Iext, duration = bp.inputs.section_input([1.5], [500.], return_length=True)
-  run(ax, GIF(1, a=0.005), duration, Iext, 'D. Phasic Spiking')
+  _run(ax, GIF(1, a=0.005), duration, Iext, 'D. Phasic Spiking')
 
   # Accommodation
-  ax = fig.add_subplot(gs[1, 0])
+  ax = fig.add_subplot(gs[4 // col, 4 % col])
   Iext, duration = bp.inputs.section_input([1.5, 0., 0.5, 1., 1.5, 0.],
                                            [100., 500., 100., 100., 100., 100.],
                                            return_length=True)
-  run(ax, GIF(1, a=0.005), duration, Iext, 'E. Accommodation')
+  _run(ax, GIF(1, a=0.005), duration, Iext, 'E. Accommodation')
 
   # Threshold Variability
-  ax = fig.add_subplot(gs[1, 1])
+  ax = fig.add_subplot(gs[5 // col, 5 % col])
   Iext, duration = bp.inputs.section_input([1.5, 0., -1.5, 0., 1.5, 0.],
                                            [20., 180., 20., 20., 20., 140.],
                                            return_length=True)
-  run(ax, GIF(1, a=0.005), duration, Iext, 'F. Threshold Variability')
+  _run(ax, GIF(1, a=0.005), duration, Iext, 'F. Threshold Variability')
 
   # Rebound Spiking
-  ax = fig.add_subplot(gs[1, 2])
+  ax = fig.add_subplot(gs[6 // col, 6 % col])
   Iext, duration = bp.inputs.section_input([0., -3.5, 0.], [50., 750., 200.], return_length=True)
-  run(ax, GIF(1, a=0.005), duration, Iext, 'G. Rebound Spiking')
+  _run(ax, GIF(1, a=0.005), duration, Iext, 'G. Rebound Spiking')
 
   # Class 2 Excitability
-  ax = fig.add_subplot(gs[1, 3])
+  ax = fig.add_subplot(gs[7 // col, 7 % col])
   Iext, duration = bp.inputs.section_input([2 * (1. + 1e-6)], [200.], return_length=True)
   neu = GIF(1, a=0.005)
   neu.theta[:] = -30.
-  run(ax, neu, duration, Iext, 'H. Class 2 Excitability')
+  _run(ax, neu, duration, Iext, 'H. Class 2 Excitability')
 
   # Integrator
-  ax = fig.add_subplot(gs[2, 0])
+  ax = fig.add_subplot(gs[8 // col, 8 % col])
   Iext, duration = bp.inputs.section_input([1.5, 0., 1.5, 0., 1.5, 0., 1.5, 0.],
                                            [20., 10., 20., 250., 20., 30., 20., 30.],
                                            return_length=True)
-  run(ax, GIF(1, a=0.005), duration, Iext, 'I. Integrator')
+  _run(ax, GIF(1, a=0.005), duration, Iext, 'I. Integrator')
 
   # Input Bistability
-  ax = fig.add_subplot(gs[2, 1])
+  ax = fig.add_subplot(gs[9 // col, 9 % col])
   Iext, duration = bp.inputs.section_input([1.5, 1.7, 1.5, 1.7],
                                            [100., 400., 100., 400.],
                                            return_length=True)
-  run(ax, GIF(1, a=0.005), duration, Iext, 'J. Input Bistability')
+  _run(ax, GIF(1, a=0.005), duration, Iext, 'J. Input Bistability')
 
   # Hyperpolarization-induced Spiking
-  ax = fig.add_subplot(gs[2, 2])
+  ax = fig.add_subplot(gs[10 // col, 10 % col])
   Iext, duration = bp.inputs.section_input([-1.], [400.], return_length=True)
   neu = GIF(1, theta_reset=-60., theta_inf=-120.)
   neu.theta[:] = -50.
-  run(ax, neu, duration, Iext, 'K. Hyperpolarization-induced Spiking')
+  _run(ax, neu, duration, Iext, 'K. Hyperpolarization-induced Spiking')
 
   # Hyperpolarization-induced Bursting
-  ax = fig.add_subplot(gs[2, 3])
+  ax = fig.add_subplot(gs[11 // col, 11 % col])
   Iext, duration = bp.inputs.section_input([-1.], [400.], return_length=True)
   neu = GIF(1, theta_reset=-60., theta_inf=-120., A1=10., A2=-0.6)
   neu.theta[:] = -50.
-  run(ax, neu, duration, Iext, 'L. Hyperpolarization-induced Bursting')
+  _run(ax, neu, duration, Iext, 'L. Hyperpolarization-induced Bursting')
 
   # Tonic Bursting
-  ax = fig.add_subplot(gs[3, 0])
+  ax = fig.add_subplot(gs[12 // col, 12 % col])
   Iext, duration = bp.inputs.section_input([2.], [500.], return_length=True)
-  run(ax, GIF(1, a=0.005, A1=10., A2=-0.6), duration, Iext, 'M. Tonic Bursting')
+  _run(ax, GIF(1, a=0.005, A1=10., A2=-0.6), duration, Iext, 'M. Tonic Bursting')
 
   # Phasic Bursting
-  ax = fig.add_subplot(gs[3, 1])
+  ax = fig.add_subplot(gs[13 // col, 13 % col])
   Iext, duration = bp.inputs.section_input([1.5], [500.], return_length=True)
   neu = GIF(1, a=0.005, A1=10., A2=-0.6)
-  run(ax, neu, duration, Iext, 'N. Phasic Bursting')
+  _run(ax, neu, duration, Iext, 'N. Phasic Bursting')
 
   # Rebound Bursting
-  ax = fig.add_subplot(gs[3, 2])
+  ax = fig.add_subplot(gs[14 // col, 14 % col])
   Iext, duration = bp.inputs.section_input([0., -3.5, 0.],
                                            [100., 500., 400.],
                                            return_length=True)
-  run(ax, GIF(1, a=0.005, A1=10., A2=-0.6), duration, Iext, 'O. Rebound Bursting')
+  _run(ax, GIF(1, a=0.005, A1=10., A2=-0.6), duration, Iext, 'O. Rebound Bursting')
 
   # Mixed Mode
-  ax = fig.add_subplot(gs[3, 3])
+  ax = fig.add_subplot(gs[15 // col, 15 % col])
   Iext, duration = bp.inputs.section_input([2.], [500.], return_length=True)
-  run(ax, GIF(1, a=0.005, A1=5., A2=-0.3), duration, Iext, 'P. Mixed Mode')
+  _run(ax, GIF(1, a=0.005, A1=5., A2=-0.3), duration, Iext, 'P. Mixed Mode')
 
   # Afterpotentials
-  ax = fig.add_subplot(gs[4, 0])
+  ax = fig.add_subplot(gs[16 // col, 16 % col])
   Iext, duration = bp.inputs.section_input((2., 0.), [15., 185.], return_length=True)
-  run(ax, GIF(1, a=0.005, A1=5., A2=-0.3), duration, Iext, 'Q. Afterpotentials')
+  _run(ax, GIF(1, a=0.005, A1=5., A2=-0.3), duration, Iext, 'Q. Afterpotentials')
 
   # Basal Bistability
-  ax = fig.add_subplot(gs[4, 1])
+  ax = fig.add_subplot(gs[17 // col, 17 % col])
   Iext, duration = bp.inputs.section_input([5., 0., 5., 0.],
                                            [10., 90., 10., 90.],
                                            return_length=True)
-  run(ax, GIF(1, A1=8., A2=-0.1), duration, Iext, 'R. Basal Bistability')
+  _run(ax, GIF(1, A1=8., A2=-0.1), duration, Iext, 'R. Basal Bistability')
 
   # Preferred Frequency
-  ax = fig.add_subplot(gs[4, 2])
+  ax = fig.add_subplot(gs[18 // col, 18 % col])
   Iext, duration = bp.inputs.section_input([5., 0., 4., 0., 5., 0., 4., 0.],
                                            [10., 10., 10., 370., 10., 90., 10., 290.],
                                            return_length=True)
-  run(ax, GIF(1, a=0.005, A1=-3., A2=0.5), duration, Iext, 'S. Preferred Frequency')
+  _run(ax, GIF(1, a=0.005, A1=-3., A2=0.5), duration, Iext, 'S. Preferred Frequency')
 
   # Spike Latency
-  ax = fig.add_subplot(gs[4, 3])
+  ax = fig.add_subplot(gs[19 // col, 19 % col])
   Iext, duration = bp.inputs.section_input([8., 0.], [2., 48.], return_length=True)
-  run(ax, GIF(1, a=-0.08), duration, Iext, 'T. Spike Latency')
+  _run(ax, GIF(1, a=-0.08), duration, Iext, 'T. Spike Latency')
 
-  plt.savefig('GIF_output2.pdf', dpi=300, transparent=True)
+  plt.savefig('GIF_gallery.pdf', dpi=300, transparent=True)
   plt.show()
 
 
-plot_gallary()
+def detailed_running():
+  def _run(model, duration, I_ext, title=''):
+    runner = bp.dyn.DSRunner(model,
+                             inputs=('input', I_ext, 'iter'),
+                             monitors=['V', 'theta', 'I1', 'I2'])
+    runner.run(duration)
+
+    fig, gs = bp.visualize.get_figure(5, 1, 0.9, 6.)
+    ax1 = fig.add_subplot(gs[:3, 0])
+    ax1.plot(runner.mon.ts, runner.mon.V[:, 0], label=r'$V$', linestyle='-')
+    ax1.plot(runner.mon.ts, runner.mon.theta[:, 0], label=r'$\theta$', linestyle='--')
+    ax1.set_ylabel('Potential (mV)')
+    ax1.set_xlim(-0.1, runner.mon.ts[-1] + 0.1)
+    plt.legend()
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+
+    ax1 = fig.add_subplot(gs[3:, 0])
+    ax1.plot(runner.mon.ts, runner.mon.I1, label=r'$I_1$', linestyle='-')
+    ax1.plot(runner.mon.ts, runner.mon.I2, label=r'$I_2$', linestyle='--')
+    ax1.plot(runner.mon.ts, bm.as_numpy(I_ext), label=r'$I$', linestyle='dotted')
+    ax1.set_xlim(-0.1, runner.mon.ts[-1] + 0.1)
+    ax1.set_xlabel(r'$t$ (ms)')
+    ax1.set_ylabel('Current')
+    plt.legend()
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+
+    if title:
+      plt.savefig(f'GIF_{title.replace(" ", "-")}.png', transparent=True, dpi=500)
+
+  Iext, duration = bp.inputs.section_input((2., 0.), [15., 185.], return_length=True)
+  _run(GIF(1, a=0.005, A1=5., A2=-0.3), duration, Iext, 'Afterpotentials')
+
+  Iext, duration = bp.inputs.section_input(
+    [5., 0., 4., 0., 5., 0., 4., 0.], [10., 10., 10., 370., 10., 90., 10., 290.], return_length=True)
+  _run(GIF(1, a=0.005, A1=-3., A2=0.5), duration, Iext, 'Preferred Frequency')
+
+  Iext, duration = bp.inputs.section_input([2.], [500.], return_length=True)
+  _run(GIF(1, a=0.005, A1=10., A2=-0.6), duration, Iext, 'Tonic Bursting')
+
+  Iext, duration = bp.inputs.section_input([0., -3.5, 0.], [50., 750., 200.], return_length=True)
+  _run(GIF(1, a=0.005), duration, Iext, 'Rebound Spiking')
+
+  plt.show()
+
+
+if __name__ == '__main__':
+  # run_GIF()
+  plot_gallery()
+  # detailed_running()

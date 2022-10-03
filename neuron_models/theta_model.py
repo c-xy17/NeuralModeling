@@ -2,6 +2,9 @@ import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
 
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
+
 
 class Theta(bp.dyn.NeuGroup):
 	def __init__(self, size, b=0., c=0., t_ref=0., **kwargs):
@@ -26,7 +29,8 @@ class Theta(bp.dyn.NeuGroup):
 		dthetadt = -bm.cos(theta) + (1. + bm.cos(theta)) * (2 * self.c + 1 / 2 + 2 * self.b * I_ext)
 		return dthetadt
 
-	def update(self, _t, _dt):
+	def update(self, tdi):
+		_t, _dt = tdi.t, tdi.dt
 		# 以数组的方式对神经元进行更新
 		theta = self.integral(self.theta, _t, self.input, dt=_dt) % (2 * bm.pi)  # 根据时间步长更新theta
 		spike = (theta < bm.pi) & (self.theta > bm.pi)  # 将theta从2*pi跳跃到0的神经元标记为发放了脉冲
@@ -47,24 +51,24 @@ runner = bp.DSRunner(neu, monitors=['theta'], inputs=('input', 6.))
 runner(500)
 
 # 可视化
-fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(8, 4))
 
+fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+ax1 = fig.add_subplot(gs[0, 0])
 ax1.plot(runner.mon.ts, runner.mon.theta)
-ax1.set_xlabel('t (ms)')
-ax1.set_ylabel('$\Theta$')
+ax1.set_xlabel(r'$t$ (ms)')
+ax1.set_ylabel(r'$\Theta$')
+ax1.spines['top'].set_visible(False)
+ax1.spines['right'].set_visible(False)
+plt.savefig('theta_neuron_time_evolution.png', transparent=True, dpi=500)
 
+fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+ax2 = fig.add_subplot(gs[0, 0])
 ax2.plot(bm.cos(runner.mon.theta), bm.sin(runner.mon.theta))
-ax2.set_xlabel('$\cos(\Theta)$')
-ax2.set_ylabel('$\sin(\Theta)$')
+ax2.set_xlabel(r'$\cos(\Theta)$')
+ax2.set_ylabel(r'$\sin(\Theta)$')
+ax2.spines['top'].set_visible(False)
+ax2.spines['right'].set_visible(False)
+plt.savefig('theta_neuron_phase.png', transparent=True, dpi=500)
 
-plt.tight_layout()
 plt.show()
 
-# fig, gs = bp.visualize.get_figure(1, 2, 4.5, 6)
-# fig.add_subplot(gs[0, 0])
-# bp.visualize.line_plot(runner.mon.ts, runner.mon.theta, ylabel='theta', show=False)
-# fig.add_subplot(gs[0, 1])
-# bp.visualize.line_plot(bp.math.cos(runner.mon.theta),
-#                        bp.math.sin(runner.mon.theta),
-#                        xlabel='cos(theta)', ylabel='sin(theta)',
-#                        show=True)
