@@ -1,5 +1,9 @@
 import brainpy as bp
 import brainpy.math as bm
+import matplotlib.pyplot as plt
+
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
 class DecisionMakingRateModel(bp.dyn.NeuGroup):
@@ -60,14 +64,14 @@ class DecisionMakingRateModel(bp.dyn.NeuGroup):
   def dI2noise(self, I2_noise, t, noise2):
     return (- I2_noise + noise2.spike * bm.sqrt(self.tau_n * self.sigma_n * self.sigma_n)) / self.tau_n
 
-  def update(self, _t, _dt):
+  def update(self, tdi):
     # 更新噪声神经元以产生新的随机发放
-    self.noise1.update(_t, _dt)
-    self.noise2.update(_t, _dt)
+    self.noise1.update(tdi)
+    self.noise2.update(tdi)
 
     # 更新s1、s2、I1_noise、I2_noise
-    integral = self.integral(self.s1, self.s2, self.I1_noise, self.I2_noise, _t, mu0=self.mu0,
-                             noise1=self.noise1, noise2=self.noise2, dt=_dt)
+    integral = self.integral(self.s1, self.s2, self.I1_noise, self.I2_noise, tdi.t,
+                             mu0=self.mu0, noise1=self.noise1, noise2=self.noise2, dt=tdi.dt)
     self.s1.value, self.s2.value, self.I1_noise.value, self.I2_noise.value = integral
 
     # 用更新后的s1、s2计算r1、r2
@@ -82,3 +86,141 @@ class DecisionMakingRateModel(bp.dyn.NeuGroup):
     # 重置外部输入
     self.mu0[:] = 0.
 
+
+def run_rate_model_coherence1():
+  # 定义各个阶段的时长
+  pre_stimulus_period = 100.
+  stimulus_period = 2000.
+  delay_period = 500.
+  coherence = 25.6
+
+  # 生成模型
+  dmnet = DecisionMakingRateModel(1, coherence=coherence, noise_freq=2400.)
+
+  # 定义电流随时间的变化
+  inputs, total_period = bp.inputs.constant_input([(0., pre_stimulus_period),
+                                                   (20., stimulus_period),
+                                                   (0., delay_period)])
+  # 运行数值模拟
+  runner = bp.DSRunner(dmnet, monitors=['s1', 's2', 'r1', 'r2'], inputs=('mu0', inputs, 'iter'))
+  runner.run(total_period)
+
+  # 可视化
+  fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
+  ax = fig.add_subplot(gs[0, 0])
+  ax.plot(runner.mon.ts, runner.mon.s1, label='s1')
+  ax.plot(runner.mon.ts, runner.mon.s2, label='s2')
+  ax.axvline(pre_stimulus_period, 0., 1., linestyle='dashed', color=u'#444444')
+  ax.axvline(pre_stimulus_period + stimulus_period, 0., 1., linestyle='dashed', color=u'#444444')
+  ax.set_ylabel(r'Gating Variable')
+  ax.set_xticks([])
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.text(1800, 0.55, r'$s_1$')
+  plt.text(1800, 0.10, r'$s_2$')
+  ax = fig.add_subplot(gs[1, 0])
+  ax.plot(runner.mon.ts, runner.mon.r1, label='r1')
+  ax.plot(runner.mon.ts, runner.mon.r2, label='r2')
+  ax.axvline(pre_stimulus_period, 0., 1., linestyle='dashed', color=u'#444444')
+  ax.axvline(pre_stimulus_period + stimulus_period, 0., 1., linestyle='dashed', color=u'#444444')
+  ax.set_xlabel(r'$t$ (ms)')
+  ax.set_ylabel(r'Firing Rate')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.text(1800, 28, r'$r_1$')
+  plt.text(1800, 8, r'$s_2$')
+  # plt.savefig('decision_making_rate_output_c={}.png'.format(coherence), transparent=True, dpi=500)
+  plt.show()
+
+
+def run_rate_model_coherence2():
+  # 定义各个阶段的时长
+  pre_stimulus_period = 100.
+  stimulus_period = 2000.
+  delay_period = 500.
+  coherence = -6.4
+
+  # 生成模型
+  dmnet = DecisionMakingRateModel(1, coherence=coherence, noise_freq=2400.)
+
+  # 定义电流随时间的变化
+  inputs, total_period = bp.inputs.constant_input([(0., pre_stimulus_period),
+                                                   (20., stimulus_period),
+                                                   (0., delay_period)])
+  # 运行数值模拟
+  runner = bp.DSRunner(dmnet, monitors=['s1', 's2', 'r1', 'r2'], inputs=('mu0', inputs, 'iter'))
+  runner.run(total_period)
+
+  # 可视化
+  fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
+  ax = fig.add_subplot(gs[0, 0])
+  ax.plot(runner.mon.ts, runner.mon.s1, label='s1')
+  ax.plot(runner.mon.ts, runner.mon.s2, label='s2')
+  ax.axvline(pre_stimulus_period, 0., 1., linestyle='dashed', color=u'#444444')
+  ax.axvline(pre_stimulus_period + stimulus_period, 0., 1., linestyle='dashed', color=u'#444444')
+  ax.set_ylabel(r'Gating Variable')
+  ax.set_xticks([])
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.text(1800, 0.55, r'$s_2$')
+  plt.text(1800, 0.10, r'$s_1$')
+
+  ax = fig.add_subplot(gs[1, 0])
+  ax.plot(runner.mon.ts, runner.mon.r1, label='r1')
+  ax.plot(runner.mon.ts, runner.mon.r2, label='r2')
+  ax.axvline(pre_stimulus_period, 0., 1., linestyle='dashed', color=u'#444444')
+  ax.axvline(pre_stimulus_period + stimulus_period, 0., 1., linestyle='dashed', color=u'#444444')
+  ax.set_xlabel(r'$t$ (ms)')
+  ax.set_ylabel(r'Firing Rate')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.text(1800, 28, r'$r_2$')
+  plt.text(1800, 8, r'$s_1$')
+  # plt.savefig('decision_making_rate_output_c={}.png'.format(coherence), transparent=True, dpi=500)
+  plt.show()
+
+
+def phase_plane():
+  # 使用高精度float模式
+  bp.math.enable_x64()
+  bp.analysis.plotstyle.set_plot_schema(bp.analysis.stability.SADDLE_NODE, marker='*', markersize=15)
+
+  def _analyze(coherence, mu0=20.):
+    # 构相平面建分析器
+    model = DecisionMakingRateModel(1, coherence=coherence)
+    analyzer = bp.analysis.PhasePlane2D(
+      model=model,
+      target_vars={'s1': [0, 1], 's2': [0, 1]},
+      fixed_vars={'I1_noise': 0., 'I2_noise': 0.},
+      pars_update={'mu0': mu0},
+      resolutions={'s1': 0.002, 's2': 0.002},
+    )
+
+    fig, gs = bp.visualize.get_figure(1, 1, 4.5, 4.5)
+    ax = fig.add_subplot(gs[0, 0])
+    # 画出向量场
+    analyzer.plot_vector_field(plot_style=dict(color='lightgrey'))
+    # 画出零增长等值线
+    analyzer.plot_nullcline(coords=dict(s2='s2-s1'), x_style={'fmt': ':'}, y_style={'fmt': '--'})
+    # 画出奇点
+    analyzer.plot_fixed_point(tol_aux=2e-10)
+    # 画出s1, s2的运动轨迹
+    analyzer.plot_trajectory(
+      {'s1': [0.1], 's2': [0.1]}, duration=2000., color='darkslateblue', linewidth=2, alpha=0.9,
+    )
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    plt.title('$c={}, \mu_0={}$'.format(coherence, mu0))
+    # plt.savefig('decision_making_phase_plane_c={}_mu={}.png'.format(coherence, mu0), transparent=True, dpi=500)
+    plt.show()
+
+  _analyze(100, 0)
+  _analyze(6.4, 20)
+  _analyze(25.6, 20)
+  _analyze(100, 20)
+
+
+if __name__ == '__main__':
+  # run_rate_model_coherence1()
+  # run_rate_model_coherence2()
+  phase_plane()
