@@ -3,6 +3,8 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 class STP(bp.dyn.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.1, U=0.15, tau_f=1500., tau_d=200.,
@@ -80,20 +82,26 @@ def run_STP(title=None, **kwargs):
   runner.run(dur)
 
   # 可视化
-  fig, gs = plt.subplots(2, 1, figsize=(6, 4.5))
-
-  plt.sca(gs[0])
-  plt.plot(runner.mon.ts, runner.mon['syn.x'][:, 0], label='x')
-  plt.plot(runner.mon.ts, runner.mon['syn.u'][:, 0], label='u')
+  # fig, gs = plt.subplots(2, 1, figsize=(6, 4.5))
+  fig, gs = bp.visualize.get_figure(2, 1)
+  ax = fig.add_subplot(gs[0, 0])
+  plt.plot(runner.mon.ts, runner.mon['syn.x'][:, 0], label=r'$x$')
+  plt.plot(runner.mon.ts, runner.mon['syn.u'][:, 0], label=r'$u$', linestyle='--')
   plt.legend(loc='center right')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
   if title: plt.title(title)
 
-  plt.sca(gs[1])
-  plt.plot(runner.mon.ts, runner.mon['syn.g'][:, 0], label='g', color=u'#d62728')
+  ax = fig.add_subplot(gs[1, 0])
+  plt.plot(runner.mon.ts, runner.mon['syn.g'][:, 0], label=r'$g$', color=u'#d62728')
   plt.legend(loc='center right')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
 
-  plt.xlabel('t (ms)')
-  plt.tight_layout()
+  plt.xlabel(r'$t$ (ms)')
+  # plt.tight_layout()
+  plt.savefig(f'{title}_output.pdf',
+              transparent=True, dpi=500)
   plt.show()
 
 
@@ -116,32 +124,38 @@ def run_STP2(title=None, **kwargs):
   runner.run(1200)
 
   # 可视化
-  fig, gs = bp.visualize.get_figure(3, 1, 1.5, 8.)
-
-  ax = fig.add_subplot(gs[0, 0])
+  fig, ax = plt.subplots(figsize=(8, 2.5))
   plt.plot(runner.mon.ts, runner.mon['pre.spike'][:, 0], label='pre.spike')
   ax.spines['right'].set_color('none')
   ax.spines['top'].set_color('none')
+  plt.legend()
+  plt.xlabel(r'$t$ (ms)')
   plt.ylabel('Pre Spike')
+  plt.savefig(f'../img/STP_illustration1.pdf',
+              transparent=True, dpi=500)
+  plt.show()
 
-  ax = fig.add_subplot(gs[1:, 0])
+  fig, ax = plt.subplots(figsize=(8, 3))
+  # ax = fig.add_subplot(gs[1:, 0])
   g = runner.mon['syn.g'][:, 0] * 10
   noise_g = g + np.random.normal(0., 0.005, g.shape)
   plt.plot(runner.mon.ts, noise_g, label='Data')
-  plt.plot(runner.mon.ts, g, label='Fit', color=u'#d62728')
+  plt.plot(runner.mon.ts, g, label='Fit', color=u'#ff7f0e')
   plt.legend()
-  plt.xlabel('Time [ms]')
-  plt.ylabel('Post Voltage [mV]')
+  plt.xlabel(r'$t$ (ms)')
+  plt.ylabel('Post Voltage (mV)')
   ax.spines['right'].set_color('none')
   ax.spines['top'].set_color('none')
+  plt.savefig(f'../img/STP_illustration2.pdf',
+              transparent=True, dpi=500)
   plt.show()
 
 
-# if __name__ == '__main__':
-  # # 短时程易化
-  # run_STP(title='STF', U=0.1, tau_d=15., tau_f=200.)
-  # 短时程抑制
-  # run_STP(title='STD', U=0.4, tau_d=200., tau_f=15.)
-
 if __name__ == '__main__':
-  run_STP2(title='STD', U=0.4, tau_d=200., tau_f=15.)
+  # 短时程易化
+  run_STP(title='STF', U=0.1, tau_d=15., tau_f=200.)
+  # 短时程抑制
+  run_STP(title='STD', U=0.4, tau_d=200., tau_f=15.)
+
+# if __name__ == '__main__':
+#   run_STP2(title='STD', U=0.4, tau_d=200., tau_f=15.)

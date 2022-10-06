@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 from neuron_models.FRNeuron import FR
 
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 def run_syn_LIF(syn_model, run_duration=30., **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建网络
@@ -20,8 +22,8 @@ def run_syn_LIF(syn_model, run_duration=30., **kwargs):
 
   # 只选取第0个突触后神经元可视化
   plt.plot(runner.mon.ts, runner.mon['syn.g'][:, 0])
-  plt.xlabel('t (ms)')
-  plt.ylabel('g')
+  plt.xlabel(r'$t$ (ms)')
+  plt.ylabel(r'$g$')
   plt.show()
 
 
@@ -53,7 +55,7 @@ def run_delta_syn(syn_model, title, run_duration=200., **kwargs):
   ax.spines['right'].set_visible(False)
 
   ax = fig.add_subplot(gs[1, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.g'], label='g', color=u'#d62728')
+  plt.plot(runner.mon.ts, runner.mon['syn.g'], label=r'$g$', color=u'#d62728')
   plt.legend(loc='upper right')
   plt.xticks([])
   ax.spines['top'].set_visible(False)
@@ -62,10 +64,12 @@ def run_delta_syn(syn_model, title, run_duration=200., **kwargs):
   ax = fig.add_subplot(gs[2, 0])
   plt.plot(runner.mon.ts, runner.mon['post.V'], label='post.V')
   plt.legend(loc='upper right')
-  plt.xlabel('Time [ms]')
+  plt.xlabel(r'$t$ (ms)')
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
+  # plt.savefig('../img/DeltaSynapse.pdf', transparent=True, dpi=500)
   plt.show()
+
 
 
 def run_syn(syn_model, title, run_duration=200., sp_times=(10, 20, 30), **kwargs):
@@ -92,7 +96,7 @@ def run_syn(syn_model, title, run_duration=200., sp_times=(10, 20, 30), **kwargs
   ax.spines['right'].set_visible(False)
 
   ax = fig.add_subplot(gs[1:3, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.g'], label='g', color=u'#d62728')
+  plt.plot(runner.mon.ts, runner.mon['syn.g'], label=r'$g$', color=u'#d62728')
   plt.legend(loc='upper right')
   plt.xticks([])
   ax.spines['top'].set_visible(False)
@@ -108,10 +112,10 @@ def run_syn(syn_model, title, run_duration=200., sp_times=(10, 20, 30), **kwargs
   ax = fig.add_subplot(gs[5:7, 0])
   plt.plot(runner.mon.ts, runner.mon['post.V'], label='post.V')
   plt.legend(loc='upper right')
-  plt.xlabel('Time [ms]')
+  plt.xlabel(r'$t$ (ms)')
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
-
+  # plt.savefig('../img/DeltaSynapse.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -178,14 +182,14 @@ def run_syn_NMDA(syn_model, title, run_duration=200., sp_times=(10, 20, 30), **k
   ax.spines['right'].set_visible(False)
 
   ax = fig.add_subplot(gs[3:5, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.g'], label='g', color=u'#d62728')
+  plt.plot(runner.mon.ts, runner.mon['syn.g'], label=r'$g$', color=u'#d62728')
   plt.xticks([])
   plt.legend(loc='upper right')
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
 
   ax = fig.add_subplot(gs[5:7, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.b'], label='b', color=u'#2ca02c')
+  plt.plot(runner.mon.ts, runner.mon['syn.b'], label=r'$b$', color=u'#2ca02c')
   plt.xticks([])
   plt.legend(loc='upper right')
   ax.spines['top'].set_visible(False)
@@ -196,8 +200,8 @@ def run_syn_NMDA(syn_model, title, run_duration=200., sp_times=(10, 20, 30), **k
   plt.legend(loc='upper right')
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
-  plt.xlabel('Time [ms]')
-
+  plt.xlabel(r'$t$ [ms]')
+  # plt.savefig('../img/Synapse.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -214,24 +218,30 @@ def run_syn_GABAb(syn_model, title, run_duration=200., Iext=0., **kwargs):
   runner.run(run_duration)
 
   # 可视化
-  fig, gs = bp.visualize.get_figure(3, 1, 2, 4.5)
-  fig.add_subplot(gs[0, 0])
+  fig, gs = bp.visualize.get_figure(3, 1, 2.3, 7.5)
+  ax = fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon['pre.spike'], label='pre.spike')
   plt.title(title)
   plt.xticks([])
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
   plt.legend()
 
-  fig.add_subplot(gs[1, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.r'], label='r', color=u'#d62728')
-  plt.plot(runner.mon.ts, runner.mon['syn.G'] / 4, label='G/4', color='lime')
+  ax = fig.add_subplot(gs[1, 0])
+  plt.plot(runner.mon.ts, runner.mon['syn.r'], label=r'$r$', color=u'#d62728', linestyle='--')
+  plt.plot(runner.mon.ts, runner.mon['syn.G'] / 4, label=r'$G/4$', color='lime')
   plt.legend()
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
   plt.xticks([])
 
-  fig.add_subplot(gs[2, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.g'], label='g', color=u'#2ca02c')
+  ax = fig.add_subplot(gs[2, 0])
+  plt.plot(runner.mon.ts, runner.mon['syn.g'], label=r'$g$', color=u'#2ca02c')
   plt.legend()
-  plt.xlabel('Time [ms]')
-
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.xlabel(r'$t$ [ms]')
+  # plt.savefig('../img/Synapse.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -250,24 +260,28 @@ def run_syn_GJ(syn_model, title, run_duration=100., Iext=7.5, **kwargs):
 
   # 可视化
   fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
-  fig.add_subplot(gs[0, 0])
+  ax = fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon['neu.V'][:, 0], label='neu0-V')
-  plt.plot(runner.mon.ts, runner.mon['neu.V'][:, 1], label='neu1-V')
+  plt.plot(runner.mon.ts, runner.mon['neu.V'][:, 1], label='neu1-V', linestyle='--')
   plt.legend(loc='upper right')
-  plt.ylabel('Potential [mV]')
+  plt.ylabel('Potential (mV)')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
   plt.title(title)
   plt.xticks([])
 
-  fig.add_subplot(gs[1, 0])
+  ax = fig.add_subplot(gs[1, 0])
   runner.mon['neu.input'] = runner.mon['neu.input'] - bm.as_ndarray(Iext)
   plt.plot(runner.mon.ts, runner.mon['neu.input'][:, 0],
            label='neu0-current', color=u'#48d688')
   plt.plot(runner.mon.ts, runner.mon['neu.input'][:, 1],
-           label='neu1-current', color=u'#d64888')
+           label='neu1-current', color=u'#d64888', linestyle='--')
   plt.legend(loc='upper right')
   plt.ylabel('Current')
-  plt.xlabel('Time [ms]')
-
+  plt.xlabel(r'$t$ [ms]')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  # plt.savefig('../img/GJ_output.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -304,7 +318,7 @@ def run_FR(syn_model, I_pre, dur, **kwargs):
   for i in range(3):
     gs[i].legend(loc='center right')
 
-  plt.xlabel('t (ms)')
+  plt.xlabel(r'$t$ (ms)')
   plt.tight_layout()
   plt.subplots_adjust(hspace=0.)
   plt.show()
@@ -325,26 +339,32 @@ def run_BCM(syn_model, I_pre, dur, **kwargs):
   runner(dur)
 
   # 可视化
-  fig, gs = plt.subplots(3, 1, figsize=(6, 6))
+  fig, gs = bp.visualize.get_figure(3, 1)
 
-  plt.sca(gs[0])
+  ax = fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon['pre.r'][:, 0], label='pre0 $r$', color=u'#ff7f0e')
-  plt.plot(runner.mon.ts, runner.mon['pre.r'][:, 1], label='pre1 $r$', color=u'#1f77b4')
+  plt.plot(runner.mon.ts, runner.mon['pre.r'][:, 1], label='pre1 $r$', color=u'#1f77b4', linestyle='--')
+  plt.legend(loc='center right')
+  plt.xticks([])
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
 
-  plt.sca(gs[1])
+  ax = fig.add_subplot(gs[1, 0])
   plt.plot(runner.mon.ts, runner.mon['post.r'], label='post $r$', color=u'#d62728')
-  plt.plot(runner.mon.ts, runner.mon['syn.theta_M'], label='$\\theta_\mathrm{M}$', color='gold')
+  plt.plot(runner.mon.ts, runner.mon['syn.theta_M'], label='$\\theta_\mathrm{M}$', color='gold', linestyle='--')
+  plt.legend(loc='center right')
+  plt.xticks([])
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
 
-  plt.sca(gs[2])
+  ax = fig.add_subplot(gs[2, 0])
   plt.plot(runner.mon.ts, runner.mon['syn.w'][:, 0], label='$w0$', color=u'#ff7f0e')
-  plt.plot(runner.mon.ts, runner.mon['syn.w'][:, 1], label='$w1$', color=u'#1f77b4')
+  plt.plot(runner.mon.ts, runner.mon['syn.w'][:, 1], label='$w1$', color=u'#1f77b4', linestyle='--')
+  plt.legend(loc='center right')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
 
-  for i in range(2):
-    gs[i].set_xticks([])
-  for i in range(3):
-    gs[i].legend(loc='center right')
-
-  plt.xlabel('t (ms)')
-  plt.tight_layout()
-  plt.subplots_adjust(hspace=0.)
+  plt.xlabel(r'$t$ (ms)')
+  # plt.savefig('../img/BCM_output2.pdf', transparent=True, dpi=500)
   plt.show()
+
