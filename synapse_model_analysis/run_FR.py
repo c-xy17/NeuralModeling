@@ -18,8 +18,11 @@ def run_FR(syn_model, I_pre, dur, ax, label, **kwargs):
                            monitors=['pre.r', 'post.r', 'syn.w'])
   runner(dur)
 
-  plt.sca(ax)
-  plt.plot(runner.mon.ts, np.sqrt(np.sum(np.square(runner.mon['syn.w']), axis=1)), label=label)
+  # plt.sca(ax)
+  # if label == 'Hebb learning':
+  #   plt.plot(runner.mon.ts, np.sqrt(np.sum(np.square(runner.mon['syn.w']), axis=1)), label=label, linestyle='--')
+  # else:
+  #   plt.plot(runner.mon.ts, np.sqrt(np.sum(np.square(runner.mon['syn.w']), axis=1)), label=label)
 
   return runner
 
@@ -30,7 +33,7 @@ def visualize_cos(ax, x, w, step, label, linestyle='.-'):
   b2 = np.sum(w * w, axis=1)
   cos_m = np.sum(x * w, axis=1) / np.sqrt(a2 * b2)
 
-  plt.sca(ax)
+  # plt.sca(ax)
   plt.plot(step, np.abs(cos_m), linestyle, label=label)
   plt.xlabel('time steps')
 
