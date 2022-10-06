@@ -18,30 +18,30 @@ I_pre = bm.random.normal(scale=0.1, size=(n_steps, n_pre)) + bm.random.uniform(s
 step_m = np.linspace(0, n_steps - 1, num_sample).astype(int)
 x = np.asarray(I_pre.value)[step_m]
 
-_, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
-
+# _, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+fig, ax = plt.subplots()
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
 # Hebb learning rule
-runner = run_FR(Hebb, I_pre, dur, ax1, 'Hebb learning', eta=0.003)
+runner = run_FR(Hebb, I_pre, dur, None, 'Hebb learning', eta=0.003)
 w = runner.mon['syn.w'][step_m]
-visualize_cos(ax2, x, w, step_m, 'cos($x, w$) - Hebb learning')
+visualize_cos(None, x, w, step_m, 'cos($x, w$) - Hebb learning')
 
 # Oja's rule
-runner = run_FR(Oja, I_pre, dur, ax1, 'Oja\'rule', eta=0.003)
+runner = run_FR(Oja, I_pre, dur, None, 'Oja\'rule', eta=0.003)
 w = runner.mon['syn.w'][step_m]
-visualize_cos(ax2, x, w, step_m, 'cos($x, w$) - Oja\'rule')
+visualize_cos(None, x, w, step_m, 'cos($x, w$) - Oja\'rule', linestyle='-')
 
 # eigenvectors
 C = np.dot(x.T, x)
 eigvals, eigvecs = np.linalg.eig(C)
 eigvals, eigvecs  = eigvals.real, eigvecs.T.real
 largest = eigvecs[np.argsort(eigvals)[-1]]
-visualize_cos(ax2, x, np.ones((num_sample, n_pre)) * largest,
+visualize_cos(None, x, np.ones((num_sample, n_pre)) * largest,
               step_m, 'cos($x, v_1$)', linestyle='--')
 
-ax1.set_xlabel('t (ms)')
-ax1.set_ylabel('$||w||$')
-ax1.legend()
-# ax2.set_ylim(0.45, 1.05)
-ax2.legend()
-plt.tight_layout()
+plt.xlabel(r'$t$ (ms)')
+plt.ylabel(r'$||w||$')
+plt.legend()
+# plt.savefig('../img/hebb_oja_compare2.pdf', transparent=True, dpi=500)
 plt.show()

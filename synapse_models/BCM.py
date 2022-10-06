@@ -37,7 +37,8 @@ class BCM(bp.dyn.TwoEndConn):
     dwdt = self.eta * y * (y - theta) * x - self.eps * w
     return dwdt
 
-  def update(self, _t, _dt):
+  def update(self, tdi):
+    _t, _dt = tdi.t, tdi.dt
     # 将突触前的信号延迟delay_step的时间步长
     delayed_pre_r = self.delay(self.delay_step)
     self.delay.update(self.pre.r)

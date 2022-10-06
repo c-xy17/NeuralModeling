@@ -2,6 +2,8 @@ import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
 
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 class STDP(bp.dyn.TwoEndConn):
   def __init__(self, pre, post, conn, tau_s=16.8, tau_t=33.7, tau=8., delta_As=0.96,
@@ -87,35 +89,48 @@ def run_STDP(I_pre, I_post, dur, **kwargs):
   runner(dur)
 
   # 可视化
-  fig, gs = plt.subplots(5, 1, gridspec_kw={'height_ratios': [2, 1, 1, 2, 2]}, figsize=(6, 8))
+  fig, gs = bp.visualize.get_figure(8, 1, 1.5, 10)
 
-  plt.sca(gs[0])
+  ax = fig.add_subplot(gs[0:2, 0])
   plt.plot(runner.mon.ts, runner.mon['syn.g'][:, 0], label='$g$', color=u'#d62728')
-
-  plt.sca(gs[1])
-  plt.plot(runner.mon.ts, runner.mon['pre.spike'][:, 0], label='pre spike', color='springgreen')
+  plt.xticks([])
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
   plt.legend(loc='center right')
 
-  plt.sca(gs[2])
+  ax = fig.add_subplot(gs[2, 0])
+  plt.plot(runner.mon.ts, runner.mon['pre.spike'][:, 0], label='pre spike', color='springgreen')
+  plt.xticks([])
+  plt.yticks([])
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.legend(loc='center right')
+
+  ax = fig.add_subplot(gs[3, 0])
   plt.plot(runner.mon.ts, runner.mon['post.spike'][:, 0], label='post spike', color='seagreen')
+  plt.xticks([])
+  plt.yticks([])
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.legend(loc='center right')
 
-  plt.sca(gs[3])
+  ax = fig.add_subplot(gs[4:6, 0])
   plt.plot(runner.mon.ts, runner.mon['syn.w'][:, 0], label='$w$')
+  plt.xticks([])
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.legend(loc='center right')
 
-  plt.sca(gs[4])
+  ax = fig.add_subplot(gs[6:8, 0])
   plt.plot(runner.mon.ts, runner.mon['syn.As'][:, 0], label='$A_s$', color='coral')
-  plt.plot(runner.mon.ts, runner.mon['syn.At'][:, 0], label='$A_t$', color='gold')
+  plt.plot(runner.mon.ts, runner.mon['syn.At'][:, 0], label='$A_t$', color='gold', linestyle='--')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.legend(loc='center right')
 
-  for i in range(4):
-    gs[i].set_xticks([])
-  for i in range(1, 3):
-    gs[i].set_yticks([])
-  for i in range(5):
-    gs[i].legend(loc='upper right')
-
-  plt.xlabel('t (ms)')
-  plt.tight_layout()
-  plt.subplots_adjust(hspace=0.)
+  plt.xlabel(r'$t$ (ms)')
+  plt.savefig('../img/STDP_output.pdf',
+              transparent=True, dpi=500)
   plt.show()
 
 

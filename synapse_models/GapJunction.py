@@ -26,7 +26,7 @@ class GapJunction(bp.dyn.TwoEndConn):
 
 
 run_syn_GJ(GapJunction, Iext=7.5, title='Gap Junction Model')
-run_syn_GJ(GapJunction, Iext=5., title='Gap Junction Model')
+# run_syn_GJ(GapJunction, Iext=5., title='Gap Junction Model')
 
 
 # 将相同id的值加和到一起
