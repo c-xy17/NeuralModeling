@@ -86,8 +86,8 @@ def run_AdEx_model():
     plt.xlim(-30, 430)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.savefig(f'adex_output{i + 1}.png', transparent=True, dpi=500)
-  plt.show()
+    plt.savefig(f'adex_output{i + 1}.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 def AdEx_patterns():
@@ -120,8 +120,8 @@ def AdEx_patterns():
       plt.ylabel(r'$V$ (mV)')
       ax.spines['top'].set_visible(False)
       ax.spines['right'].set_visible(False)
-      # plt.savefig(f'adex_pattern_{names[i]}.png', transparent=True, dpi=500)
-  plt.show()
+      plt.savefig(f'adex_pattern_{names[i]}.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 def _ppa2d(group, title, v_range=None, w_range=None, Iext=65., duration=400, extra_fun=None):
@@ -164,8 +164,8 @@ def _ppa2d(group, title, v_range=None, w_range=None, Iext=65., duration=400, ext
   ax.get_legend().remove()
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
-  # plt.savefig(f'adex_phase_plane_{title.replace(" ", "-")}.png', transparent=True, dpi=500)
-  plt.show()
+  plt.savefig(f'adex_phase_plane_{title.replace(" ", "-")}.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 def _vt_plot(neu, title, input=('input', 65.), duration=400):
@@ -182,8 +182,8 @@ def _vt_plot(neu, title, input=('input', 65.), duration=400):
   plt.text(-16, runner.mon.w[0, 0], r'$w$')
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
-  # plt.savefig(f'adex_pp_pattern_{title.replace(" ", "-")}.png', transparent=True, dpi=500)
-  plt.show()
+  plt.savefig(f'adex_pp_pattern_{title.replace(" ", "-")}.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 def AdEx_phase_plane_analysis():

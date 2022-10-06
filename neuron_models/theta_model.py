@@ -59,7 +59,7 @@ ax1.set_xlabel(r'$t$ (ms)')
 ax1.set_ylabel(r'$\Theta$')
 ax1.spines['top'].set_visible(False)
 ax1.spines['right'].set_visible(False)
-plt.savefig('theta_neuron_time_evolution.png', transparent=True, dpi=500)
+plt.savefig('theta_neuron_time_evolution.pdf', transparent=True, dpi=500)
 
 fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
 ax2 = fig.add_subplot(gs[0, 0])
@@ -68,7 +68,7 @@ ax2.set_xlabel(r'$\cos(\Theta)$')
 ax2.set_ylabel(r'$\sin(\Theta)$')
 ax2.spines['top'].set_visible(False)
 ax2.spines['right'].set_visible(False)
-plt.savefig('theta_neuron_phase.png', transparent=True, dpi=500)
+plt.savefig('theta_neuron_phase.pdf', transparent=True, dpi=500)
 
 plt.show()
 

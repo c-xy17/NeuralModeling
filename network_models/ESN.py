@@ -124,7 +124,7 @@ def show_ESN_property():
 
   plt.xlabel('Running step')
   plt.ylabel('Distance')
-  plt.savefig('ESN_state_property1.png', transparent=True, dpi=500)
+  plt.savefig('ESN_state_property1.pdf', transparent=True, dpi=500)
 
   # 画出两次模拟时网络的初始状态和最终状态
   fig, gs = bp.visualize.get_figure(2, 1, 2.25, 4)
@@ -138,7 +138,7 @@ def show_ESN_property():
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plot_states(state1[-1], state2[-1], title='$|\lambda_{}|={}, n={}$'.format('{max}', lambda1, num_step))
-  plt.savefig('ESN_state_property2.png', transparent=True, dpi=500)
+  plt.savefig('ESN_state_property2.pdf', transparent=True, dpi=500)
 
   fig, gs = bp.visualize.get_figure(2, 1, 2.25, 4)
   ax = fig.add_subplot(gs[0, 0])
@@ -151,7 +151,7 @@ def show_ESN_property():
   plot_states(state5[-1], state6[-1], title='$|\lambda_{}|={}, n={}$'.format('{max}', lambda3, num_step))
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
-  plt.savefig('ESN_state_property3.png', transparent=True, dpi=500)
+  plt.savefig('ESN_state_property3.pdf', transparent=True, dpi=500)
 
   # plt.show()
 
@@ -202,17 +202,18 @@ def fit_sine_wave():
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plot_result(untrained_out.flatten()[num_discard:], Y.flatten()[num_discard:], 'Before training')
-  plt.savefig('ESN_fit_sine_wave1.png', transparent=True, dpi=500)
+  plt.savefig('ESN_fit_sine_wave1.pdf', transparent=True, dpi=500)
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
   ax = fig.add_subplot(gs[0, 0])
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plot_result(out.flatten()[num_discard:], Y.flatten()[num_discard:], 'After training')
-  plt.savefig('ESN_fit_sine_wave2.png', transparent=True, dpi=500)
+  plt.savefig('ESN_fit_sine_wave2.pdf', transparent=True, dpi=500)
 
   # plt.show()
 
+  max_ = 0
   rng = np.random.RandomState(12354)
   i1, i2, i3, i4 = tuple(rng.choice(np.arange(num_res), 4, replace=False))
   fig, gs = bp.visualize.get_figure(1, 3, 3, 4)
@@ -223,7 +224,8 @@ def fit_sine_wave():
   plt.xlabel('Running step')
   ax1.spines['top'].set_visible(False)
   ax1.spines['right'].set_visible(False)
-  ax1.set_ylim(-0.06, 0.06)
+  if max_ < state[num_discard:, i1].max():
+    max_ = state[num_discard:, i1].max()
 
   ax2 = fig.add_subplot(gs[0, 1])
   plt.plot(np.arange(num_step - num_discard), state[num_discard:, i2])
@@ -231,7 +233,8 @@ def fit_sine_wave():
   plt.xlabel('Running step')
   ax2.spines['top'].set_visible(False)
   ax2.spines['right'].set_visible(False)
-  ax2.set_ylim(-0.06, 0.06)
+  if max_ < state[num_discard:, i2].max():
+    max_ = state[num_discard:, i2].max()
 
   ax3 = fig.add_subplot(gs[0, 2])
   plt.plot(np.arange(num_step - num_discard), state[num_discard:, i3])
@@ -239,9 +242,15 @@ def fit_sine_wave():
   plt.xlabel('Running step')
   ax3.spines['top'].set_visible(False)
   ax3.spines['right'].set_visible(False)
-  ax3.set_ylim(-0.06, 0.06)
+  if max_ < state[num_discard:, i3].max():
+    max_ = state[num_discard:, i3].max()
 
-  plt.savefig('ESN_fit_sine_wave_example_neurons.png')
+  max_ *= 1.1
+  ax1.set_ylim(-max_, max_)
+  ax2.set_ylim(-max_, max_)
+  ax3.set_ylim(-max_, max_)
+
+  plt.savefig('ESN_fit_sine_wave_example_neurons.pdf')
   # plt.show()
 
 
@@ -279,7 +288,7 @@ def fit_Lorenz_system():
     plt.legend()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    if name: plt.savefig(f'{name}_3d.png', transparent=True, dpi=500)
+    if name: plt.savefig(f'{name}_3d.pdf', transparent=True, dpi=500)
 
     fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
     ax = fig.add_subplot(gs[0, 0])
@@ -299,7 +308,7 @@ def fit_Lorenz_system():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
-    if name: plt.savefig(f'{name}_xz.png', transparent=True, dpi=500)
+    if name: plt.savefig(f'{name}_xz.pdf', transparent=True, dpi=500)
     # plt.show()
 
   # 用岭回归法训练
@@ -362,4 +371,4 @@ if __name__ == '__main__':
   show_ESN_property()
   fit_sine_wave()
   fit_Lorenz_system()
-  # train_esn_with_ridge(10, 30)
+  train_esn_with_ridge(10, 30)

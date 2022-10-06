@@ -105,7 +105,7 @@ def run_EI_net():
     ax.set_xlim(-1, duration + 1)
 
     if name:
-      plt.savefig(f'{name}.png', transparent=True, dpi=500)
+      plt.savefig(f'{name}.pdf', transparent=True, dpi=500)
 
   # 可视化脉冲发放
   raster_plot(runner.mon['E.spike'], 'Spikes of Excitatory Neurons', name='EI_exc_pop')
@@ -190,7 +190,7 @@ def rate_current_relation():
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plt.legend()
-  plt.savefig('EI_balance_fr_I.png', transparent=True, dpi=500)
+  plt.savefig('EI_balance_fr_I.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -247,6 +247,6 @@ def I_tracking():
 
 
 if __name__ == '__main__':
-  # run_EI_net()
+  run_EI_net()
   rate_current_relation()
-  # I_tracking()
+  I_tracking()

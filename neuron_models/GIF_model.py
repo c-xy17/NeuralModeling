@@ -3,6 +3,10 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 
 
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
+
+
 class GIF(bp.dyn.NeuGroup):
   def __init__(self, size, V_rest=-70., V_reset=-70., theta_inf=-50., theta_reset=-60.,
                R=20., tau=20., a=0., b=0.01, k1=0.2, k2=0.02, R1=0., R2=1., A1=0.,
@@ -238,7 +242,7 @@ def plot_gallery():
   Iext, duration = bp.inputs.section_input([8., 0.], [2., 48.], return_length=True)
   _run(ax, GIF(1, a=-0.08), duration, Iext, 'T. Spike Latency')
 
-  plt.savefig('GIF_gallery.pdf', dpi=300, transparent=True)
+  plt.savefig('GIF_gallery.pdf', dpi=500, transparent=True)
   plt.show()
 
 
@@ -271,7 +275,7 @@ def detailed_running():
     ax1.spines['right'].set_visible(False)
 
     if title:
-      plt.savefig(f'GIF_{title.replace(" ", "-")}.png', transparent=True, dpi=500)
+      plt.savefig(f'GIF_{title.replace(" ", "-")}.pdf', transparent=True, dpi=500)
 
   Iext, duration = bp.inputs.section_input((2., 0.), [15., 185.], return_length=True)
   _run(GIF(1, a=0.005, A1=5., A2=-0.3), duration, Iext, 'Afterpotentials')
@@ -290,6 +294,6 @@ def detailed_running():
 
 
 if __name__ == '__main__':
-  # run_GIF()
+  run_GIF()
   plot_gallery()
-  # detailed_running()
+  detailed_running()

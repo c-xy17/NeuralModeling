@@ -57,12 +57,14 @@ def run_QIF():
   runner(500)  # 运行时长为500ms
   # 结果可视化
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-  fig.add_subplot(gs[0, 0])
+  ax = fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon.V)
   plt.xlabel(r'$t$ (ms)')
   plt.ylabel(r'$V$ (mV)')
-  # plt.savefig('QIF_output2.png', transparent=True, dpi=500)
-  plt.show()
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.savefig('QIF_output2.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 def QIF_input_threshold():
@@ -78,7 +80,7 @@ def QIF_input_threshold():
   dur = 500
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-  fig.add_subplot(gs[0, 0])
+  ax = fig.add_subplot(gs[0, 0])
   for i in range(len(inputs)):
     QIF_plot(inputs[i], dur, colors[i])
 
@@ -90,9 +92,11 @@ def QIF_input_threshold():
                arrowprops=dict(arrowstyle="->"))
   plt.xlabel(r'$t$ (ms)')
   plt.ylabel(r'$V$ (mV)')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
   plt.xlim(-1, 541)
-  # plt.savefig('QIF_input_threshold.png', transparent=True, dpi=500)
-  plt.show()
+  plt.savefig('QIF_input_threshold.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 def a0_effect():
@@ -168,6 +172,6 @@ if __name__ == '__main__':
   pass
   run_QIF()
   QIF_input_threshold()
-  a0_effect()
-  phase_plane()
+  # a0_effect()
+  # phase_plane()
 

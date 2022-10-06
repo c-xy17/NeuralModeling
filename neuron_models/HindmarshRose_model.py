@@ -99,13 +99,12 @@ def bursting_firing():
     ax.set_xlabel(r'$t$ (ms)')
 
   visualize(runner.mon, duration=duration, xim=(-1, duration + 50), text_pos=duration)
-  # plt.savefig('HindmarshRoseModel_output1.png', transparent=True, dpi=500)
+  plt.savefig('HindmarshRoseModel_output1.pdf', transparent=True, dpi=500)
 
   from jax.tree_util import tree_map
   visualize(tree_map(lambda a: a[2000:20000], runner.mon), duration=200,
             xim=(19, 200 + 8), text_pos=25)
-  # plt.savefig('HindmarshRoseModel_output2.png', transparent=True, dpi=500)
-
+  plt.savefig('HindmarshRoseModel_output2.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -144,7 +143,7 @@ def phase_plane_analysis():
   plt.text(137.34, -4.32, "1'")
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
-  # plt.savefig('HindmarshRose_output123.png', transparent=True, dpi=500)
+  plt.savefig('HindmarshRose_output123.pdf', transparent=True, dpi=500)
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
   ax = fig.add_subplot(gs[0, 0])
@@ -173,13 +172,11 @@ def phase_plane_analysis():
   plt.text(1.846, -0.78, 'x nullcline')
   plt.text(1.676, -10.9, 'y nullcline')
   plt.text(-0.805, -6.07, 'Trajectory')
-  plt.annotate('unstable focus',
-               xy=(0.6703567413201327, -1.246890802266034),
-               xytext=(-0.415, -3),
-               arrowprops=dict(arrowstyle="->"))
+  plt.annotate('unstable focus', xy=(0.6703567413201327, -1.246890802266034),
+               xytext=(-0.415, -3), arrowprops=dict(arrowstyle="->"))
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
-  # plt.savefig('HindmarshRose_ppa123.png', transparent=True, dpi=500)
+  plt.savefig('HindmarshRose_ppa123.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -229,9 +226,9 @@ def phase_plane_analysis_v2():
     plt.text(-1.05, -4.863, 'x nullcline')
     plt.text(-0.9539, -4.355, 'Trajectory')
 
-  analysis(x_range=[-1.2, -0.8], y_range=[-5., -3.], z=1.8, extra_f=f, name='HindmarshRose_I=1.8-v2.png')
-
-  # plt.show()
+  analysis(x_range=[-1.2, -0.8], y_range=[-5., -3.], z=1.8, extra_f=f,
+           name='HindmarshRose_I=1.8-v2.pdf')
+  plt.show()
 
   def f():
     plt.text(1.846, -0.78, 'x nullcline')
@@ -244,9 +241,9 @@ def phase_plane_analysis_v2():
     plt.annotate('stable node', xy=(-1.6518281033863245, -12.642680671164262),
                  xytext=(-1.125, -11.58), arrowprops=dict(arrowstyle="->"))
 
-  analysis(x_range=[-2, 3], y_range=[-15., 2.], z=2.05, extra_f=f, name='HindmarshRose_I=2.05-v1.png')
-
-  # plt.show()
+  analysis(x_range=[-2, 3], y_range=[-15., 2.], z=2.05, extra_f=f,
+           name='HindmarshRose_I=2.05-v1.pdf')
+  plt.show()
 
   def f():
     plt.text(-0.9831, -3.209, 'y nullcline')
@@ -255,7 +252,8 @@ def phase_plane_analysis_v2():
     plt.annotate('saddle node', xy=(-0.9521957298446758, -3.5333742767571485),
                  xytext=(-0.9179, -3.755), arrowprops=dict(arrowstyle="->"))
 
-  analysis(x_range=[-1.2, -0.8], y_range=[-5., -3.], z=2.05, extra_f=f, name='HindmarshRose_I=2.05-v2.png')
+  analysis(x_range=[-1.2, -0.8], y_range=[-5., -3.], z=2.05, extra_f=f,
+           name='HindmarshRose_I=2.05-v2.pdf')
   plt.show()
 
 
@@ -294,12 +292,11 @@ def bursting_analysis():
   plt.show()
 
 
-
 if __name__ == '__main__':
-  # run_HindmarshRose()
-  # bursting_firing()
-  # phase_plane_analysis()
-  # phase_plane_analysis_v2()
-  # bifurcation_analysis()
+  run_HindmarshRose()
+  bursting_firing()
+  phase_plane_analysis()
+  phase_plane_analysis_v2()
+  bifurcation_analysis()
   bursting_analysis()
 

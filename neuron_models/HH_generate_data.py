@@ -5,6 +5,10 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams.update({"font.size": 15})
+plt.rcParams['font.sans-serif'] = ['Times New Roman']
+
+
 
 class SeparateNaK(bp.dyn.DynamicalSystem):
   def __init__(self, num=1, ENa=50., gNa=120., EK=-77., gK=36., EL=-54.387,
@@ -98,14 +102,17 @@ def separation_of_Na_and_K_currents():
   # bp.visualize.line_plot(runner.mon.ts, runner.mon.n, show=True)
 
   fig, gs = bp.visualize.get_figure(1, 1, 4, 8)
-  bp.visualize.line_plot(runner.mon.ts, runner.mon.INa, lw=3)
+  ax = fig.add_subplot(gs[0, 0])
+  plt.plot(runner.mon.ts, runner.mon.INa, lw=3)
   plt.text(1.9, 203, 'INa')
-  bp.visualize.line_plot(runner.mon.ts, runner.mon.IK,  lw=3)
-  plt.text(5.03, 510, 'Ifb')
-  bp.visualize.line_plot(runner.mon.ts, runner.mon.Ifb,  lw=3)
-  plt.text(5.03, -280, 'IK')
-  plt.savefig('../images_conductance_models/separation_of_Na_and_K_currents.png',
-              transparent=True, dpi=500)
+  plt.plot(runner.mon.ts, runner.mon.IK, lw=3)
+  plt.text(5.03, 470, 'Ifb')
+  plt.plot(runner.mon.ts, runner.mon.Ifb, lw=3)
+  plt.text(5.03, -320, 'IK')
+  plt.xlabel(r'$t$ (ms)')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.savefig('separation_of_Na_and_K_currents.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -134,13 +141,13 @@ def try_step_voltage2():
     if i == 0:
       plt.title('gNa')
     if i == steps.size - 1:
-      plt.xlabel('Time [ms]')
+      plt.xlabel(r'$t$ [ms]')
     else:
       plt.xticks([])
     axes.append(ax)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.text(-0.6, (data.max() - data.min()) * 0.9 + data.min(), names1[i]+')')
+    plt.text(-0.6, (data.max() - data.min()) * 0.9 + data.min(), f'({names1[i]})')
 
     ax = fig.add_subplot(gs[i, 1])
     data = runner.mon.gK[:, i]
@@ -148,15 +155,15 @@ def try_step_voltage2():
     if i == 0:
       plt.title('gK')
     if i == steps.size - 1:
-      plt.xlabel('Time [ms]')
+      plt.xlabel(r'$t$ [ms]')
     else:
       plt.xticks([])
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.text(-0.6, (data.max() - data.min()) * 0.9 + data.min(), names2[i] + ')')
+    plt.text(-0.6, (data.max() - data.min()) * 0.9 + data.min(),  f'({names2[i]})')
 
   fig.align_ylabels(axes)
-  plt.savefig('../images_conductance_models/voltage_gated_Na_and_K.png', transparent=True, dpi=500)
+  plt.savefig('voltage_gated_Na_and_K.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -255,7 +262,7 @@ def INa_inactivation_1():
 
   plt.rcParams.update({"font.size": 15})
   plt.rcParams['font.sans-serif'] = ['Times New Roman']
-  fig, gs = bp.visualize.get_figure(6, 2, 1, 4)
+  fig, gs = bp.visualize.get_figure(6, 2, 0.8, 3)
   for i in range(4):
     row_i = (i // 2) * 3
     ax = fig.add_subplot(gs[row_i: row_i + 2, i % 2])
@@ -276,10 +283,9 @@ def INa_inactivation_1():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     if i // 2 == 1:
-      ax.set_xlabel('Time (ms)')
+      ax.set_xlabel(r'$t$ (ms)')
 
-  plt.savefig('../images_conductance_models/Na_inactivation_example.png',
-              transparent=True, dpi=500)
+  plt.savefig('Na_inactivation_example.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -292,6 +298,8 @@ def INa_inactivation_2():
   plt.rcParams.update({"font.size": 15})
   plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
+  fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+  ax = fig.add_subplot(gs[0, 0])
   for v in v_list:
     all_vs = []
     for l in lengths:
@@ -323,9 +331,9 @@ def INa_inactivation_2():
       raise ValueError
   plt.xlabel(r'$t$ [ms]')
   plt.ylabel(r'$\frac{(I_{Na})_{v_1}}{(I_{Na})_{v_0}}$')
-  plt.tight_layout()
-  plt.savefig('../images_conductance_models/Na_inactivation_example2.png',
-              transparent=True, dpi=500)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.savefig('Na_inactivation_example2.pdf', transparent=True, dpi=500)
   plt.show()
 
 
@@ -367,9 +375,9 @@ def INa_inactivation_steady_state1():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     if i // 3 == 2:
-      ax.set_xlabel('Time (ms)')
+      ax.set_xlabel(r'$t$ (ms)')
 
-  plt.savefig('../images_conductance_models/Ina_inactivation_steady_state.png',
+  plt.savefig('Ina_inactivation_steady_state.pdf',
               transparent=True, dpi=500)
   plt.show()
 
@@ -393,7 +401,7 @@ def INa_inactivation_steady_state2():
 
   plt.rcParams.update({"font.size": 15})
   plt.rcParams['font.sans-serif'] = ['Times New Roman']
-  fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+  fig, gs = bp.visualize.get_figure(1, 1, 9, 6)
   ax = fig.add_subplot(gs[0, 0])
   ax.plot(steps.numpy()[1:], scales)
   ax.set_xlabel(r'$\Delta V$ [mV]', fontdict={'size': 12})
@@ -404,10 +412,10 @@ def INa_inactivation_steady_state2():
   plt.axhline(1, linestyle='--', color='grey')
   ax = ax.twinx()
   plt.yticks(bm.linspace(0, scales.max(), 11).numpy(), np.around(np.linspace(0, 1, 11), 1))
-  ax.set_ylabel('$h_\infty(V+\Delta V)$', )
+  ax.set_ylabel(r'$h_\infty(V+\Delta V)$', )
   ax.yaxis.set_label_coords(1.18, 0.55)
   plt.ylim([-scales.max() * .05, scales.max() * 1.05])
-  plt.savefig('../images_conductance_models/Ina_inactivation_steady_state2.png',
+  plt.savefig('Ina_inactivation_steady_state2.pdf',
               transparent=True, dpi=500)
   plt.show()
 
@@ -491,13 +499,13 @@ def h_tau_inf_alpha_beta():
 if __name__ == '__main__':
   pass
   # separation_of_Na_and_K_currents()
-  try_step_voltage2()
+  # try_step_voltage2()
   # try_step_voltage_for_gNa()
   # INa_inactivation()
   # INa_inactivation_1()
   # INa_inactivation_2()
-  # INa_inactivation_steady_state1()
-  # INa_inactivation_steady_state2()
+  INa_inactivation_steady_state1()
+  INa_inactivation_steady_state2()
   # Ina_tau_inf_alpha_beta()
   # n_tau_inf_alpha_beta()
   # Ina_tau_inf_alpha_beta()
