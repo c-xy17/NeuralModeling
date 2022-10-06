@@ -58,12 +58,14 @@ def run_LIF():
 
   # 结果可视化
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-  fig.add_subplot(gs[0, 0])
+  ax = fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon.V)
   plt.xlabel(r'$t$ (ms)')
-  plt.ylabel(r'$V$')
-  # plt.savefig('LIF_output.png', transparent=True, dpi=500)
-  plt.show()
+  plt.ylabel(r'$V$ (mV)')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.savefig('LIF_output.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 def fi_curve():
@@ -76,17 +78,19 @@ def fi_curve():
   f_list = runner.mon.spike.sum(axis=0) / (duration / 1000)  # 计算每个神经元的脉冲发放次数
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-  fig.add_subplot(gs[0, 0])
+  ax = fig.add_subplot(gs[0, 0])
   plt.plot(I_cur, f_list)
   plt.xlabel('Input current')
   plt.ylabel('spiking frequency')
-  # plt.savefig('LIF_fi_curve.png', transparent=True, dpi=500)
-  plt.show()
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.savefig('LIF_fi_curve.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 def threshold():
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-  fig.add_subplot(gs[0, 0])
+  ax = fig.add_subplot(gs[0, 0])
 
   duration = 200
   neu1 = LIF(1, t_ref=5.)
@@ -106,8 +110,10 @@ def threshold():
   plt.xlabel(r'$t$ (ms)')
   plt.ylabel(r'$V$ (mV)')
   plt.ylim(-6, 23)
-  # plt.savefig('LIF_input_threshold.png', transparent=True, dpi=500)
-  plt.show()
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.savefig('LIF_input_threshold.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 if __name__ == '__main__':

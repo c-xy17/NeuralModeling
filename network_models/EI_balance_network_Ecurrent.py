@@ -102,7 +102,7 @@ def visualize_current(ts, V, V_th, E_input, I_input, ext_input, duration):
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   ax.set_xlim(-1, duration + 50)
-  plt.savefig('EI_net_example_current.png', transparent=True, dpi=500)
+  plt.savefig('EI_net_example_current.pdf', transparent=True, dpi=500)
 
   fig, gs = bp.visualize.get_figure(1, 1, 2.25, 6)
   ax = fig.add_subplot(gs[0, 0])
@@ -116,7 +116,7 @@ def visualize_current(ts, V, V_th, E_input, I_input, ext_input, duration):
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   ax.set_xlim(-1, duration + 50)
-  plt.savefig('EI_net_example_potential.png', transparent=True, dpi=500)
+  plt.savefig('EI_net_example_potential.pdf', transparent=True, dpi=500)
 
   plt.show()
 

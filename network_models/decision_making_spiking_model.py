@@ -237,7 +237,7 @@ def run_model_coherence1():
     ax.axvline(pre_stimulus_period + stimulus_period, linestyle='dashed', color=u'#444444')
     ax.set_xlim(-1, total_period + 1)
 
-  plt.savefig('decision_making_output_c={}.png'.format(coherence), transparent=True, dpi=500)
+  plt.savefig('decision_making_output_c={}.pdf'.format(coherence), transparent=True, dpi=500)
   plt.show()
 
 
@@ -292,7 +292,7 @@ def run_model_coherence2():
     ax.axvline(pre_stimulus_period + stimulus_period, linestyle='dashed', color=u'#444444')
     ax.set_xlim(-1, total_period + 1)
 
-  plt.savefig('decision_making_output_c={}.png'.format(coherence), transparent=True, dpi=500)
+  plt.savefig('decision_making_output_c={}.pdf'.format(coherence), transparent=True, dpi=500)
   plt.show()
 
 

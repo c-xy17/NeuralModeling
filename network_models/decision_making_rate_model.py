@@ -129,8 +129,8 @@ def run_rate_model_coherence1():
   ax.spines['right'].set_visible(False)
   plt.text(1800, 28, r'$r_1$')
   plt.text(1800, 8, r'$s_2$')
-  # plt.savefig('decision_making_rate_output_c={}.png'.format(coherence), transparent=True, dpi=500)
-  plt.show()
+  plt.savefig('decision_making_rate_output_c={}.pdf'.format(coherence), transparent=True, dpi=500)
+  # plt.show()
 
 
 def run_rate_model_coherence2():
@@ -176,8 +176,8 @@ def run_rate_model_coherence2():
   ax.spines['right'].set_visible(False)
   plt.text(1800, 28, r'$r_2$')
   plt.text(1800, 8, r'$s_1$')
-  # plt.savefig('decision_making_rate_output_c={}.png'.format(coherence), transparent=True, dpi=500)
-  plt.show()
+  plt.savefig('decision_making_rate_output_c={}.pdf'.format(coherence), transparent=True, dpi=500)
+  # plt.show()
 
 
 def phase_plane():
@@ -211,8 +211,8 @@ def phase_plane():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     plt.title('$c={}, \mu_0={}$'.format(coherence, mu0))
-    # plt.savefig('decision_making_phase_plane_c={}_mu={}.png'.format(coherence, mu0), transparent=True, dpi=500)
-    plt.show()
+    plt.savefig('decision_making_phase_plane_c={}_mu={}.pdf'.format(coherence, mu0), transparent=True, dpi=500)
+    # plt.show()
 
   _analyze(100, 0)
   _analyze(6.4, 20)
@@ -221,6 +221,6 @@ def phase_plane():
 
 
 if __name__ == '__main__':
-  # run_rate_model_coherence1()
-  # run_rate_model_coherence2()
+  run_rate_model_coherence1()
+  run_rate_model_coherence2()
   phase_plane()

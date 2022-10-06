@@ -59,13 +59,15 @@ def run_ExpIF():
   runner(500)
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-  fig.add_subplot(gs[0, 0])
+  ax = fig.add_subplot(gs[0, 0])
   # 结果可视化
   plt.plot(runner.mon.ts, runner.mon.V)
   plt.xlabel(r'$t$ (ms)')
   plt.ylabel(r'$V$ (mV)')
-  # plt.savefig('ExpIF_output2.png', transparent=True, dpi=500)
-  plt.show()
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.savefig('ExpIF_output2.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 def effect_of_delta_T_v1():
   duration = 200
@@ -130,8 +132,8 @@ def effect_of_delta_T_v2():
   ax.set_xlabel('Time [ms]')
   ax.spines['right'].set_visible(False)
   ax.spines['top'].set_visible(False)
-  # plt.savefig('ExpIF_delta_T.png', transparent=True, dpi=500)
-  plt.show()
+  plt.savefig('ExpIF_delta_T.pdf', transparent=True, dpi=500)
+  # plt.show()
 
 
 def dvdt():
@@ -174,7 +176,7 @@ def dvdt():
   plt.ylabel('dVdt')
   ax.spines['right'].set_visible(False)
   ax.spines['top'].set_visible(False)
-  # plt.savefig('ExpIF_dVdt_vs_delta_T.png', transparent=True, dpi=500)
+  plt.savefig('ExpIF_dVdt_vs_delta_T.pdf', transparent=True, dpi=500)
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
   ax = fig.add_subplot(gs[0, 0])
@@ -214,9 +216,9 @@ def dvdt():
   plt.ylabel('dVdt')
   ax.spines['right'].set_visible(False)
   ax.spines['top'].set_visible(False)
-  # plt.savefig('ExpIF_dVdt_vs_VT.png', transparent=True, dpi=500)
+  plt.savefig('ExpIF_dVdt_vs_VT.pdf', transparent=True, dpi=500)
 
-  plt.show()
+  # plt.show()
 
 
 def phase_plane():
@@ -238,9 +240,9 @@ def phase_plane():
     plt.ylim(-2, 10)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    # plt.savefig(f'ExpIF_dVdt_I={int(I):d}.png', transparent=True, dpi=500)
+    plt.savefig(f'ExpIF_dVdt_I={int(I):d}.pdf', transparent=True, dpi=500)
 
-  plt.show()
+  # plt.show()
 
 
 if __name__ == '__main__':

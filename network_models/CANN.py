@@ -95,7 +95,7 @@ def run_CANN():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.legend()
-    plt.savefig(f'CANN_t={t}.png', transparent=True, dpi=500)
+    plt.savefig(f'CANN_t={t}.pdf', transparent=True, dpi=500)
 
   plot_response(t=10.)
   plot_response(t=20.)
@@ -141,7 +141,7 @@ def population_coding():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.legend()
-    plt.savefig(f'CANN_pop_coding_t={t}.png', transparent=True, dpi=500)
+    plt.savefig(f'CANN_pop_coding_t={t}.pdf', transparent=True, dpi=500)
 
   plot_response(t=10.)
   plot_response(t=20.)
@@ -191,7 +191,7 @@ def smooth_tracking():
     ax.spines['right'].set_visible(False)
     ax.legend()
     if extra_fun: extra_fun()
-    plt.savefig(f'CANN_tracking_t={t}.png', transparent=True, dpi=500)
+    plt.savefig(f'CANN_tracking_t={t}.pdf', transparent=True, dpi=500)
 
   plot_response(t=10.)
   def f():
@@ -214,5 +214,5 @@ def smooth_tracking():
 
 if __name__ == '__main__':
   run_CANN()
-  # population_coding()
-  # smooth_tracking()
+  population_coding()
+  smooth_tracking()

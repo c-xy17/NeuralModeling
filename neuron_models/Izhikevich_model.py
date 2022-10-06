@@ -89,8 +89,7 @@ def Izhkevich_patterns():
     plt.text(duration + 5, runner.mon.u[-1, 0], r'$u$')
     plt.xlim(-1, duration + 10)
     plt.xlabel(r'$t$ (ms)')
-
-  # plt.savefig(f'Izhkevich_pattern_{title.replace(" ", "-")}.png', transparent=True, dpi=500)
+    plt.savefig(f'Izhkevich_pattern_{title.replace(" ", "-")}.pdf', transparent=True, dpi=500)
 
   subplot(Izhikevich(1, d=8.), title='Regular Spiking')
   subplot(Izhikevich(1, c=-55., d=4.), title='Intrinsic Bursting')
@@ -120,10 +119,10 @@ def bifurcation_analysis():
   bif.plot_bifurcation()
   plt.figure('V')
   plt.tight_layout()
-  # plt.savefig('Izhikevich_bif_V.png', dpi=500, transparent=True)
+  plt.savefig('Izhikevich_bif_V.pdf', dpi=500, transparent=True)
   plt.figure('u')
   plt.tight_layout()
-  # plt.savefig('Izhikevich_bif_u.png', dpi=500, transparent=True)
+  plt.savefig('Izhikevich_bif_u.pdf', dpi=500, transparent=True)
   plt.show()
 
 
@@ -140,7 +139,7 @@ def _ppa2d(model, v_range, u_range, Iext=10., duration=200, extra_fun=None):
   plt.text(duration + 5, runner.mon.V[-1, 0], r'$V$')
   plt.text(duration + 5, runner.mon.u[-1, 0], r'$u$')
   plt.xlim(-1, duration + 15)
-  # plt.savefig(f'Izhkevich_pattern_I={Iext}.png', transparent=True, dpi=500)
+  plt.savefig(f'Izhkevich_pattern_I={Iext}.pdf', transparent=True, dpi=500)
 
   model.reset_state()
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
@@ -176,8 +175,7 @@ def _ppa2d(model, v_range, u_range, Iext=10., duration=200, extra_fun=None):
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   if extra_fun:    extra_fun()
-  # plt.savefig(f'Izhkevich_phase_plane_I={Iext}.png', transparent=True, dpi=500)
-
+  plt.savefig(f'Izhkevich_phase_plane_I={Iext}.pdf', transparent=True, dpi=500)
   plt.show()
 
 
