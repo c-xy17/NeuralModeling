@@ -9,7 +9,7 @@ plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 class AdEx(bp.dyn.NeuGroup):
   def __init__(self, size, V_rest=-65., V_reset=-68., V_th=20., V_T=-60., delta_T=1., a=1.,
-               b=2.5, R=1., tau=10., tau_w=30., name=None):
+               b=2.5, R=1., tau=10., tau_w=30., tau_ref=0., name=None):
     # 初始化父类
     super(AdEx, self).__init__(size=size, name=name)
 
@@ -24,12 +24,15 @@ class AdEx(bp.dyn.NeuGroup):
     self.tau = tau
     self.tau_w = tau_w
     self.R = R
+    self.tau_ref = tau_ref
 
     # 初始化变量
     self.V = bm.Variable(bm.random.randn(self.num) + V_reset)
     self.w = bm.Variable(bm.zeros(self.num))
     self.input = bm.Variable(bm.zeros(self.num))
     self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))  # 脉冲发放状态
+    self.t_last_spike = bm.Variable(bm.ones(self.num) * -1e7)  # 上一次脉冲发放时间
+    self.refractory = bm.Variable(bm.zeros(self.num, dtype=bool))  # 是否处于不应期
 
     # 定义积分器
     self.integral = bp.odeint(f=self.derivative, method='exp_auto')
@@ -49,17 +52,25 @@ class AdEx(bp.dyn.NeuGroup):
     return bp.JointEq([self.dV, self.dw])
 
   def update(self, tdi):
+    _t, _dt = tdi.t, tdi.dt
     # 以数组的方式对神经元进行更新
-    V, w = self.integral(self.V, self.w, tdi.t, self.input, tdi.dt)  # 更新膜电位V和权重值w
+    V, w = self.integral(self.V, self.w, _t, self.input, dt=_dt)  # 更新膜电位V和权重值w
+    refractory = (_t - self.t_last_spike) <= self.tau_ref  # 判断神经元是否处于不应期
+    V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V
+    w = bm.where(refractory, self.w, w)  # w同理
     spike = V > self.V_th  # 将大于阈值的神经元标记为发放了脉冲
     self.spike.value = spike  # 更新神经元脉冲发放状态
+    self.t_last_spike.value = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间
     self.V.value = bm.where(spike, self.V_reset, V)  # 将发放了脉冲的神经元膜电位置为V_reset，其余不变
     self.w.value = bm.where(spike, w + self.b, w)  # 发放了脉冲的神经元 w = w + b
+    self.refractory.value = bm.logical_or(refractory, spike)  # 更新神经元是否处于不应期
     self.input[:] = 0.  # 重置外界输入
 
   def reset_state(self, batch_size=None):
     self.V[:] = self.V_reset
     self.w[:] = 0.
+    self.t_last_spike[:] = -1e7
+    self.refractory.value = bm.zeros_like(self.refractory)
     self.input[:] = 0.
     self.spike[:] = False
 
