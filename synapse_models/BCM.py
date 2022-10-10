@@ -74,4 +74,4 @@ I_pre = bm.stack((I1, I2))
 # I2, _ = bp.inputs.constant_input([(1., dur)])
 # I_pre = bm.stack((I1, I2))
 
-run_BCM(BCM, I_pre, dur, eps=0.002)
+run_BCM(BCM, I_pre, dur, eps=0.)

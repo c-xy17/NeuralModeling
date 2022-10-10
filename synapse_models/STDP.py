@@ -89,7 +89,7 @@ def run_STDP(I_pre, I_post, dur, **kwargs):
   runner(dur)
 
   # 可视化
-  fig, gs = bp.visualize.get_figure(8, 1, 1.5, 10)
+  fig, gs = bp.visualize.get_figure(8, 1, 0.8, 10)
 
   ax = fig.add_subplot(gs[0:2, 0])
   plt.plot(runner.mon.ts, runner.mon['syn.g'][:, 0], label='$g$', color=u'#d62728')
@@ -99,7 +99,7 @@ def run_STDP(I_pre, I_post, dur, **kwargs):
   plt.legend(loc='center right')
 
   ax = fig.add_subplot(gs[2, 0])
-  plt.plot(runner.mon.ts, runner.mon['pre.spike'][:, 0], label='pre spike', color='springgreen')
+  plt.plot(runner.mon.ts, runner.mon['pre.spike'][:, 0], label='pre.spike', color='springgreen')
   plt.xticks([])
   plt.yticks([])
   ax.spines['top'].set_visible(False)
@@ -107,7 +107,7 @@ def run_STDP(I_pre, I_post, dur, **kwargs):
   plt.legend(loc='center right')
 
   ax = fig.add_subplot(gs[3, 0])
-  plt.plot(runner.mon.ts, runner.mon['post.spike'][:, 0], label='post spike', color='seagreen')
+  plt.plot(runner.mon.ts, runner.mon['post.spike'][:, 0], label='post.spike', color='seagreen')
   plt.xticks([])
   plt.yticks([])
   ax.spines['top'].set_visible(False)
@@ -129,7 +129,7 @@ def run_STDP(I_pre, I_post, dur, **kwargs):
   plt.legend(loc='center right')
 
   plt.xlabel(r'$t$ (ms)')
-  plt.savefig('../img/STDP_output.pdf',
+  plt.savefig('STDP_output.pdf',
               transparent=True, dpi=500)
   plt.show()
 

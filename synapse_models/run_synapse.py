@@ -339,7 +339,7 @@ def run_BCM(syn_model, I_pre, dur, **kwargs):
   runner(dur)
 
   # 可视化
-  fig, gs = bp.visualize.get_figure(3, 1)
+  fig, gs = bp.visualize.get_figure(3, 1, 1.5, 6.)
 
   ax = fig.add_subplot(gs[0, 0])
   plt.plot(runner.mon.ts, runner.mon['pre.r'][:, 0], label='pre0 $r$', color=u'#ff7f0e')
@@ -365,6 +365,6 @@ def run_BCM(syn_model, I_pre, dur, **kwargs):
   ax.spines['right'].set_visible(False)
 
   plt.xlabel(r'$t$ (ms)')
-  # plt.savefig('../img/BCM_output2.pdf', transparent=True, dpi=500)
+  plt.savefig('BCM_output1.pdf', transparent=True, dpi=500)
   plt.show()
 
