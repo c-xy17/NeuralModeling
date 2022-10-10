@@ -43,10 +43,10 @@ class QIF(bp.dyn.NeuGroup):
     V = self.integral(self.V, _t, self.input, dt=_dt)  # 根据时间步长更新膜电位
     V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V
     spike = V > self.V_th  # 将大于阈值的神经元标记为发放了脉冲
-    self.spike[:] = spike  # 更新神经元脉冲发放状态
-    self.t_last_spike[:] = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间
-    self.V[:] = bm.where(spike, self.V_reset, V)  # 将发放了脉冲的神经元膜电位置为V_reset，其余不变
-    self.refractory[:] = bm.logical_or(refractory, spike)  # 更新神经元是否处于不应期
+    self.spike.value = spike  # 更新神经元脉冲发放状态
+    self.t_last_spike.value = bm.where(spike, _t, self.t_last_spike)  # 更新最后一次脉冲发放时间
+    self.V.value = bm.where(spike, self.V_reset, V)  # 将发放了脉冲的神经元膜电位置为V_reset，其余不变
+    self.refractory.value = bm.logical_or(refractory, spike)  # 更新神经元是否处于不应期
     self.input[:] = 0.  # 重置外界输入
 
 
@@ -145,8 +145,9 @@ def a0_effect():
 def phase_plane():
   bp.math.enable_x64()
 
-  def phase_plane_analysis(i, model, I_ext, res=0.005):
-    fig.sca(axes[i])
+  def phase_plane_analysis(model, I_ext, res=0.005, extra_fun=None):
+    fig, gs = bp.visualize.get_figure(1, 1, 3.5, 4.5)
+    ax = fig.add_subplot(gs[0, 0])
     pp = bp.analysis.PhasePlane1D(
       model=model,
       target_vars={'V': [-80, -30]},
@@ -155,16 +156,36 @@ def phase_plane():
     )
     pp.plot_vector_field()
     pp.plot_fixed_point()
-    plt.title('Input = {}'.format(I_ext))
-    plt.xlabel(r'$V$')
+    ax.set_xlabel(r'$V$')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    if extra_fun is not None:
+      extra_fun()
+    ax.get_legend().remove()
+    plt.savefig(f'QIF_I={I_ext}.pdf', dpi=500, transparent=True)
 
-  fig, gs = bp.visualize.get_figure(1, 3, 4, 4)
-  axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
-  inputs = [0., 3., 10]  # 设置不同大小的电流输入
   qif = QIF(1)
-  for i in range(len(inputs)):
-    phase_plane_analysis(i, qif, inputs[i])
-  # plt.savefig('QIF_dvdt3.png', transparent=True, dpi=500)
+
+  def f():
+    plt.annotate('stable point', xy=(-65.0, 0), xytext=(-73, 1.6), arrowprops=dict(arrowstyle="->"))
+    plt.annotate('unstable point', xy=(-50.0, 0), xytext=(-53, 1.6), arrowprops=dict(arrowstyle="->"))
+    plt.scatter([-70, -45], [0., 0.], marker='4', s=100, color='k')
+    plt.scatter([-58, ], [0., ], marker='3', s=100, color='k')
+
+  phase_plane_analysis(qif, 0., extra_fun=f)
+
+  def f():
+    plt.annotate('stable point', xy=(-61.159625, 0), xytext=(-70, 1.6), arrowprops=dict(arrowstyle="->"))
+    plt.annotate('unstable point', xy=(-53.84037, 0), xytext=(-55, 1.6), arrowprops=dict(arrowstyle="->"))
+    plt.scatter([-70, -45], [0., 0.], marker='4', s=100, color='k')
+    plt.scatter([-58, ], [0., ], marker='3', s=100, color='k')
+
+  phase_plane_analysis(qif, 3., extra_fun=f)
+
+  def f():
+    plt.scatter([-55], [0.], marker='4', s=100, color='k')
+  phase_plane_analysis(qif, 10., extra_fun=f)
+
   plt.show()
 
 
@@ -172,6 +193,5 @@ if __name__ == '__main__':
   pass
   run_QIF()
   QIF_input_threshold()
-  # a0_effect()
-  # phase_plane()
-
+  a0_effect()
+  phase_plane()

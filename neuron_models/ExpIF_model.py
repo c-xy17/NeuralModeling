@@ -119,17 +119,18 @@ def effect_of_delta_T_v2():
                        dt=0.001)
   runner(30.)
 
-  fig, gs = bp.visualize.get_figure(1, 1, 3, 8)
+  fig, gs = bp.visualize.get_figure(1, 1, 3, 6)
   ax = fig.add_subplot(gs[0, 0])
   runner.mon.V = np.where(runner.mon.spike, neu1.V_th, runner.mon.V)
   ax.plot(runner.mon.ts, runner.mon.V[:, 0], label=r'$\Delta_T$=5.')
   ax.plot(runner.mon.ts, runner.mon.V[:, 1], label=r'$\Delta_T$=1.')
   ax.plot(runner.mon.ts, runner.mon.V[:, 2], label=r'$\Delta_T$=0.02')
+  plt.xlim(7, 25)
   plt.text(9.7, -20, r'$\Delta_T$=0.02')
   plt.text(15.5, -15, r'$\Delta_T$=1')
   plt.text(19, -10, r'$\Delta_T$=5')
-  ax.set_ylabel('V [mV]')
-  ax.set_xlabel('Time [ms]')
+  ax.set_ylabel('$V$ (mV)')
+  ax.set_xlabel('$t$ (ms)')
   ax.spines['right'].set_visible(False)
   ax.spines['top'].set_visible(False)
   plt.savefig('ExpIF_delta_T.pdf', transparent=True, dpi=500)
@@ -165,10 +166,10 @@ def dvdt():
   expif = ExpIF(1, delta_T=0.05)
   dvdts = expif.derivative(Vs, 0., 0.)
   plt.plot(Vs, dvdts, label=r'$\Delta_T$=0.05')
-  plt.text(-54, 0.443, r'$\Delta_T$=0.05')
-  plt.text(-56.6, 1.416, r'$\Delta_T$=0.2')
-  plt.text(-58.8, 2.72, r'$\Delta_T$=1')
-  plt.text(-62.5, 4.02, r'$\Delta_T$=5')
+  plt.text(-53, 0.443, r'$\Delta_T$=5')
+  plt.text(-56.6, 1.416, r'$\Delta_T$=1')
+  plt.text(-58.8, 2.72, r'$\Delta_T$=0.2')
+  plt.text(-64.5, 4.02, r'$\Delta_T$=0.05')
 
   plt.xlim(-80, -50)
   plt.ylim(-1, 6)
@@ -224,7 +225,7 @@ def dvdt():
 def phase_plane():
   bm.enable_x64()
 
-  for I in [0., 20.]:
+  def _ppa(I, extra_fun=None):
     fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6.)
     ax = fig.add_subplot(gs[0, 0])
     pp = bp.analysis.PhasePlane1D(
@@ -235,12 +236,25 @@ def phase_plane():
     )
     pp.plot_vector_field()
     pp.plot_fixed_point()
-    plt.title(f'Input = {I}')
     plt.xlabel(r'$V$')
-    plt.ylim(-2, 10)
+    plt.ylim(-1, 8)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    ax.get_legend().remove()
+    if extra_fun:
+      extra_fun()
     plt.savefig(f'ExpIF_dVdt_I={int(I):d}.pdf', transparent=True, dpi=500)
+
+  def f():
+    plt.annotate('stable point', xy=(-64.993216, 0), xytext=(-70, 2.), arrowprops=dict(arrowstyle="->"))
+    plt.annotate('unstable point', xy=(-58.06315, 0), xytext=(-55, 1.), arrowprops=dict(arrowstyle="->"))
+    plt.scatter([-70, -55], [0., 0.], marker='4', s=100, color='k')
+    plt.scatter([-62, ], [0., ], marker='3', s=100, color='k')
+  _ppa(0., extra_fun=f)
+
+  def f():
+    plt.scatter([-65], [0.], marker='4', s=100, color='k')
+  _ppa(20., extra_fun=f)
 
   # plt.show()
 

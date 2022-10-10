@@ -110,19 +110,24 @@ def bifurcation_analysis():
   bif = bp.analysis.Bifurcation2D(
     model=Izhikevich(1),
     target_vars={'V': [-75., -45.], 'u': [-17., -7.]},  # 设置变量的分析范围
-    target_pars={'Iext': [0., 6.]},  # 设置参数的范围
+    target_pars={'Iext': [0., 5.]},  # 设置参数的范围
     resolutions={'Iext': bm.concatenate([bm.arange(0, 3.95, 0.01),
                                          bm.arange(3.95, 4.05, 0.001),
-                                         bm.arange(4.05, 6.0, 0.1)])}  # 设置分辨率
+                                         bm.arange(4.05, 5.0, 0.1)])}  # 设置分辨率
   )
   # 进行分析
   bif.plot_bifurcation()
   plt.figure('V')
   plt.tight_layout()
-  plt.savefig('Izhikevich_bif_V.pdf', dpi=500, transparent=True)
+  ax = plt.gca()
+  ax.get_legend().remove()
+  plt.savefig('Izhikevich_bif_V.png', dpi=500, transparent=True)
+
   plt.figure('u')
   plt.tight_layout()
-  plt.savefig('Izhikevich_bif_u.pdf', dpi=500, transparent=True)
+  ax = plt.gca()
+  ax.get_legend().remove()
+  plt.savefig('Izhikevich_bif_u.png', dpi=500, transparent=True)
   plt.show()
 
 
@@ -214,7 +219,7 @@ def phase_plane_analysis():
 
 
 if __name__ == '__main__':
-  run_Izhkevich()
-  Izhkevich_patterns()
+  # run_Izhkevich()
+  # Izhkevich_patterns()
   bifurcation_analysis()
-  phase_plane_analysis()
+  # phase_plane_analysis()
