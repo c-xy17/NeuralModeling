@@ -404,96 +404,23 @@ def INa_inactivation_steady_state2():
   fig, gs = bp.visualize.get_figure(1, 1, 9, 6)
   ax = fig.add_subplot(gs[0, 0])
   ax.plot(steps.numpy()[1:], scales)
-  ax.set_xlabel(r'$\Delta V$ [mV]', fontdict={'size': 12})
-  ax.set_ylabel(r'$\frac{I_{Na}(\Delta V)}{I_{Na}(0)}$', )
+  ax.set_xlabel(r'$\Delta V$ (mV)')
+  # ax.set_ylabel(r'${I_{Na}(\Delta V)}/{I_{Na}(0)}$', )
+  plt.text(-63, 0.5, r'${I_{Na}(\Delta V)}/{I_{Na}(0)}$', rotation=90)
   ax.yaxis.set_label_coords(-0.13, 0.5)
   plt.ylim([-scales.max() * .05, scales.max() * 1.05])
   plt.axvline(0, linestyle='--', color='grey')
   plt.axhline(1, linestyle='--', color='grey')
   ax = ax.twinx()
   plt.yticks(bm.linspace(0, scales.max(), 11).numpy(), np.around(np.linspace(0, 1, 11), 1))
-  ax.set_ylabel(r'$h_\infty(V+\Delta V)$', )
+  plt.text(60, 0.5, r'$h_\infty(V+\Delta V)$', rotation=90)
+  # ax.set_ylabel(r'$h_\infty(V+\Delta V)$', )
   ax.yaxis.set_label_coords(1.18, 0.55)
   plt.ylim([-scales.max() * .05, scales.max() * 1.05])
   plt.savefig('Ina_inactivation_steady_state2.pdf',
               transparent=True, dpi=500)
   plt.show()
 
-
-def n_tau_inf_alpha_beta():
-  V = bm.arange(-110, 50, 0.1)
-  alpha = 0.01 * (V + 55) / (1 - bm.exp(-(V + 55) / 10))
-  beta = 0.125 * bm.exp(-(V + 65) / 80)
-  tau = 1 / (alpha + beta)
-  inf = alpha / (alpha + beta)
-  fig, gs = bp.visualize.get_figure(2, 2, 3, 4.5)
-  fig.add_subplot(gs[0, 0])
-  plt.plot(V.numpy(), tau.numpy())
-  plt.title(r'$\tau_n$')
-  fig.add_subplot(gs[0, 1])
-  plt.plot(V.numpy(), inf.numpy())
-  plt.title(r'$n_\infty$')
-  fig.add_subplot(gs[1, 0])
-  plt.plot(V.numpy(), alpha.numpy())
-  plt.title(r'$\alpha(n)$')
-  plt.xlabel('V (mV)')
-  fig.add_subplot(gs[1, 1])
-  plt.plot(V.numpy(), beta.numpy())
-  plt.title(r'$\beta(n)$')
-  plt.xlabel('V (mV)')
-  plt.show()
-
-
-def Ina_tau_inf_alpha_beta():
-  V = bm.arange(-110, 40, 0.1)
-  alpha_m = 0.1 * (V + 40) / (1 - bm.exp(-(V + 40) / 10))
-  beta_m = 4.0 * bm.exp(-(V + 65) / 18)
-  tau_m = 1 / (alpha_m + beta_m)
-  inf_m = alpha_m / (alpha_m + beta_m)
-
-  alpha_h = 0.07 * bm.exp(-(V + 65) / 20.)
-  beta_h = 1 / (1 + bm.exp(-(V + 35) / 10))
-  tau_h = 1 / (alpha_h + beta_h)
-  inf_h = alpha_h / (alpha_h + beta_h)
-
-  V = V.numpy()
-
-  plt.figure()
-  plt.plot(V, tau_m, label='tau_m')
-  plt.plot(V, tau_h, label='tau_h')
-  plt.legend()
-
-  plt.figure()
-  plt.plot(V, inf_m, label='inf_m')
-  plt.plot(V, inf_h, label='inf_h')
-  plt.legend()
-  plt.show()
-
-
-def h_tau_inf_alpha_beta():
-  V = bm.arange(-110, 40, 0.1)
-  alpha_m = 0.1 * (V + 40) / (1 - bm.exp(-(V + 40) / 10))
-  beta_m = 4.0 * bm.exp(-(V + 65) / 18)
-  tau_m = 1 / (alpha_m + beta_m)
-  inf_m = alpha_m / (alpha_m + beta_m)
-
-  alpha_h = 0.07 * bm.exp(-(V + 65) / 20.)
-  beta_h = 1 / (1 + bm.exp(-(V + 35) / 10))
-  tau_h = 1 / (alpha_h + beta_h)
-  inf_h = alpha_h / (alpha_h + beta_h)
-
-  V = V.numpy()
-
-  plt.figure()
-  plt.plot(V, tau_m, label='tau_m')
-  plt.plot(V, tau_h, label='tau_h')
-  plt.legend()
-
-  plt.figure()
-  plt.plot(V, inf_m, label='inf_m')
-  plt.plot(V, inf_h, label='inf_h')
-  plt.legend()
-  plt.show()
 
 
 if __name__ == '__main__':
@@ -504,10 +431,6 @@ if __name__ == '__main__':
   # INa_inactivation()
   # INa_inactivation_1()
   # INa_inactivation_2()
-  INa_inactivation_steady_state1()
+  # INa_inactivation_steady_state1()
   INa_inactivation_steady_state2()
-  # Ina_tau_inf_alpha_beta()
-  # n_tau_inf_alpha_beta()
-  # Ina_tau_inf_alpha_beta()
-  # h_tau_inf_alpha_beta()
 

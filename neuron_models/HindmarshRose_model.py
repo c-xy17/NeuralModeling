@@ -292,6 +292,100 @@ def bursting_analysis():
   plt.show()
 
 
+def triggered_bursting():
+  I, duration = bp.inputs.section_input([0, 2., 0], [40, 5, 400], return_length=True, dt=0.01)
+  model = HindmarshRose(1, s=0.5)
+  model.x[:] = model.x_r
+  model.y[:] = -12.
+  model.z[:] = 0.
+  runner = bp.DSRunner(model, inputs=(model.input, I, 'iter'), monitors=list('xyz'), dt=0.01)
+  runner.run(duration)
+
+  fig, gs = bp.visualize.get_figure(3, 1, 1.5, 8)
+  ax = fig.add_subplot(gs[0:2, 0])
+  plt.plot(runner.mon.ts, runner.mon.x, label='x')
+  plt.plot(runner.mon.ts, runner.mon.y, linestyle='dashed', label='y')
+  plt.plot(runner.mon.ts, runner.mon.z, linestyle='dotted', label='z')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.legend()
+  plt.xlim(-1, duration + 1)
+  ax = fig.add_subplot(gs[2, 0])
+  plt.plot(runner.mon.ts, bm.as_numpy(I))
+  plt.xlim(-1, duration + 1)
+  plt.ylabel(r'$I$')
+  plt.xlabel(r'$t$ (ms)')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  plt.savefig('HindmarshRose_triggered_bursting.pdf', transparent=True, dpi=500)
+  plt.show()
+
+
+def triggered_bursting_ppa():
+  bp.math.enable_x64()
+
+  def analysis(x_range, y_range, z, init_xy=None, extra_f=None, name=None):
+    fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+    ax = fig.add_subplot(gs[0, 0])
+    # 定义分析器
+    model = HindmarshRose(1, s=0.5)
+    phase_plane_analyzer = bp.analysis.PhasePlane2D(
+      model=model,
+      target_vars={'x': x_range, 'y': y_range},  # 待分析变量
+      fixed_vars={'z': z},  # 固定变量
+      pars_update={'Iext': 0.},  # 需要更新的变量
+      resolutions=0.01
+    )
+    # 画出向量场
+    phase_plane_analyzer.plot_vector_field(plot_style=dict(color='lightgrey'))
+    # 画出V, y的零增长曲线
+    phase_plane_analyzer.plot_nullcline()
+    # 画出固定点
+    phase_plane_analyzer.plot_fixed_point()
+    # 画出V, y的变化轨迹
+    if init_xy is not None:
+      phase_plane_analyzer.plot_trajectory({'x': [init_xy[0]], 'y': [init_xy[1]]},
+                                           duration=100., color='darkslateblue',
+                                           linewidth=2, alpha=0.9, dt=0.01)
+    ax.get_legend().remove()
+    if extra_f:
+      extra_f()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    if name:
+      plt.savefig(name, transparent=True, dpi=500)
+
+  def f():
+    plt.text(1.5, -9.8, 'y nullcline')
+    plt.text(1.13, -2, 'x nullcline')
+    plt.text(-0.575, -7.76, 'Trajectory')
+    plt.annotate('stable node', xy=(-1.6320958395541862, -12.318684344410208),
+                 xytext=(-1, -12.318684344410208), arrowprops=dict(arrowstyle="->"))
+    plt.annotate('saddle node', xy=(-0.9803837299517475, -3.8057584936177298),
+                 xytext=(-0.485, -2.5), arrowprops=dict(arrowstyle="->"))
+    plt.annotate('unstable focus', xy=(0.6124732604697042, -0.8756173672185038),
+                 xytext=(0.8, 0.6), arrowprops=dict(arrowstyle="->"))
+
+  analysis([-2, 3], [-13., 2.], z=0.02, extra_f=f, init_xy=(1.4, -10.),
+           name='HindmarshRose_triggered_bursting_ppa1.pdf')
+
+  def f():
+    plt.text(1.5, -9.8, 'y nullcline')
+    plt.text(1.73, -2, 'x nullcline')
+    plt.text(-0.145, -3.5, 'Trajectory')
+    plt.annotate('stable node', xy=(-1.6320958395541862, -12.318684344410208),
+                 xytext=(-1, -12.318684344410208), arrowprops=dict(arrowstyle="->"))
+    plt.annotate('saddle node', xy=(-0.9803837299517475, -3.8057584936177298),
+                 xytext=(-0.685, -6.3), arrowprops=dict(arrowstyle="->"))
+    plt.annotate('unstable focus', xy=(0.6124732604697042, -0.8756173672185038),
+                 xytext=(0.8, 0.6), arrowprops=dict(arrowstyle="->"))
+
+  analysis([-2, 3], [-13., 2.], z=0.02, extra_f=f, init_xy=(-0.7, -3),
+           name='HindmarshRose_triggered_bursting_ppa2.pdf')
+
+  plt.show()
+
+
 if __name__ == '__main__':
   run_HindmarshRose()
   bursting_firing()
@@ -299,4 +393,5 @@ if __name__ == '__main__':
   phase_plane_analysis_v2()
   bifurcation_analysis()
   bursting_analysis()
-
+  triggered_bursting()
+  triggered_bursting_ppa()
