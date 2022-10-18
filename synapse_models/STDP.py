@@ -6,8 +6,8 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 class STDP(bp.dyn.TwoEndConn):
-  def __init__(self, pre, post, conn, tau_s=16.8, tau_t=33.7, tau=8., delta_As=0.96,
-               delta_At=0.53, E=1., delay_step=0, method='exp_auto', **kwargs):
+  def __init__(self, pre, post, conn, tau_s=16.8, tau_t=33.7, tau=8., A1=0.96,
+               A2=0.53, E=1., delay_step=0, method='exp_auto', **kwargs):
     super(STDP, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
     self.check_pre_attrs('spike')
     self.check_post_attrs('spike', 'input', 'V_rest')
@@ -16,8 +16,8 @@ class STDP(bp.dyn.TwoEndConn):
     self.tau_s = tau_s
     self.tau_t = tau_t
     self.tau = tau
-    self.delta_As = delta_As
-    self.delta_At = delta_At
+    self.A1 = A1
+    self.A2 = A2
     self.E = E
     self.delay_step = delay_step
 
@@ -26,8 +26,8 @@ class STDP(bp.dyn.TwoEndConn):
 
     # 初始化变量
     num = len(self.pre_ids)
-    self.As = bm.Variable(bm.zeros(num))
-    self.At = bm.Variable(bm.zeros(num))
+    self.Apre = bm.Variable(bm.zeros(num))
+    self.Apost = bm.Variable(bm.zeros(num))
     self.w = bm.Variable(bm.ones(num))
     self.g = bm.Variable(bm.zeros(num))
     self.delay = bm.LengthDelay(self.g, delay_step)  # 定义一个延迟处理器
@@ -37,10 +37,10 @@ class STDP(bp.dyn.TwoEndConn):
 
   @property
   def derivative(self):
-    dAs = lambda As, t: - As / self.tau_s
-    dAt = lambda At, t: - At / self.tau_t
+    dApre = lambda Apre, t: - Apre / self.tau_s
+    dApost = lambda Apost, t: - Apost / self.tau_t
     dg = lambda g, t: -g / self.tau
-    return bp.JointEq([dAs, dAt, dg])  # 将三个微分方程联合求解
+    return bp.JointEq([dApre, dApost, dg])  # 将三个微分方程联合求解
 
   def update(self, tdi):
     # 将g的计算延迟delay_step的时间步长
@@ -54,17 +54,17 @@ class STDP(bp.dyn.TwoEndConn):
     pre_spikes = bm.pre2syn(self.pre.spike, self.pre_ids)  # 哪些突触前神经元产生了脉冲
     post_spikes = bm.pre2syn(self.post.spike, self.post_ids)  # 哪些突触后神经元产生了脉冲
 
-    # 计算积分后的As, At, g
-    self.As.value, self.At.value, self.g.value = self.integral(self.As, self.At, self.g, tdi.t, tdi.dt)
+    # 计算积分后的Apre, Apost, g
+    self.Apre.value, self.Apost.value, self.g.value = self.integral(self.Apre, self.Apost, self.g, tdi.t, tdi.dt)
 
     # if (pre spikes)
-    As = bm.where(pre_spikes, self.As + self.delta_As, self.As)
-    self.w.value = bm.where(pre_spikes, self.w - self.At, self.w)
+    Apre = bm.where(pre_spikes, self.Apre + self.A1, self.Apre)
+    self.w.value = bm.where(pre_spikes, self.w - self.Apost, self.w)
     # if (post spikes)
-    At = bm.where(post_spikes, self.At + self.delta_At, self.At)
-    self.w.value = bm.where(post_spikes, self.w + self.As, self.w)
-    self.As.value = As
-    self.At.value = At
+    Apost = bm.where(post_spikes, self.Apost + self.A2, self.Apost)
+    self.w.value = bm.where(post_spikes, self.w + self.Apre, self.w)
+    self.Apre.value = Apre
+    self.Apost.value = Apost
 
     # 更新完w后再更新g
     self.g.value = bm.where(pre_spikes, self.g + self.w, self.g)
@@ -84,7 +84,7 @@ def run_STDP(I_pre, I_post, dur, **kwargs):
   runner = bp.dyn.DSRunner(
     net,
     inputs=[('pre.input', I_pre, 'iter'), ('post.input', I_post, 'iter')],
-    monitors=['pre.spike', 'post.spike', 'syn.g', 'syn.w', 'syn.As', 'syn.At']
+    monitors=['pre.spike', 'post.spike', 'syn.g', 'syn.w', 'syn.Apre', 'syn.Apost']
   )
   runner(dur)
 
@@ -122,8 +122,8 @@ def run_STDP(I_pre, I_post, dur, **kwargs):
   plt.legend(loc='center right')
 
   ax = fig.add_subplot(gs[6:8, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.As'][:, 0], label='$A_s$', color='coral')
-  plt.plot(runner.mon.ts, runner.mon['syn.At'][:, 0], label='$A_t$', color='gold', linestyle='--')
+  plt.plot(runner.mon.ts, runner.mon['syn.Apre'][:, 0], label='$A_{\mathrm{pre}}$', color='coral')
+  plt.plot(runner.mon.ts, runner.mon['syn.Apost'][:, 0], label='$A_{\mathrm{post}}$', color='gold', linestyle='--')
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plt.legend(loc='center right')
