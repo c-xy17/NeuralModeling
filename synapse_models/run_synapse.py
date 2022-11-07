@@ -324,47 +324,4 @@ def run_FR(syn_model, I_pre, dur, **kwargs):
   plt.show()
 
 
-def run_BCM(syn_model, I_pre, dur, **kwargs):
-  # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
-  pre = FR(2)
-  post = FR(1)
-  syn = syn_model(pre, post, conn=bp.conn.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=pre, post=post, syn=syn)
-
-  # 运行模拟
-  runner = bp.dyn.DSRunner(net,
-                           # inputs=[('pre.input', I_pre.T, 'iter'), ('post.input', I2, 'iter')],
-                           inputs=[('pre.input', I_pre.T, 'iter')],
-                           monitors=['pre.r', 'post.r', 'syn.w', 'syn.theta_M'])
-  runner(dur)
-
-  # 可视化
-  fig, gs = bp.visualize.get_figure(3, 1)
-
-  ax = fig.add_subplot(gs[0, 0])
-  plt.plot(runner.mon.ts, runner.mon['pre.r'][:, 0], label='pre0 $r$', color=u'#ff7f0e')
-  plt.plot(runner.mon.ts, runner.mon['pre.r'][:, 1], label='pre1 $r$', color=u'#1f77b4', linestyle='--')
-  plt.legend(loc='center right')
-  plt.xticks([])
-  ax.spines['top'].set_visible(False)
-  ax.spines['right'].set_visible(False)
-
-  ax = fig.add_subplot(gs[1, 0])
-  plt.plot(runner.mon.ts, runner.mon['post.r'], label='post $r$', color=u'#d62728')
-  plt.plot(runner.mon.ts, runner.mon['syn.theta_M'], label='$\\theta_\mathrm{M}$', color='gold', linestyle='--')
-  plt.legend(loc='center right')
-  plt.xticks([])
-  ax.spines['top'].set_visible(False)
-  ax.spines['right'].set_visible(False)
-
-  ax = fig.add_subplot(gs[2, 0])
-  plt.plot(runner.mon.ts, runner.mon['syn.w'][:, 0], label='$w0$', color=u'#ff7f0e')
-  plt.plot(runner.mon.ts, runner.mon['syn.w'][:, 1], label='$w1$', color=u'#1f77b4', linestyle='--')
-  plt.legend(loc='center right')
-  ax.spines['top'].set_visible(False)
-  ax.spines['right'].set_visible(False)
-
-  plt.xlabel(r'$t$ (ms)')
-  # plt.savefig('../img/BCM_output2.pdf', transparent=True, dpi=500)
-  plt.show()
 

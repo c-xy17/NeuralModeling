@@ -135,9 +135,12 @@ def AdEx_patterns():
   # plt.show()
 
 
-def _ppa2d(group, title, v_range=None, w_range=None, Iext=65., duration=400, extra_fun=None):
+def _ppa2d(group, title, v_range=None, w_range=None, Iext=65.,
+           duration=400, num_text_sp=0, sp_text=None, extra_fun=None):
   v_range = [-70., -40.] if not v_range else v_range
   w_range = [-10., 50.] if not w_range else w_range
+  if sp_text is None:
+    sp_text = dict()
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
   ax = fig.add_subplot(gs[0, 0])
@@ -164,9 +167,11 @@ def _ppa2d(group, title, v_range=None, w_range=None, Iext=65., duration=400, ext
   s_idx = np.where(spike)[0]  # 找到所有发放动作电位对应的index
   s_idx = np.concatenate(([0], s_idx, [len(spike) - 1]))  # 加上起始点和终止点的index
   for i in range(len(s_idx) - 1):
-    plt.plot(runner.mon.V[s_idx[i]: s_idx[i + 1]],
-             runner.mon.w[s_idx[i]: s_idx[i + 1]],
-             color='darkslateblue')
+    vs = runner.mon.V[s_idx[i]: s_idx[i + 1]]
+    ws = runner.mon.w[s_idx[i]: s_idx[i + 1]]
+    plt.plot(vs, ws, color='darkslateblue')
+    if i < num_text_sp:
+      plt.text(group.V_reset - 1, ws[0] - 0.5, sp_text.get(i, str(i)))
   # 画出虚线 x = V_reset
   plt.plot([group.V_reset, group.V_reset], w_range, '--', color='grey', zorder=-1)
 
@@ -205,22 +210,27 @@ def AdEx_phase_plane_analysis():
                V_rest=-70., V_th=0., V_T=-50., R=0.5, delta_T=2.)
   def f():
     plt.plot(np.linspace(-70, -40, 500), np.zeros(500), '.', color='lightcoral', alpha=.7)
+    plt.text(-54.5, 0, '0')
     plt.text(-54.5, 60, '1')
     plt.text(-54.5, 69.5, '2, 3, ...')
     plt.text(-68., 62.8, 'V nullcline')
     plt.text(-68., 2, 'w nullcline')
   _ppa2d(model, title='Tonic Spiking', w_range=[-5, 75.], extra_fun=f)
+  model.reset_state()
   _vt_plot(model, title='Tonic Spiking')
 
   # Adaptation
   model = AdEx(1, tau=20., a=0., tau_w=100., b=5., V_reset=-55.,
                V_rest=-70., V_th=0., V_T=-50., R=0.5, delta_T=2.)
+
   def f():
     plt.plot(np.linspace(-70, -40, 500), np.zeros(500), '.', color='lightcoral', alpha=.7)
     plt.text(-47.7, 30.5, 'V nullcline')
     plt.text(-68., 2., 'w nullcline')
     plt.text(-50.7, 19., 'Trajectory')
-  _ppa2d(model, title='Adaptation', w_range=[-5, 45.], extra_fun=f)
+
+  _ppa2d(model, title='Adaptation', w_range=[-5, 45.], extra_fun=f, num_text_sp=5)
+  model.reset_state()
   _vt_plot(model, title='Adaptation')
 
   # Initial Bursting
@@ -230,17 +240,23 @@ def AdEx_phase_plane_analysis():
     plt.text(-59, 45.3, 'V nullcline')
     plt.text(-68., 7., 'w nullcline')
     plt.text(-48.1, 27.3, 'Trajectory')
-  _ppa2d(model, title='Initial Bursting', w_range=[-5, 50.], extra_fun=f)
+  _ppa2d(model, title='Initial Bursting', w_range=[-5, 50.], extra_fun=f, num_text_sp=6)
+  model.reset_state()
   _vt_plot(model, title='Initial Bursting')
 
   # Bursting
   model = AdEx(1, tau=5., a=-0.5, tau_w=100., b=7., V_reset=-47.,
                V_rest=-70., V_th=0., V_T=-50., R=0.5, delta_T=2.)
   def f():
+    plt.text(-48, 29.5, '1')
+    plt.text(-48, 35.5, '2')
+    plt.text(-46.8, 38.8, '0')
+    plt.text(-46.8, 42, '3')
     plt.text(-60.8, 48.83, 'V nullcline')
     plt.text(-68., 1.2, 'w nullcline')
     plt.text(-45.88, 36.8, 'Trajectory')
   _ppa2d(model, title='Bursting', w_range=[-5, 60.], extra_fun=f)
+  model.reset_state()
   _vt_plot(model, title='Bursting')
 
   # Transient Spiking
@@ -250,15 +266,11 @@ def AdEx_phase_plane_analysis():
     plt.text(-65., 47.5, 'V nullcline')
     plt.text(-69., 8., 'w nullcline')
     plt.text(-58.65, 2., 'Trajectory')
-    plt.annotate('stable focus',
-                 xy=(-50.750613238954806, 19.25038786580243),
-                 xytext=(-54., 28.44),
-                 arrowprops=dict(arrowstyle="->"))
-    plt.annotate('saddle node',
-                 xy=(-47.9494123367877, 22.050461841990344),
-                 xytext=(-46.4, 16.5),
-                 arrowprops=dict(arrowstyle="->"))
-  _ppa2d(model, title='Transient Spiking', w_range=[-5, 60.], Iext=55., extra_fun=f)
+    plt.annotate('stable focus', xy=(-50.750613238954806, 19.25038786580243),
+                 xytext=(-54., 28.44), arrowprops=dict(arrowstyle="->"))
+    plt.annotate('saddle node', xy=(-47.9494123367877, 22.050461841990344),
+                 xytext=(-46.4, 16.5), arrowprops=dict(arrowstyle="->"))
+  _ppa2d(model, title='Transient Spiking', w_range=[-5, 60.], Iext=55., extra_fun=f, num_text_sp=3)
   model.reset_state()
   _vt_plot(model, title='Transient Spiking', input=('input', 55.))
 
@@ -269,8 +281,12 @@ def AdEx_phase_plane_analysis():
     plt.text(-62., 11., 'V nullcline')
     plt.text(-67., -12.6, 'w nullcline')
     plt.text(-48.9, -16.3, 'Trajectory')
-  _ppa2d(model, title='Delayed Spiking', w_range=[-30, 20.], Iext=25.,extra_fun=f)
+  _ppa2d(model, title='Delayed Spiking', w_range=[-30, 20.], Iext=25., extra_fun=f,
+         num_text_sp=2, sp_text={1: '1,2,..'})
+  model.reset_state()
   _vt_plot(model, title='Delayed Spiking', input=('input', 25.))
+
+  plt.show()
 
 
 if __name__ == '__main__':
