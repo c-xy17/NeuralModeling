@@ -212,5 +212,5 @@ def smooth_tracking():
 
 if __name__ == '__main__':
   run_CANN()
-  # population_coding()
-  # smooth_tracking()
+  population_coding()
+  smooth_tracking()
