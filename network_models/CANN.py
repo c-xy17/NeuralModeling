@@ -51,9 +51,7 @@ class CANN1D(bp.dyn.NeuGroup):
   # 计算连接矩阵
   def make_conn(self, x):
     assert bm.ndim(x) == 1
-    x_left = bm.reshape(x, (-1, 1))
-    x_right = bm.repeat(x.reshape((1, -1)), len(x), axis=0)
-    d = self.dist(x_left - x_right)  # 距离矩阵
+    d = self.dist(x - x[:, None])  # 距离矩阵
     Jxx = self.J0 * bm.exp(
       -0.5 * bm.square(d / self.a)) / (bm.sqrt(2 * bm.pi) * self.a)
     return Jxx
@@ -214,5 +212,5 @@ def smooth_tracking():
 
 if __name__ == '__main__':
   run_CANN()
-  population_coding()
-  smooth_tracking()
+  # population_coding()
+  # smooth_tracking()
