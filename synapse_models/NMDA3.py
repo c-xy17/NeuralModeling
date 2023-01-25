@@ -5,7 +5,7 @@ from run_synapse import run_syn_NMDA
 
 
 # second-order kinetics
-class NMDA(bp.dyn.TwoEndConn):
+class NMDA(bp.TwoEndConn):
 	def __init__(self, pre, post, conn, g_max=0.02, E=0., c_Mg=1.2, alpha1=2.,
 	             beta1=0.01, alpha2=0.2, beta2=0.5, delay_step=2,
 	             method='exp_auto', **kwargs):

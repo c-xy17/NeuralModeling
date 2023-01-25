@@ -4,7 +4,7 @@ import brainpy.math as bm
 from run_synapse import run_syn_NMDA
 
 
-class NMDA(bp.dyn.TwoEndConn):
+class NMDA(bp.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.02, c_Mg=1.2, tau_decay=150., tau_rise=3.,
                delay_step=2, E=0., syn_type='CUBA', method='exp_auto', **kwargs):
     super(NMDA, self).__init__(pre=pre, post=post, conn=conn, **kwargs)

@@ -9,8 +9,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-
-class SeparateNaK(bp.dyn.DynamicalSystem):
+class SeparateNaK(bp.DynamicalSystem):
   def __init__(self, num=1, ENa=50., gNa=120., EK=-77., gK=36., EL=-54.387,
                gL=0.03, V_th=20., C=1.0):
     # 初始化
@@ -122,12 +121,18 @@ def try_step_voltage2():
   vs, duration = bp.inputs.section_input([-70.67647, -70.67647 + steps],
                                          durations=[1, 20],
                                          return_length=True)
-  runner = bp.DSRunner(SeparateNaK(steps.size), monitors=['INa', 'IK', 'IL', 'Ifb', 'gNa', 'gK'],
+  runner = bp.DSRunner(SeparateNaK(steps.size),
+                       monitors=['INa', 'IK', 'IL', 'Ifb', 'gNa', 'gK'],
                        inputs=['V', vs, 'iter', '='])
   runner.run(duration)
 
   names1 = 'abcdefg'
   names2 = 'hijklmn'
+
+  Na_lims = [(0., 0.015), (0., 0.06), (0., 1.), (-0.5, 10), (-1, 23.), (-1, 42), (-1, 55)]
+  Na_ticks = [(0., 0.015), (0., 0.06), (0., 1.), (0., 10), (0., 23.), (0, 42), (0, 55)]
+  K_lims = [(0.1, 0.4), (0., 0.8), (0., 3.1), (0., 10.), (-1., 18), (-1, 28), (-1, 32)]
+  K_ticks = [(0.1, 0.4), (0., 0.8), (0., 3.1), (0., 10.), (0., 18), (0, 28), (0, 32)]
 
   plt.rcParams.update({"font.size": 15})
   plt.rcParams['font.sans-serif'] = ['Times New Roman']
@@ -137,7 +142,7 @@ def try_step_voltage2():
     ax = fig.add_subplot(gs[i, 0])
     data = runner.mon.gNa[:, i]
     plt.plot(runner.mon.ts, data, )
-    plt.ylabel(f'+{steps[i]} mV')
+    # plt.ylabel('mS/cm$^2$', fontsize=12)
     if i == 0:
       plt.title('gNa')
     if i == steps.size - 1:
@@ -147,11 +152,19 @@ def try_step_voltage2():
     axes.append(ax)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.text(-0.6, (data.max() - data.min()) * 0.9 + data.min(), f'({names1[i]})')
+    plt.text(16, (data.max() - data.min()) * 0.9 + data.min(),
+             f'+{steps[i]} mV'
+             # f'({names1[i]})'
+             )
+    plt.ylim(*Na_lims[i])
+    plt.yticks(Na_ticks[i])
+    if i < 2:
+      plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 
     ax = fig.add_subplot(gs[i, 1])
     data = runner.mon.gK[:, i]
     plt.plot(runner.mon.ts, data, 'r')
+    # plt.ylabel('mS/cm$^2$')
     if i == 0:
       plt.title('gK')
     if i == steps.size - 1:
@@ -160,13 +173,16 @@ def try_step_voltage2():
       plt.xticks([])
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.text(-0.6, (data.max() - data.min()) * 0.9 + data.min(),  f'({names2[i]})')
+    plt.text(16, (data.max() - data.min()) * 0.1 + data.min(),
+             f'+{steps[i]} mV'
+             # f'({names2[i]})'
+             )
+    plt.ylim(*K_lims[i])
+    plt.yticks(K_ticks[i])
 
   fig.align_ylabels(axes)
   plt.savefig('voltage_gated_Na_and_K.pdf', transparent=True, dpi=500)
   plt.show()
-
-
 
 
 def try_step_voltage_for_gNa():
@@ -266,9 +282,13 @@ def INa_inactivation_1():
   for i in range(4):
     row_i = (i // 2) * 3
     ax = fig.add_subplot(gs[row_i: row_i + 2, i % 2])
+    idx = np.argmax(-runner.mon.INa[:, i])
     ax.plot(runner.mon.ts, -runner.mon.INa[:, i], 'b')
     ax.set_ylim([-100, 1400])
-    if i % 2 == 0: ax.set_ylabel(r'$I_{\mathrm{Na}}$', color='b')
+    ax.set_xlim([-1, duration + 1])
+    plt.plot([-1, runner.mon.ts[idx]], [-runner.mon.INa[idx, i]] * 2, 'k--')
+    if i % 2 == 0:
+      ax.set_ylabel(r'$I_{\mathrm{Na}}$', color='b')
     ax.tick_params('y', colors='b')
     plt.text(20, 1000, f't = {lengths[i]} ms')
     ax.spines['top'].set_visible(False)
@@ -278,8 +298,10 @@ def INa_inactivation_1():
 
     ax = fig.add_subplot(gs[row_i + 2, i % 2])
     ax.plot(runner.mon.ts, all_vs[:, i], 'r')
-    if i % 2 == 0: ax.set_ylabel(r'V', color='r')
+    if i % 2 == 0:
+      ax.set_ylabel(r'V', color='r')
     ax.tick_params('y', colors='r')
+    ax.set_xlim([-1, duration + 1])
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     if i // 2 == 1:
@@ -426,11 +448,11 @@ def INa_inactivation_steady_state2():
 if __name__ == '__main__':
   pass
   # separation_of_Na_and_K_currents()
-  # try_step_voltage2()
+  try_step_voltage2()
   # try_step_voltage_for_gNa()
   # INa_inactivation()
   # INa_inactivation_1()
   # INa_inactivation_2()
   # INa_inactivation_steady_state1()
-  INa_inactivation_steady_state2()
+  # INa_inactivation_steady_state2()
 

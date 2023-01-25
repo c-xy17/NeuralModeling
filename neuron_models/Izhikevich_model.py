@@ -7,7 +7,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class Izhikevich(bp.dyn.NeuGroup):
+class Izhikevich(bp.NeuGroup):
   def __init__(self, size, a=0.02, b=0.20, c=-65., d=2., tau_ref=0.,
                V_th=30., **kwargs):
     # 初始化父类
@@ -77,10 +77,11 @@ def run_Izhkevich():
 
 def Izhkevich_patterns():
   def subplot(izhi, title, input=('input', 10.), duration=200):
-    fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-    ax = fig.add_subplot(gs[0, 0])
     runner = bp.DSRunner(izhi, monitors=['V', 'u'], inputs=input)
     runner(duration)
+
+    fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+    ax = fig.add_subplot(gs[0, 0])
     plt.plot(runner.mon.ts, runner.mon.V)
     plt.plot(runner.mon.ts, runner.mon.u)
     ax.spines['top'].set_visible(False)
@@ -187,7 +188,7 @@ def _ppa2d(model, v_range, u_range, Iext=10., duration=200, extra_fun=None):
 def phase_plane_analysis():
   bp.math.enable_x64()
 
-  def f():
+  def f1():
     plt.text(-76.5, -3.7, 'V nullcline')
     plt.text(-76.5, -16.3, 'u nullcline')
     plt.text(-60.8, -14.5, 'Trajectory')
@@ -200,13 +201,13 @@ def phase_plane_analysis():
                  xytext=(-60, -7.3),
                  arrowprops=dict(arrowstyle="->"))
 
-  _ppa2d(Izhikevich(1, c=-68), [-80., -45.], [-20., 0.], Iext=3.7, duration=400, extra_fun=f)
+  _ppa2d(Izhikevich(1, c=-68), [-80., -45.], [-20., 0.], Iext=3.7, duration=400, extra_fun=f1)
 
-  def f():
+  def f2():
     plt.text(-76.5, -3.7, 'V nullcline')
     plt.text(-76.5, -16.3, 'u nullcline')
     plt.text(-60.8, -14.5, 'Trajectory')
-    plt.annotate('stable focus',
+    plt.annotate('unstable focus',
                  xy=(-61.5826134542462, -12.316334160065736),
                  xytext=(-67.5, -10),
                  arrowprops=dict(arrowstyle="->"))
@@ -215,11 +216,11 @@ def phase_plane_analysis():
                  xytext=(-60, -7.3),
                  arrowprops=dict(arrowstyle="->"))
 
-  _ppa2d(Izhikevich(1, c=-68), [-80., -45.], [-20., 0.], Iext=3.9, duration=400, extra_fun=f)
+  _ppa2d(Izhikevich(1, c=-68), [-80., -45.], [-20., 0.], Iext=3.9, duration=400, extra_fun=f2)
 
 
 if __name__ == '__main__':
-  # run_Izhkevich()
-  # Izhkevich_patterns()
-  bifurcation_analysis()
+  run_Izhkevich()
+  Izhkevich_patterns()
+  # bifurcation_analysis()
   # phase_plane_analysis()

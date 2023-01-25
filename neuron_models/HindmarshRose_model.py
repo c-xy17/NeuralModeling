@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class HindmarshRose(bp.dyn.NeuGroup):
+class HindmarshRose(bp.NeuGroup):
   def __init__(self, size, a=1., b=3., c=1., d=5., r=0.001, s=4., x_r=-1.6,
                theta=1.0, **kwargs):
     # 初始化父类

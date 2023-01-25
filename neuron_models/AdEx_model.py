@@ -7,7 +7,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class AdEx(bp.dyn.NeuGroup):
+class AdEx(bp.NeuGroup):
   def __init__(self, size, V_rest=-65., V_reset=-68., V_th=20., V_T=-60., delta_T=1., a=1.,
                b=2.5, R=1., tau=10., tau_w=30., tau_ref=0., name=None):
     # 初始化父类
@@ -79,26 +79,29 @@ def run_AdEx_model():
   # 运行AdEx模型
   neu = AdEx(2)
   neu.V[:] = bm.asarray([-68.79061, -66.51926])
-  runner = bp.dyn.DSRunner(neu, monitors=['V', 'w', 'spike'], inputs=('input', 9.), dt=0.01)
+  runner = bp.DSRunner(neu, monitors=['V', 'w', 'spike'], inputs=('input', 9.), dt=0.01)
   runner(400)
 
   # 可视化V和w的变化
   runner.mon.V = np.where(runner.mon.spike, 20., runner.mon.V)
 
   for i in range(2):
-    fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+    fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
     ax = fig.add_subplot(gs[0, 0])
     plt.plot(runner.mon.ts, runner.mon.V[:, i], label='V')
-    plt.plot(runner.mon.ts, runner.mon.w[:, i], label='w')
-    plt.xlabel(r'$t$ (ms)')
     plt.ylabel(r'$V$ (mV)')
-    plt.text(-24, 0, r'$w$')
-    plt.text(-24, -68, r'$V$')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    ax = fig.add_subplot(gs[1, 0])
+    plt.plot(runner.mon.ts, runner.mon.w[:, i], label='w')
+    plt.ylabel(r'$w$ (mA)')
+    plt.xlabel(r'$t$ (ms)')
     plt.xlim(-30, 430)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     plt.savefig(f'adex_output{i + 1}.pdf', transparent=True, dpi=500)
-  # plt.show()
+  plt.show()
 
 
 def AdEx_patterns():
@@ -114,7 +117,7 @@ def AdEx_patterns():
   group.V.value = group.V_reset
 
   par_I = bm.asarray([65., 65., 65., 65., 55., 25.])
-  runner = bp.dyn.DSRunner(group, monitors=['V', 'w', 'spike'], inputs=('input', par_I))
+  runner = bp.DSRunner(group, monitors=['V', 'w', 'spike'], inputs=('input', par_I))
   runner.run(500.)
 
   runner.mon.V = np.where(runner.mon.spike, 20., runner.mon.V)
@@ -122,17 +125,21 @@ def AdEx_patterns():
   for i_col in range(2):
     for i_row in range(3):
       i = i_col * 3 + i_row
-      fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+      fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
       ax = fig.add_subplot(gs[0, 0])
       plt.plot(runner.mon.ts, runner.mon.V[:, i], label='V')
-      plt.plot(runner.mon.ts, runner.mon.w[:, i], label='w')
-      # plt.title(names[i])
-      plt.xlabel(r'$t$ (ms)')
       plt.ylabel(r'$V$ (mV)')
       ax.spines['top'].set_visible(False)
       ax.spines['right'].set_visible(False)
+
+      ax = fig.add_subplot(gs[1, 0])
+      plt.plot(runner.mon.ts, runner.mon.w[:, i], label='w')
+      plt.ylabel(r'$w$ (mA)')
+      plt.xlabel(r'$t$ (ms)')
+      ax.spines['top'].set_visible(False)
+      ax.spines['right'].set_visible(False)
       plt.savefig(f'adex_pattern_{names[i]}.pdf', transparent=True, dpi=500)
-  # plt.show()
+  plt.show()
 
 
 def _ppa2d(group, title, v_range=None, w_range=None, Iext=65.,
@@ -188,18 +195,23 @@ def _vt_plot(neu, title, input=('input', 65.), duration=400):
   runner = bp.DSRunner(neu, monitors=['V', 'w', 'spike'], inputs=input)
   runner(duration)
 
-  fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+  fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
   ax = fig.add_subplot(gs[0, 0])
   runner.mon.V = np.where(runner.mon.spike, 0., runner.mon.V)
   ax.plot(runner.mon.ts, runner.mon.V, label='V')
+  plt.ylabel(r'$V$ (mV)')
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+
+  ax = fig.add_subplot(gs[1, 0])
   ax.plot(runner.mon.ts, runner.mon.w, label='w', color=u'#ff7f0e')
   ax.set_xlabel(r'$t$ (ms)')
-  plt.text(-16, runner.mon.V[0, 0], r'$V$')
-  plt.text(-16, runner.mon.w[0, 0], r'$w$')
+  plt.ylabel(r'$w$ (mA)')
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plt.savefig(f'adex_pp_pattern_{title.replace(" ", "-")}.pdf', transparent=True, dpi=500)
   # plt.show()
+  fig.align_ylabels()
 
 
 def AdEx_phase_plane_analysis():
@@ -290,6 +302,6 @@ def AdEx_phase_plane_analysis():
 
 
 if __name__ == '__main__':
-  run_AdEx_model()
-  AdEx_patterns()
+  # run_AdEx_model()
+  # AdEx_patterns()
   AdEx_phase_plane_analysis()

@@ -7,7 +7,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class BCM(bp.dyn.DynamicalSystem):
+class BCM(bp.DynamicalSystem):
   def __init__(self, num_pre, num_post, eta=0.01, eps=0., p=1, y_o=1.,
                w_max=2., w_min=-2., method='exp_auto'):
     super(BCM, self).__init__()
@@ -124,5 +124,5 @@ def try_bcm_rule():
 
 
 if __name__ == '__main__':
-  # bcm_dw()
+  bcm_dw()
   try_bcm_rule()
