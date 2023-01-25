@@ -5,7 +5,7 @@ from jax.ops import segment_sum
 from run_synapse import run_syn_GJ
 
 
-class GapJunction(bp.dyn.TwoEndConn):
+class GapJunction(bp.TwoEndConn):
 	def __init__(self, pre, post, conn, g=0.2, **kwargs):
 		super(GapJunction, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
 		self.check_pre_attrs('V')
@@ -19,7 +19,7 @@ class GapJunction(bp.dyn.TwoEndConn):
 
 	def update(self, tdi):
 		# 计算突触后电流
-		inputs = self.g * (self.pre.V[self.pre_ids.value] - self.post.V[self.post_ids.value])
+		inputs = self.g * (self.pre.V[self.pre_ids] - self.post.V[self.post_ids])
 
 		# 从synapse到post的计算：post id相同电流加到一起
 		self.post.input += bm.syn2post(inputs, self.post_ids, self.post.num)

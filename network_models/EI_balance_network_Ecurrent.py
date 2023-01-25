@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class LIF(bp.dyn.NeuGroup):
+class LIF(bp.NeuGroup):
   def __init__(self, size, V_rest=0., V_reset=-5., V_th=20., R=1., tau=10., t_ref=5.,
                method='exp_auto', **kwargs):
     # 初始化父类
@@ -56,7 +56,7 @@ class LIF(bp.dyn.NeuGroup):
     self.I_input[:] = 0.
 
 
-class EINet(bp.dyn.Network):
+class EINet(bp.Network):
   def __init__(self, num_exc, num_inh, method='exp_auto', **kwargs):
     super(EINet, self).__init__(**kwargs)
 
@@ -87,7 +87,6 @@ class EINet(bp.dyn.Network):
 
 
 def visualize_current(ts, V, V_th, E_input, I_input, ext_input, duration):
-
   fig, gs = bp.visualize.get_figure(1, 1, 2.25, 6)
   ax = fig.add_subplot(gs[0, 0])
   ax.plot(ts, E_input, label='E input', color=u'#e62728')
@@ -116,7 +115,7 @@ def visualize_current(ts, V, V_th, E_input, I_input, ext_input, duration):
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   ax.set_xlim(-1, duration + 50)
-  plt.savefig('EI_net_example_potential.pdf', transparent=True, dpi=500)
+  # plt.savefig('EI_net_example_potential.pdf', transparent=True, dpi=500)
 
   plt.show()
 

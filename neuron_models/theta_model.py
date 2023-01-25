@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class Theta(bp.dyn.NeuGroup):
+class Theta(bp.NeuGroup):
 	def __init__(self, size, b=0., c=0., t_ref=0., **kwargs):
 		# 初始化父类
 		super(Theta, self).__init__(size=size, **kwargs)

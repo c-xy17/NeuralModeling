@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
-class STDP(bp.dyn.TwoEndConn):
+class STDP(bp.TwoEndConn):
   def __init__(self, pre, post, conn, tau_s=16.8, tau_t=33.7, tau=8., A1=0.96,
                A2=0.53, E=1., delay_step=0, method='exp_auto', **kwargs):
     super(STDP, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
@@ -75,13 +75,13 @@ class STDP(bp.dyn.TwoEndConn):
 
 def run_STDP(I_pre, I_post, dur, **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
-  pre = bp.dyn.LIF(1)
-  post = bp.dyn.LIF(1)
+  pre = bp.neurons.LIF(1)
+  post = bp.neurons.LIF(1)
   syn = STDP(pre, post, bp.connect.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=pre, syn=syn, post=post)
+  net = bp.Network(pre=pre, syn=syn, post=post)
 
   # 运行模拟
-  runner = bp.dyn.DSRunner(
+  runner = bp.DSRunner(
     net,
     inputs=[('pre.input', I_pre, 'iter'), ('post.input', I_post, 'iter')],
     monitors=['pre.spike', 'post.spike', 'syn.g', 'syn.w', 'syn.Apre', 'syn.Apost']

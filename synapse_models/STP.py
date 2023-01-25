@@ -6,7 +6,7 @@ import numpy as np
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
-class STP(bp.dyn.TwoEndConn):
+class STP(bp.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.1, U=0.15, tau_f=1500., tau_d=200.,
                tau=8., E=1., delay_step=2, method='exp_auto', **kwargs):
     super(STP, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
@@ -66,17 +66,17 @@ class STP(bp.dyn.TwoEndConn):
 
 def run_STP(title=None, **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
-  neu1 = bp.dyn.LIF(1)
-  neu2 = bp.dyn.LIF(1)
+  neu1 = bp.neurons.LIF(1)
+  neu2 = bp.neurons.LIF(1)
   syn = STP(neu1, neu2, bp.connect.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=neu1, syn=syn, post=neu2)
+  net = bp.Network(pre=neu1, syn=syn, post=neu2)
 
   # 分段电流
   inputs, dur = bp.inputs.section_input(values=[22., 0., 22., 0.],
                                         durations=[200., 200., 25., 75.],
                                         return_length=True)
   # 运行模拟
-  runner = bp.dyn.DSRunner(net,
+  runner = bp.DSRunner(net,
                            inputs=[('pre.input', inputs, 'iter')],
                            monitors=['syn.u', 'syn.x', 'syn.g'])
   runner.run(dur)
@@ -110,16 +110,16 @@ def run_STP2(title=None, **kwargs):
   neu1 = bp.neurons.SpikeTimeGroup(1,
                                    times=[100, 150, 200, 250, 300, 350, 400, 450, 500, 1000],
                                    indices=[0] * 10)
-  neu2 = bp.dyn.LIF(1)
+  neu2 = bp.neurons.LIF(1)
   syn = STP(neu1, neu2, bp.connect.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=neu1, syn=syn, post=neu2)
+  net = bp.Network(pre=neu1, syn=syn, post=neu2)
 
   # 分段电流
   inputs, dur = bp.inputs.section_input(values=[22., 0., 22., 0.],
                                         durations=[200., 200., 25., 75.],
                                         return_length=True)
   # 运行模拟
-  runner = bp.dyn.DSRunner(net,
+  runner = bp.DSRunner(net,
                            monitors=['syn.u', 'syn.x', 'syn.g', 'pre.spike'])
   runner.run(1200)
 

@@ -4,7 +4,7 @@ import brainpy.math as bm
 from run_synapse import run_delta_syn
 
 
-class VoltageJump(bp.dyn.TwoEndConn):
+class VoltageJump(bp.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=1., delay_step=2, E=0., **kwargs):
     super().__init__(pre=pre, post=post, conn=conn, **kwargs)
     self.check_pre_attrs('spike')

@@ -2,14 +2,13 @@ import brainpy as bp
 import brainpy.math as bm
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 plt.rcParams['axes.unicode_minus'] = False
 
 
-class HH(bp.dyn.NeuGroup):
+class HH(bp.NeuGroup):
   def __init__(self, size, ENa=50., gNa=120., EK=-77., gK=36.,
                EL=-54.387, gL=0.03, V_th=20., C=1.0, T=6.3):
     # 初始化
@@ -65,7 +64,6 @@ class HH(bp.dyn.NeuGroup):
     dndt = alpha * (1 - n) - beta * n
     return self.phi * dndt
 
-
   f_gNa = lambda self, m, h: (self.gNa * m ** 3.0 * h)
   f_gK = lambda self, n: (self.gK * n ** 4.0)
 
@@ -90,7 +88,6 @@ class HH(bp.dyn.NeuGroup):
     self.h.value = h
     self.n.value = n
     self.input[:] = 0.  # 重置神经元接收到的输入
-
 
 
 def simple_run():
@@ -222,7 +219,7 @@ def conductance_during_action_potential():
 
   ax = fig.add_subplot(gs[1, 0])
   plt.plot(runner.mon.ts, hh.f_gNa(runner.mon.m, runner.mon.h), label='gNa', lw=2)
-  plt.plot(runner.mon.ts, hh.f_gK(runner.mon.n), label='gK',  lw=2)
+  plt.plot(runner.mon.ts, hh.f_gK(runner.mon.n), label='gK', lw=2)
   plt.text(13.8, 33, 'gNa')
   plt.text(16.5, 10, 'gK')
   plt.ylabel('Conductance')
@@ -231,8 +228,8 @@ def conductance_during_action_potential():
 
   ax = fig.add_subplot(gs[2, 0])
   plt.plot(runner.mon.ts, runner.mon.m, label='m', lw=2)
-  plt.plot(runner.mon.ts, runner.mon.h, label='h',  lw=2)
-  plt.plot(runner.mon.ts, runner.mon.n, label='n',  lw=2)
+  plt.plot(runner.mon.ts, runner.mon.h, label='h', lw=2)
+  plt.plot(runner.mon.ts, runner.mon.n, label='n', lw=2)
   plt.text(14.5, 0.94, 'm')
   plt.text(26.1, 0.60, 'h')
   plt.text(26.1, 0.31, 'n')
@@ -251,4 +248,3 @@ if __name__ == '__main__':
   visualize_hh_responses_in_book()
   visualize_constant_current_response_in_book()
   conductance_during_action_potential()
-

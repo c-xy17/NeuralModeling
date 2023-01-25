@@ -7,17 +7,18 @@ from neuron_models.FRNeuron import FR
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
+
 def run_syn_LIF(syn_model, run_duration=30., **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建网络
   pre_neu = bp.neurons.LIF(5)
   post_neu = bp.neurons.LIF(3)
   syn = syn_model(pre_neu, post_neu, conn=bp.conn.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=pre_neu, syn=syn, post=post_neu)
+  net = bp.Network(pre=pre_neu, syn=syn, post=post_neu)
 
   # 运行模拟
-  runner = bp.dyn.DSRunner(net,
-                           monitors=['pre.V', 'syn.g', 'post.V'],
-                           inputs=('pre.input', 35.))
+  runner = bp.DSRunner(net,
+                       monitors=['pre.V', 'syn.g', 'post.V'],
+                       inputs=('pre.input', 35.))
   runner(run_duration)
 
   # 只选取第0个突触后神经元可视化
@@ -34,10 +35,10 @@ def run_delta_syn(syn_model, title, run_duration=200., **kwargs):
                                    indices=[0, 0, 0, 0, 0])
   neu2 = bp.neurons.HH(1, V_initializer=bp.init.Constant(-70.68))
   syn1 = syn_model(neu1, neu2, conn=bp.connect.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
+  net = bp.Network(pre=neu1, syn=syn1, post=neu2)
 
   # 构建一个模拟器
-  runner = bp.dyn.DSRunner(
+  runner = bp.DSRunner(
     net,
     monitors=['pre.spike', 'post.V', 'syn.g']
   )
@@ -71,16 +72,15 @@ def run_delta_syn(syn_model, title, run_duration=200., **kwargs):
   plt.show()
 
 
-
 def run_syn(syn_model, title, run_duration=200., sp_times=(10, 20, 30), **kwargs):
   # 定义突触前神经元、突触后神经元和突触连接，并构建神经网络
   neu1 = bp.neurons.SpikeTimeGroup(1, times=sp_times, indices=[0] * len(sp_times))
   neu2 = bp.neurons.HH(1, V_initializer=bp.init.Constant(-70.68))
   syn1 = syn_model(neu1, neu2, conn=bp.connect.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
+  net = bp.Network(pre=neu1, syn=syn1, post=neu2)
 
   # 运行模拟
-  runner = bp.dyn.DSRunner(net, monitors=['pre.spike', 'post.V', 'syn.g', 'post.input'])
+  runner = bp.DSRunner(net, monitors=['pre.spike', 'post.V', 'syn.g', 'post.input'])
   runner.run(run_duration)
 
   # 可视化
@@ -124,10 +124,10 @@ def run_syn2(syn_model, title, run_duration=100., Iext=5., **kwargs):
   neu1 = bp.neurons.HH(1, V_initializer=bp.init.Constant(-70.))
   neu2 = bp.neurons.HH(1, V_initializer=bp.init.Constant(-70.))
   syn1 = syn_model(neu1, neu2, conn=bp.connect.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
+  net = bp.Network(pre=neu1, syn=syn1, post=neu2)
 
   # 运行模拟
-  runner = bp.dyn.DSRunner(net, inputs=[('pre.input', Iext)], monitors=['pre.V', 'post.V', 'syn.g'])
+  runner = bp.DSRunner(net, inputs=[('pre.input', Iext)], monitors=['pre.V', 'post.V', 'syn.g'])
   runner.run(run_duration)
 
   # 可视化
@@ -151,16 +151,16 @@ def run_syn_NMDA(syn_model, title, run_duration=200., sp_times=(10, 20, 30), **k
   neu1 = bp.neurons.SpikeTimeGroup(1, times=sp_times, indices=[0] * len(sp_times))
   neu2 = bp.neurons.HH(1, V_initializer=bp.init.Constant(-70.68))
   syn1 = syn_model(neu1, neu2, conn=bp.connect.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=neu1, post=neu2, syn=syn1)
+  net = bp.Network(pre=neu1, post=neu2, syn=syn1)
 
   # 运行模拟
   post_Iext = bp.inputs.spike_input(sp_times=[130],
                                     sp_lens=2.,
                                     sp_sizes=6.,
                                     duration=run_duration)
-  runner = bp.dyn.DSRunner(net,
-                           inputs=[('post.input', post_Iext, 'iter')],
-                           monitors=['pre.spike', 'post.V', 'syn.g', 'syn.b', 'post.input'])
+  runner = bp.DSRunner(net,
+                       inputs=[('post.input', post_Iext, 'iter')],
+                       monitors=['pre.spike', 'post.V', 'syn.g', 'syn.b', 'post.input'])
   runner.run(run_duration)
 
   # 可视化
@@ -210,11 +210,11 @@ def run_syn_GABAb(syn_model, title, run_duration=200., Iext=0., **kwargs):
   neu1 = bp.neurons.SpikeTimeGroup(1, [10., ], [0.])
   neu2 = bp.neurons.HH(1, V_initializer=bp.init.Constant(-70.))
   syn1 = syn_model(neu1, neu2, conn=bp.connect.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
+  net = bp.Network(pre=neu1, syn=syn1, post=neu2)
 
-  runner = bp.dyn.DSRunner(net,
-                           monitors=['pre.spike', 'syn.r', 'syn.G', 'syn.g'],
-                           dt=0.01)
+  runner = bp.DSRunner(net,
+                       monitors=['pre.spike', 'syn.r', 'syn.G', 'syn.g'],
+                       dt=0.01)
   runner.run(run_duration)
 
   # 可视化
@@ -249,13 +249,13 @@ def run_syn_GJ(syn_model, title, run_duration=100., Iext=7.5, **kwargs):
   # 定义神经元组和突触连接，并构建神经网络
   neu = bp.neurons.HH(2, V_initializer=bp.init.Constant(-70.68))
   syn = syn_model(neu, neu, conn=bp.connect.All2All(include_self=False), **kwargs)  # include_self=False: 自己和自己没有连接
-  net = bp.dyn.Network(syn=syn, neu=neu)
+  net = bp.Network(syn=syn, neu=neu)
 
   # 运行模拟
   Iext = bm.array([Iext, 0.])
-  runner = bp.dyn.DSRunner(net,
-                           inputs=[('neu.input', Iext)],
-                           monitors=['neu.V', 'neu.input'])
+  runner = bp.DSRunner(net,
+                       inputs=[('neu.input', Iext)],
+                       monitors=['neu.V', 'neu.input'])
   runner.run(run_duration)
 
   # 可视化
@@ -290,13 +290,13 @@ def run_FR(syn_model, I_pre, dur, **kwargs):
   pre = FR(2)
   post = FR(1)
   syn = syn_model(pre, post, conn=bp.conn.All2All(), **kwargs)
-  net = bp.dyn.Network(pre=pre, post=post, syn=syn)
+  net = bp.Network(pre=pre, post=post, syn=syn)
 
   # 运行模拟
-  runner = bp.dyn.DSRunner(net,
-                           # inputs=[('pre.input', I_pre.T, 'iter'), ('post.input', I2, 'iter')],
-                           inputs=[('pre.input', I_pre.T, 'iter')],
-                           monitors=['pre.r', 'post.r', 'syn.w'])
+  runner = bp.DSRunner(net,
+                       # inputs=[('pre.input', I_pre.T, 'iter'), ('post.input', I2, 'iter')],
+                       inputs=[('pre.input', I_pre.T, 'iter')],
+                       monitors=['pre.r', 'post.r', 'syn.w'])
   runner(dur)
 
   # 可视化
@@ -322,6 +322,3 @@ def run_FR(syn_model, I_pre, dur, **kwargs):
   plt.tight_layout()
   plt.subplots_adjust(hspace=0.)
   plt.show()
-
-
-

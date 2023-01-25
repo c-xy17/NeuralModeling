@@ -1,7 +1,7 @@
 import brainpy as bp
 import brainpy.math as bm
 
-class FR(bp.dyn.NeuGroup):
+class FR(bp.NeuGroup):
   def __init__(self, size, **kwargs):
     super(FR, self).__init__(size=size, **kwargs)
     self.r = bm.Variable(bm.zeros(self.num))

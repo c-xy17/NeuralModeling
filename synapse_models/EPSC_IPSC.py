@@ -14,7 +14,7 @@ def demonstrate_PSP():
     neu2 = bp.neurons.LIF(1, noise=0.01)
     syn1 = bp.synapses.Exponential(neu1, neu2, conn=bp.connect.All2All(),
                                    output=bp.synouts.COBA(E=E), g_max=1, tau=1.)
-    net1 = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
+    net1 = bp.Network(pre=neu1, syn=syn1, post=neu2)
 
     # 运行模拟
     runner = bp.dyn.DSRunner(net1, monitors=['post.V'])
@@ -65,10 +65,10 @@ def demonstrate_PSC():
     neu2 = bp.neurons.LIF(1, noise=0.01)
     syn1 = bp.synapses.Exponential(neu1, neu2, conn=bp.connect.All2All(),
                                    output=bp.synouts.COBA(E=E), g_max=1, tau=1.)
-    net1 = bp.dyn.Network(pre=neu1, syn=syn1, post=neu2)
+    net1 = bp.Network(pre=neu1, syn=syn1, post=neu2)
 
     # 运行模拟
-    runner = bp.dyn.DSRunner(net1, monitors=['post.V', 'post.input'])
+    runner = bp.DSRunner(net1, monitors=['post.V', 'post.input'])
     runner.run(200)
 
     # 可视化

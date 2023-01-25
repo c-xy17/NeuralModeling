@@ -2,12 +2,11 @@ import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
 
-
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class GIF(bp.dyn.NeuGroup):
+class GIF(bp.NeuGroup):
   def __init__(self, size, V_rest=-70., V_reset=-70., theta_inf=-50., theta_reset=-60.,
                R=20., tau=20., a=0., b=0.01, k1=0.2, k2=0.02, R1=0., R2=1., A1=0.,
                A2=0., **kwargs):
@@ -103,9 +102,9 @@ def run_GIF():
 
 def plot_gallery():
   def _run(ax1, model, duration, I_ext, title=''):
-    runner = bp.dyn.DSRunner(model,
-                             inputs=('input', I_ext, 'iter'),
-                             monitors=['V', 'theta'])
+    runner = bp.DSRunner(model,
+                         inputs=('input', I_ext, 'iter'),
+                         monitors=['V', 'theta'])
     runner.run(duration)
     ts = runner.mon.ts
     ax1.plot(ts, runner.mon.V[:, 0], label=r'$V$', linestyle='-')
@@ -137,7 +136,7 @@ def plot_gallery():
   _run(ax, GIF(1, a=0.005), duration, Iext, 'C. Spike Frequency Adaptation')
 
   # Phasic Spiking
-  ax = fig.add_subplot(gs[3 // col, 3% col])
+  ax = fig.add_subplot(gs[3 // col, 3 % col])
   Iext, duration = bp.inputs.section_input([1.5], [500.], return_length=True)
   _run(ax, GIF(1, a=0.005), duration, Iext, 'D. Phasic Spiking')
 
@@ -248,9 +247,9 @@ def plot_gallery():
 
 def detailed_running():
   def _run(model, duration, I_ext, title=''):
-    runner = bp.dyn.DSRunner(model,
-                             inputs=('input', I_ext, 'iter'),
-                             monitors=['V', 'theta', 'I1', 'I2'])
+    runner = bp.DSRunner(model,
+                         inputs=('input', I_ext, 'iter'),
+                         monitors=['V', 'theta', 'I1', 'I2'])
     runner.run(duration)
 
     fig, gs = bp.visualize.get_figure(5, 1, 0.9, 6.)
