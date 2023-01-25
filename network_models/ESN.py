@@ -2,34 +2,37 @@ import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
 import numpy as np
+import brainpy_datasets as bd
 
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class ESN(bp.dyn.DynamicalSystem):
+class ESN(bp.DynamicalSystem):
   def __init__(self, num_in, num_rec, num_out, lambda_max=0.9,
                W_in_initializer=bp.init.Uniform(-0.1, 0.1, seed=345),
                W_rec_initializer=bp.init.Normal(scale=0.1, seed=456),
                in_connectivity=0.05, rec_connectivity=0.05):
-    super(ESN, self).__init__()
+    super(ESN, self).__init__(mode=bm.batching_mode)
 
     self.num_in = num_in
     self.num_rec = num_rec
     self.num_out = num_out
-    self.rng = bm.random.RandomState(seed=1)  # 随机数生成器
+    self.rng = bm.random.RandomState(1)  # 随机数生成器
 
     # 初始化连接矩阵
     self.W_in = W_in_initializer((num_in, num_rec))
-    conn_mat = self.rng.random(self.W_in.shape) > in_connectivity
-    self.W_in[conn_mat] = 0.  # 按连接概率削减连接度
+    conn_mat = self.rng.random((num_in, num_rec)) > in_connectivity
+    self.W_in = bm.where(conn_mat, 0., self.W_in)  # 按连接概率削减连接度
 
     self.W = W_rec_initializer((num_rec, num_rec))
     conn_mat = self.rng.random(self.W.shape) > rec_connectivity
-    self.W[conn_mat] = 0.  # 按连接概率削减连接度
+    self.W = bm.where(conn_mat, 0., self.W)  # 按连接概率削减连接度
 
     # 用BrainPy库里的Dense作为库到输出的全连接层
-    self.readout = bp.layers.Dense(num_rec, num_out, W_initializer=bp.init.Normal())
+    self.readout = bp.layers.Dense(num_rec, num_out,
+                                   W_initializer=bp.init.Normal(),
+                                   mode=bm.training_mode)
 
     # 缩放W，使ESN具有回声性质
     spectral_radius = max(abs(bm.linalg.eig(self.W)[0]))
@@ -45,10 +48,8 @@ class ESN(bp.dyn.DynamicalSystem):
       self.state.value = bm.zeros(self.state.shape)
       self.y.value = bm.zeros(self.y.shape)
     else:
-      self.state.value = bm.zeros((int(batch_size),)
-                                  + self.state.shape[1:])
-      self.y.value = bm.zeros((int(batch_size),)
-                              + self.y.shape[1:])
+      self.state.value = bm.zeros((int(batch_size),) + self.state.shape[1:])
+      self.y.value = bm.zeros((int(batch_size),) + self.y.shape[1:])
 
   def update(self, sha, u):
     self.state.value = bm.tanh(bm.dot(u, self.W_in) + bm.dot(self.state, self.W))
@@ -73,13 +74,13 @@ def show_ESN_property():
 
     # 第一次运行
     model.state.value = bp.init.Uniform(-1., 1., seed=123)((num_batch, num_res))  # 随机初始化网络状态
-    runner = bp.train.DSTrainer(model, monitors=['state'])
+    runner = bp.DSTrainer(model, monitors=['state'])
     runner.predict(inputs)
     state1 = np.concatenate(runner.mon['state'], axis=0)
 
     # 第二次运行
     model.state.value = bp.init.Uniform(-1., 1., seed=234)((num_batch, num_res))  # 再次随机初始化网络状态
-    runner = bp.train.DSTrainer(model, monitors=['state'])
+    runner = bp.DSTrainer(model, monitors=['state'])
     runner.predict(inputs)
     state2 = np.concatenate(runner.mon['state'], axis=0)
 
@@ -124,7 +125,7 @@ def show_ESN_property():
 
   plt.xlabel('Running step')
   plt.ylabel('Distance')
-  plt.savefig('ESN_state_property1.pdf', transparent=True, dpi=500)
+  # plt.savefig('ESN_state_property1.pdf', transparent=True, dpi=500)
 
   # 画出两次模拟时网络的初始状态和最终状态
   fig, gs = bp.visualize.get_figure(2, 1, 2.25, 4)
@@ -138,7 +139,7 @@ def show_ESN_property():
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plot_states(state1[-1], state2[-1], title='$|\lambda_{}|={}, n={}$'.format('{max}', lambda1, num_step))
-  plt.savefig('ESN_state_property2.pdf', transparent=True, dpi=500)
+  # plt.savefig('ESN_state_property2.pdf', transparent=True, dpi=500)
 
   fig, gs = bp.visualize.get_figure(2, 1, 2.25, 4)
   ax = fig.add_subplot(gs[0, 0])
@@ -151,9 +152,9 @@ def show_ESN_property():
   plot_states(state5[-1], state6[-1], title='$|\lambda_{}|={}, n={}$'.format('{max}', lambda3, num_step))
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
-  plt.savefig('ESN_state_property3.pdf', transparent=True, dpi=500)
+  # plt.savefig('ESN_state_property3.pdf', transparent=True, dpi=500)
 
-  # plt.show()
+  plt.show()
 
 
 def fit_sine_wave():
@@ -183,16 +184,16 @@ def fit_sine_wave():
   model = ESN(num_in, num_res, num_out, lambda_max=0.95)
 
   # 训练前，运行模型得到结果
-  runner = bp.train.DSTrainer(model, monitors=['state'])
+  runner = bp.DSTrainer(model, monitors=['state'])
   untrained_out = runner.predict(U)
   print(bp.losses.mean_absolute_error(untrained_out[:, num_discard:], Y[:, num_discard:]))
 
   # 用岭回归法进行训练
-  trainer = bp.train.RidgeTrainer(model, alpha=1e-12)
+  trainer = bp.RidgeTrainer(model, alpha=1e-12)
   trainer.fit([U[:, num_discard:], Y[:, num_discard:]])
 
   # 训练后，运行模型得到结果
-  runner = bp.train.DSTrainer(model, monitors=['state'])
+  runner = bp.DSTrainer(model, monitors=['state'])
   out = runner.predict(U)
   print(bp.losses.mean_absolute_error(out[:, num_discard:], Y[:, num_discard:]))
 
@@ -202,16 +203,15 @@ def fit_sine_wave():
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plot_result(untrained_out.flatten()[num_discard:], Y.flatten()[num_discard:], 'Before training')
-  plt.savefig('ESN_fit_sine_wave1.pdf', transparent=True, dpi=500)
+  # plt.savefig('ESN_fit_sine_wave1.pdf', transparent=True, dpi=500)
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
   ax = fig.add_subplot(gs[0, 0])
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plot_result(out.flatten()[num_discard:], Y.flatten()[num_discard:], 'After training')
-  plt.savefig('ESN_fit_sine_wave2.pdf', transparent=True, dpi=500)
-
-  # plt.show()
+  # plt.savefig('ESN_fit_sine_wave2.pdf', transparent=True, dpi=500)
+  plt.show()
 
   max_ = 0
   rng = np.random.RandomState(12354)
@@ -250,16 +250,16 @@ def fit_sine_wave():
   ax2.set_ylim(-max_, max_)
   ax3.set_ylim(-max_, max_)
 
-  plt.savefig('ESN_fit_sine_wave_example_neurons.pdf')
-  # plt.show()
+  # plt.savefig('ESN_fit_sine_wave_example_neurons.pdf')
+  plt.show()
 
 
 def fit_Lorenz_system():
   bm.enable_x64()
 
   # 从brainpy中获取劳伦兹系统的数据
-  lorenz = bp.datasets.lorenz_series(100)
-  data = bm.hstack([lorenz['x'], lorenz['y'], lorenz['z']])
+  lorenz = bd.chaos.LorenzEq(100)
+  data = bm.hstack([lorenz.xs, lorenz.ys, lorenz.zs])
 
   X, Y = data[:-200], data[200:]  # Y比X提前200个步长，即需要预测系统未来的Y
   # 将第0维扩展为batch的维度
@@ -288,7 +288,7 @@ def fit_Lorenz_system():
     plt.legend()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    if name: plt.savefig(f'{name}_3d.pdf', transparent=True, dpi=500)
+    # if name: plt.savefig(f'{name}_3d.pdf', transparent=True, dpi=500)
 
     fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
     ax = fig.add_subplot(gs[0, 0])
@@ -308,29 +308,31 @@ def fit_Lorenz_system():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
-    if name: plt.savefig(f'{name}_xz.pdf', transparent=True, dpi=500)
-    # plt.show()
+    # if name: plt.savefig(f'{name}_xz.pdf', transparent=True, dpi=500)
+    plt.show()
 
   # 用岭回归法训练
-  ridge_trainer = bp.train.OfflineTrainer(model, fit_method=bp.algorithms.RidgeRegression(alpha=1e-6))
+  ridge_trainer = bp.OfflineTrainer(model, fit_method=bp.algorithms.RidgeRegression(alpha=1e-6))
   training_lorenz(ridge_trainer, 'Training with Ridge Regression', name='ESN_lorenz_ridge')
 
   # 用FORCE学习法训练
-  force_trainer = bp.train.OnlineTrainer(model, fit_method=bp.algorithms.RLS(alpha=0.1))
+  force_trainer = bp.OnlineTrainer(model, fit_method=bp.algorithms.RLS(alpha=0.1))
   training_lorenz(force_trainer, 'Training with Force Learning', name='ESN_lorenz_force')
 
 
-class ESNv2(bp.dyn.DynamicalSystem):
+class ESNv2(bp.DynamicalSystem):
   def __init__(self, num_in, num_hidden, num_out, lambda_max=None):
-    super(ESNv2, self).__init__()
+    super(ESNv2, self).__init__(mode=bm.batching_mode)
     self.r = bp.layers.Reservoir(num_in, num_hidden,
                                  Win_initializer=bp.init.Uniform(-0.1, 0.1),
                                  Wrec_initializer=bp.init.Normal(scale=0.1),
                                  in_connectivity=0.02,
                                  rec_connectivity=0.05,
                                  spectral_radius=lambda_max,
-                                 comp_type='dense')
-    self.o = bp.layers.Dense(num_hidden, num_out, W_initializer=bp.init.Normal())
+                                 comp_type='dense',
+                                 mode=bm.batching_mode)
+    self.o = bp.layers.Dense(num_hidden, num_out, W_initializer=bp.init.Normal(),
+                             mode=bm.training_mode)
 
   def update(self, shared_args, x):
     return self.o(shared_args, self.r(shared_args, x))
@@ -346,18 +348,18 @@ def train_esn_with_ridge(num_in=100, num_out=30):
   Y = bm.random.random((1, 200, num_out))
 
   # prediction
-  runner = bp.train.DSTrainer(model, monitors=['r.state'])
+  runner = bp.DSTrainer(model, monitors=['r.state'])
   outputs = runner.predict(X)
   print(runner.mon['r.state'].shape)
   print(bp.losses.mean_absolute_error(outputs, Y))
   print()
 
   # training
-  trainer = bp.train.RidgeTrainer(model)
+  trainer = bp.RidgeTrainer(model)
   trainer.fit([X, Y])
 
   # prediction
-  runner = bp.train.DSTrainer(model, monitors=['r.state'])
+  runner = bp.DSTrainer(model, monitors=['r.state'])
   outputs = runner.predict(X)
   print(runner.mon['r.state'].shape)
   print(bp.losses.mean_absolute_error(outputs, Y))

@@ -67,150 +67,153 @@ class CANN1D(bp.dyn.NeuGroup):
 
 
 def run_CANN():
-  # 生成CANN
-  cann = CANN1D(num=512, k=0.1)
+    # 生成CANN
+    cann = CANN1D(num=512, k=0.1)
 
-  # 生成外部刺激，从第2到12ms，持续10ms
-  dur1, dur2, dur3 = 2., 10., 10.
-  I1 = cann.get_stimulus_by_pos(0.)
-  Iext, duration = bp.inputs.section_input(values=[0., I1, 0.],
-                                           durations=[dur1, dur2, dur3],
-                                           return_length=True)
-  # 运行数值模拟
-  runner = bp.dyn.DSRunner(cann, inputs=['input', Iext, 'iter'], monitors=['u'])
-  runner.run(duration)
+    # 生成外部刺激，从第2到12ms，持续10ms
+    dur1, dur2, dur3 = 2., 10., 10.
+    I1 = cann.get_stimulus_by_pos(0.)
+    Iext, duration = bp.inputs.section_input(values=[0., I1, 0.],
+                                             durations=[dur1, dur2, dur3],
+                                             return_length=True)
+    # 运行数值模拟
+    runner = bp.DSRunner(cann, inputs=['input', Iext, 'iter'], monitors=['u'])
+    runner.run(duration)
 
-  # 可视化
-  def plot_response(t):
-    fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-    ax = fig.add_subplot(gs[0, 0])
-    ts = int(t / bm.get_dt())
-    I, u = Iext[ts], runner.mon.u[ts]
-    ax.plot(cann.x, I, label='Iext')
-    ax.plot(cann.x, u, linestyle='dashed', label='U')
-    ax.set_title(r'$t$' + ' = {} ms'.format(t))
-    ax.set_xlabel(r'$x$')
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.legend()
-    plt.savefig(f'CANN_t={t}.pdf', transparent=True, dpi=500)
+    # 可视化
+    def plot_response(t):
+        fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+        ax = fig.add_subplot(gs[0, 0])
+        ts = int(t / bm.get_dt())
+        I, u = Iext[ts], runner.mon.u[ts]
+        ax.plot(cann.x, I, label='Iext')
+        ax.plot(cann.x, u, linestyle='dashed', label='U')
+        ax.set_title(r'$t$' + ' = {} ms'.format(t))
+        ax.set_xlabel(r'$x$')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.legend()
+        # plt.savefig(f'CANN_t={t}.pdf', transparent=True, dpi=500)
 
-  plot_response(t=10.)
-  plot_response(t=20.)
-  plt.show()
+    plot_response(t=10.)
+    plot_response(t=20.)
+    plt.show()
 
-  bp.visualize.animate_1D(
-    dynamical_vars=[{'ys': runner.mon.u, 'xs': cann.x, 'legend': 'u'},
-                    {'ys': Iext, 'xs': cann.x, 'legend': 'Iext'}],
-    frame_step=1,
-    frame_delay=40,
-    show=True,
-  )
+    bp.visualize.animate_1D(
+        dynamical_vars=[{'ys': runner.mon.u, 'xs': cann.x, 'legend': 'u'},
+                        {'ys': Iext, 'xs': cann.x, 'legend': 'Iext'}],
+        frame_step=1,
+        frame_delay=40,
+        show=True,
+    )
 
 
 def population_coding():
+    # 生成CANN
+    cann = CANN1D(num=512, k=0.1)
 
-  # 生成CANN
-  cann = CANN1D(num=512, k=0.1)
+    # 生成外部刺激，从第2到12ms，持续10ms
+    dur1, dur2, dur3 = 2., 10., 10.
+    I1 = cann.get_stimulus_by_pos(0.)
+    Iext, duration = bp.inputs.section_input(values=[0., I1, 0.],
+                                             durations=[dur1, dur2, dur3],
+                                             return_length=True)
+    noise = bm.random.normal(0., 1., (int(duration / bm.get_dt()), len(I1)))
+    Iext += noise
 
-  # 生成外部刺激，从第2到12ms，持续10ms
-  dur1, dur2, dur3 = 2., 10., 10.
-  I1 = cann.get_stimulus_by_pos(0.)
-  Iext, duration = bp.inputs.section_input(values=[0., I1, 0.],
-                                           durations=[dur1, dur2, dur3],
-                                           return_length=True)
-  noise = bm.random.normal(0., 1., (int(duration / bm.get_dt()), len(I1)))
-  Iext += noise
+    # 运行数值模拟
+    runner = bp.DSRunner(cann, inputs=['input', Iext, 'iter'], monitors=['u'])
+    runner.run(duration)
 
-  # 运行数值模拟
-  runner = bp.dyn.DSRunner(cann, inputs=['input', Iext, 'iter'], monitors=['u'])
-  runner.run(duration)
+    # 可视化
+    def plot_response(t):
+        fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+        ax = fig.add_subplot(gs[0, 0])
+        ts = int(t / bm.get_dt())
+        I, u = Iext[ts], runner.mon.u[ts]
+        ax.plot(cann.x, I, label='Iext')
+        ax.plot(cann.x, u, linestyle='dashed', label='U')
+        ax.set_title(r'$t$' + ' = {} ms'.format(t))
+        ax.set_xlabel(r'$x$')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.legend()
+        # plt.savefig(f'CANN_pop_coding_t={t}.pdf', transparent=True, dpi=500)
 
-  # 可视化
-  def plot_response(t):
-    fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-    ax = fig.add_subplot(gs[0, 0])
-    ts = int(t / bm.get_dt())
-    I, u = Iext[ts], runner.mon.u[ts]
-    ax.plot(cann.x, I, label='Iext')
-    ax.plot(cann.x, u, linestyle='dashed', label='U')
-    ax.set_title(r'$t$' + ' = {} ms'.format(t))
-    ax.set_xlabel(r'$x$')
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.legend()
-    plt.savefig(f'CANN_pop_coding_t={t}.pdf', transparent=True, dpi=500)
+    plot_response(t=10.)
+    plot_response(t=20.)
+    plt.show()
 
-  plot_response(t=10.)
-  plot_response(t=20.)
-  plt.show()
-
-  bp.visualize.animate_1D(
-    dynamical_vars=[{'ys': runner.mon.u, 'xs': cann.x, 'legend': 'u'},
-                    {'ys': Iext, 'xs': cann.x, 'legend': 'Iext'}],
-    frame_step=1,
-    frame_delay=40,
-    show=True,
-  )
+    bp.visualize.animate_1D(
+        dynamical_vars=[{'ys': runner.mon.u, 'xs': cann.x, 'legend': 'u'},
+                        {'ys': Iext, 'xs': cann.x, 'legend': 'Iext'}],
+        frame_step=1,
+        frame_delay=40,
+        show=True,
+    )
 
 
 def smooth_tracking():
-  cann = CANN1D(num=512, k=8.1)
+    cann = CANN1D(num=512, k=8.1)
 
-  # 定义随时间变化的外部刺激
-  dur1, dur2, dur3 = 10., 10., 20
-  num1 = int(dur1 / bm.get_dt())
-  num2 = int(dur2 / bm.get_dt())
-  num3 = int(dur3 / bm.get_dt())
-  position = bm.zeros(num1 + num2 + num3)
-  position[num1: num1 + num2] = bm.linspace(0., 1.5 * bm.pi, num2)
-  position[num1 + num2:] = 1.5 * bm.pi
-  position = position.reshape((-1, 1))
-  Iext = cann.get_stimulus_by_pos(position)
+    # 定义随时间变化的外部刺激
+    dur1, dur2, dur3 = 10., 10., 20
+    num1 = int(dur1 / bm.get_dt())
+    num2 = int(dur2 / bm.get_dt())
+    num3 = int(dur3 / bm.get_dt())
+    position = bm.zeros(num1 + num2 + num3)
+    position[num1: num1 + num2] = bm.linspace(0., 1.5 * bm.pi, num2)
+    position[num1 + num2:] = 1.5 * bm.pi
+    position = position.reshape((-1, 1))
+    Iext = cann.get_stimulus_by_pos(position)
 
-  # 运行模拟
-  runner = bp.dyn.DSRunner(cann,
-                           inputs=['input', Iext, 'iter'],
-                           monitors=['u'],
-                           dyn_vars=cann.vars())
-  runner.run(dur1 + dur2 + dur3)
+    # 运行模拟
+    runner = bp.DSRunner(cann,
+                         inputs=['input', Iext, 'iter'],
+                         monitors=['u'],
+                         dyn_vars=cann.vars())
+    runner.run(dur1 + dur2 + dur3)
 
-  # 可视化
-  def plot_response(t, extra_fun=None):
-    fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
-    ax = fig.add_subplot(gs[0, 0])
-    ts = int(t / bm.get_dt())
-    I, u = Iext[ts], runner.mon.u[ts]
-    ax.plot(cann.x, I, label='Iext')
-    ax.plot(cann.x, u, linestyle='dashed', label='U')
-    ax.set_title(r'$t$' + ' = {} ms'.format(t))
-    ax.set_xlabel(r'$x$')
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.legend()
-    if extra_fun: extra_fun()
-    plt.savefig(f'CANN_tracking_t={t}.pdf', transparent=True, dpi=500)
+    # 可视化
+    def plot_response(t, extra_fun=None):
+        fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+        ax = fig.add_subplot(gs[0, 0])
+        ts = int(t / bm.get_dt())
+        I, u = Iext[ts], runner.mon.u[ts]
+        ax.plot(cann.x, I, label='Iext')
+        ax.plot(cann.x, u, linestyle='dashed', label='U')
+        ax.set_title(r'$t$' + ' = {} ms'.format(t))
+        ax.set_xlabel(r'$x$')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.legend()
+        if extra_fun: extra_fun()
+        # plt.savefig(f'CANN_tracking_t={t}.pdf', transparent=True, dpi=500)
 
-  plot_response(t=10.)
-  def f():
-    plt.annotate('', xy=(1.5, 10), xytext=(0.5, 10), arrowprops=dict(arrowstyle="->"))
-  plot_response(t=15., extra_fun=f)
-  def f():
-    plt.annotate('', xy=(-2, 10), xytext=(-3, 10), arrowprops=dict(arrowstyle="->"))
-  plot_response(t=20., extra_fun=f)
-  plot_response(t=30.)
-  plt.show()
+    plot_response(t=10.)
 
-  bp.visualize.animate_1D(
-    dynamical_vars=[{'ys': runner.mon.u, 'xs': cann.x, 'legend': 'u'},
-                    {'ys': Iext, 'xs': cann.x, 'legend': 'Iext'}],
-    frame_step=5,
-    frame_delay=50,
-    show=True,
-  )
+    def f():
+        plt.annotate('', xy=(1.5, 10), xytext=(0.5, 10), arrowprops=dict(arrowstyle="->"))
+
+    plot_response(t=15., extra_fun=f)
+
+    def f():
+        plt.annotate('', xy=(-2, 10), xytext=(-3, 10), arrowprops=dict(arrowstyle="->"))
+
+    plot_response(t=20., extra_fun=f)
+    plot_response(t=30.)
+    plt.show()
+
+    bp.visualize.animate_1D(
+        dynamical_vars=[{'ys': runner.mon.u, 'xs': cann.x, 'legend': 'u'},
+                        {'ys': Iext, 'xs': cann.x, 'legend': 'Iext'}],
+        frame_step=5,
+        frame_delay=50,
+        show=True,
+    )
 
 
 if __name__ == '__main__':
-  run_CANN()
-  population_coding()
-  smooth_tracking()
+    run_CANN()
+    population_coding()
+    smooth_tracking()

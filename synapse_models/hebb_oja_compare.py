@@ -36,8 +36,8 @@ def compare_w_normal():
   pre = FR(I_pre.shape[1])
   post = FR(1)
   syn = Hebb(pre, post, conn=bp.conn.All2All(), eta=0.003)
-  net = bp.dyn.Network(pre=pre, post=post, syn=syn)
-  runner = bp.dyn.DSRunner(net, inputs=[(pre.input, I_pre, 'iter')],
+  net = bp.Network(pre=pre, post=post, syn=syn)
+  runner = bp.DSRunner(net, inputs=[(pre.input, I_pre, 'iter')],
                            monitors=['pre.r', 'post.r', 'syn.w'])
   runner(dur)
   plt.plot(runner.mon.ts,
@@ -48,8 +48,8 @@ def compare_w_normal():
   pre = FR(I_pre.shape[1])
   post = FR(1)
   syn = Oja(pre, post, conn=bp.conn.All2All(), eta=0.003)
-  net = bp.dyn.Network(pre=pre, post=post, syn=syn)
-  runner = bp.dyn.DSRunner(net, inputs=[(pre.input, I_pre, 'iter')],
+  net = bp.Network(pre=pre, post=post, syn=syn)
+  runner = bp.DSRunner(net, inputs=[(pre.input, I_pre, 'iter')],
                            monitors=['pre.r', 'post.r', 'syn.w'])
   runner(dur)
   plt.plot(runner.mon.ts, np.sqrt(np.sum(np.square(runner.mon['syn.w']), axis=1)), label='Oja\'rule')
@@ -82,8 +82,8 @@ def compare_cos_x_w():
   pre = FR(I_pre.shape[1])
   post = FR(1)
   syn = Hebb(pre, post, conn=bp.conn.All2All(), eta=0.003)
-  net = bp.dyn.Network(pre=pre, post=post, syn=syn)
-  runner = bp.dyn.DSRunner(net, inputs=[(pre.input, I_pre, 'iter')],
+  net = bp.Network(pre=pre, post=post, syn=syn)
+  runner = bp.DSRunner(net, inputs=[(pre.input, I_pre, 'iter')],
                            monitors=['pre.r', 'post.r', 'syn.w'])
   runner(dur)
   _visualize_cos(ax, x,
@@ -95,8 +95,8 @@ def compare_cos_x_w():
   pre = FR(I_pre.shape[1])
   post = FR(1)
   syn = Oja(pre, post, conn=bp.conn.All2All(), eta=0.003)
-  net = bp.dyn.Network(pre=pre, post=post, syn=syn)
-  runner = bp.dyn.DSRunner(net, inputs=[(pre.input, I_pre, 'iter')],
+  net = bp.Network(pre=pre, post=post, syn=syn)
+  runner = bp.DSRunner(net, inputs=[(pre.input, I_pre, 'iter')],
                            monitors=['pre.r', 'post.r', 'syn.w'])
   runner(dur)
   _visualize_cos(ax, x,

@@ -35,7 +35,7 @@ class Oja(bp.dyn.TwoEndConn):
     self.delay.update(self.pre.r)
 
     # 更新突触后的firing rate
-    weight = delayed_pre_r[self.pre_ids.value] * self.w  # 计算每个突触i对应的突触后神经元反应y_i
+    weight = delayed_pre_r[self.pre_ids] * self.w  # 计算每个突触i对应的突触后神经元反应y_i
     post_r = bm.syn2post_sum(weight, self.post_ids, self.post.num, )  # 每个突触后神经元k的所有y_k求和
     self.post.r.value += post_r
 

@@ -7,7 +7,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class ExpIF(bp.dyn.NeuGroup):
+class ExpIF(bp.NeuGroup):
   def __init__(self, size, V_rest=-65., V_reset=-68., V_th=20., V_T=-60., delta_T=1.,
                R=1., tau=10., tau_ref=2., method='exp_euler'):
     # 初始化父类
@@ -55,7 +55,7 @@ class ExpIF(bp.dyn.NeuGroup):
 def run_ExpIF():
   # 运行ExpIF模型
   group = ExpIF(1)
-  runner = bp.dyn.DSRunner(group, monitors=['V'], inputs=('input', 5.), dt=0.01)
+  runner = bp.DSRunner(group, monitors=['V'], inputs=('input', 5.), dt=0.01)
   runner(500)
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)

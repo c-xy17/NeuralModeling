@@ -4,7 +4,7 @@ import brainpy.math as bm
 from run_synapse import run_syn
 
 
-class Exponential(bp.dyn.TwoEndConn):
+class Exponential(bp.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.02, tau=12., delay_step=2, E=0.,
                syn_type='CUBA', method='exp_auto', **kwargs):
     super(Exponential, self).__init__(pre=pre, post=post, conn=conn, **kwargs)

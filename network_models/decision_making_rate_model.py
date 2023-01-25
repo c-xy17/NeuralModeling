@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class DecisionMakingRateModel(bp.dyn.NeuGroup):
+class DecisionMakingRateModel(bp.NeuGroup):
   def __init__(self, size, coherence, JE=0.2609, JI=0.0497, Jext=5.2e-4, I0=0.3255,
                gamma=6.41e-4, tau=100., tau_n=2., sigma_n=0.02, a=270., b=108., d=0.154,
                noise_freq=2400., method='exp_auto', **kwargs):
@@ -36,8 +36,8 @@ class DecisionMakingRateModel(bp.dyn.NeuGroup):
     self.I2_noise = bm.Variable(bm.zeros(self.num))
 
     # 噪声输入的神经元
-    self.noise1 = bp.dyn.PoissonGroup(self.num, freqs=noise_freq)
-    self.noise2 = bp.dyn.PoissonGroup(self.num, freqs=noise_freq)
+    self.noise1 = bp.neurons.PoissonGroup(self.num, freqs=noise_freq)
+    self.noise2 = bp.neurons.PoissonGroup(self.num, freqs=noise_freq)
 
     # 定义积分函数
     self.integral = bp.odeint(self.derivative, method=method)
