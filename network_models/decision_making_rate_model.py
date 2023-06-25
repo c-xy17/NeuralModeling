@@ -6,10 +6,12 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class DecisionMakingRateModel(bp.NeuGroup):
-  def __init__(self, size, coherence, JE=0.2609, JI=0.0497, Jext=5.2e-4, I0=0.3255,
-               gamma=6.41e-4, tau=100., tau_n=2., sigma_n=0.02, a=270., b=108., d=0.154,
-               noise_freq=2400., method='exp_auto', **kwargs):
+class DecisionMakingRateModel(bp.NeuGroupNS):
+  def __init__(
+      self, size, coherence, JE=0.2609, JI=0.0497, Jext=5.2e-4, I0=0.3255,
+      gamma=6.41e-4, tau=100., tau_n=2., sigma_n=0.02, a=270., b=108., d=0.154,
+      noise_freq=2400., method='exp_auto', **kwargs
+  ):
     super(DecisionMakingRateModel, self).__init__(size, **kwargs)
 
     # 初始化参数
@@ -64,10 +66,10 @@ class DecisionMakingRateModel(bp.NeuGroup):
   def dI2noise(self, I2_noise, t, noise2):
     return (- I2_noise + noise2.spike * bm.sqrt(self.tau_n * self.sigma_n * self.sigma_n)) / self.tau_n
 
-  def update(self, tdi):
+  def update(self):
     # 更新噪声神经元以产生新的随机发放
-    self.noise1.update(tdi)
-    self.noise2.update(tdi)
+    self.noise1.update()
+    self.noise2.update()
 
     # 更新s1、s2、I1_noise、I2_noise
     integral = self.integral(self.s1, self.s2, self.I1_noise, self.I2_noise, tdi.t,
@@ -211,10 +213,11 @@ def phase_plane():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     plt.title('$c={}, \mu_0={}$'.format(coherence, mu0))
-    plt.savefig('decision_making_phase_plane_c={}_mu={}.pdf'.format(coherence, mu0), transparent=True, dpi=500)
-    # plt.show()
+    # plt.savefig('decision_making_phase_plane_c={}_mu={}.pdf'.format(coherence, mu0), transparent=True, dpi=500)
+    plt.show()
 
-  _analyze(100, 0)
+  _analyze(0, 0)
+  _analyze(0, 20)
   _analyze(6.4, 20)
   _analyze(25.6, 20)
   _analyze(100, 20)

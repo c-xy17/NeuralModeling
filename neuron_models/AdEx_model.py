@@ -302,6 +302,6 @@ def AdEx_phase_plane_analysis():
 
 
 if __name__ == '__main__':
-  # run_AdEx_model()
-  # AdEx_patterns()
+  run_AdEx_model()
+  AdEx_patterns()
   AdEx_phase_plane_analysis()

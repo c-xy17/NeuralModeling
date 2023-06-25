@@ -64,7 +64,7 @@ class NMDA(bp.TwoEndConn):
     self.post.input += self.g * self.b * (self.E - self.post.V)
 
 
-class NMDA_with_DE(bp.dyn.TwoEndConn):
+class NMDA_with_DE(bp.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.02, E=0., c_Mg=1.2,
                tau_decay=100., tau_rise=2., delay_step=2,
                method='exp_auto', **kwargs):

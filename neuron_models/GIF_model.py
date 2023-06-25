@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class GIF(bp.NeuGroup):
+class GIF(bp.NeuGroupNS):
   def __init__(self, size, V_rest=-70., V_reset=-70., theta_inf=-50., theta_reset=-60.,
                R=20., tau=20., a=0., b=0.01, k1=0.2, k2=0.02, R1=0., R2=1., A1=0.,
                A2=0., **kwargs):
@@ -57,9 +57,9 @@ class GIF(bp.NeuGroup):
   def derivative(self):
     return bp.JointEq([self.dI1, self.dI2, self.dVth, self.dV])
 
-  def update(self, tdi):
-    I1, I2, V_th, V = self.integral(self.I1, self.I2, self.theta, self.V, tdi.t,
-                                    self.input, tdi.dt)  # 更新变量I1, I2, V
+  def update(self,):
+    I1, I2, V_th, V = self.integral(self.I1, self.I2, self.theta, self.V, bp.share['t'],
+                                    self.input, bp.share['dt'])  # 更新变量I1, I2, V
     spike = self.theta <= V  # 将大于阈值的神经元标记为发放了脉冲
     V = bm.where(spike, self.V_reset, V)  # 将发放了脉冲的神经元V置为V_reset，其余赋值为更新后的V
     I1 = bm.where(spike, self.R1 * I1 + self.A1, I1)  # 按照公式更新发放了脉冲的神经元的I1
@@ -113,7 +113,7 @@ def plot_gallery():
     ax1.set_xlabel(r'$t$ (ms)')
     ax1.set_xlim(-0.1, ts[-1] + 0.1)
     if title: plt.title(title)
-    plt.legend()
+    # plt.legend()
     ax1.spines['top'].set_visible(False)
     ax1.spines['right'].set_visible(False)
 
@@ -241,7 +241,7 @@ def plot_gallery():
   Iext, duration = bp.inputs.section_input([8., 0.], [2., 48.], return_length=True)
   _run(ax, GIF(1, a=-0.08), duration, Iext, 'T. Spike Latency')
 
-  plt.savefig('GIF_gallery.pdf', dpi=500, transparent=True)
+  # plt.savefig('GIF_gallery.pdf', dpi=500, transparent=True)
   plt.show()
 
 

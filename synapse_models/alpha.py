@@ -1,6 +1,3 @@
-import brainpy as bp
-import brainpy.math as bm
-
 from dual_exponential import DualExponential
 from run_synapse import run_syn
 

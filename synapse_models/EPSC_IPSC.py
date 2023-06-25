@@ -17,7 +17,7 @@ def demonstrate_PSP():
     net1 = bp.Network(pre=neu1, syn=syn1, post=neu2)
 
     # 运行模拟
-    runner = bp.dyn.DSRunner(net1, monitors=['post.V'])
+    runner = bp.DSRunner(net1, monitors=['post.V'])
     runner.run(200)
 
     # 可视化

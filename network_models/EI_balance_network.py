@@ -1,9 +1,8 @@
 import brainpy as bp
 import brainpy.math as bm
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from sklearn import linear_model
-
 
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
@@ -33,12 +32,12 @@ class EINet(bp.Network):
                                        output=bp.synouts.COBA(E=-80.), **I_pars)
 
   def update(self, tdi):
-    e2e_current = self.E2E.update(tdi)
-    self.E2I.update(tdi)
-    self.I2E.update(tdi)
-    self.I2I.update(tdi)
-    self.E.update(tdi)
-    self.I.update(tdi)
+    e2e_current = self.E2E(tdi)
+    self.E2I(tdi)
+    self.I2E(tdi)
+    self.I2I(tdi)
+    self.E(tdi)
+    self.I(tdi)
 
 
 def define_EI_v2():
@@ -165,7 +164,9 @@ def rate_current_relation():
     for i in range(8):
       start = int((i * dur_per_I + 100) / bm.get_dt())  # 从每一阶段的第100ms开始计算
       end = start + int(400 / bm.get_dt())  # 从开始到结束选取共400ms
-      firing_rates.append(np.mean(runner.mon[neuron_type + '.spike'][start: end]))  # 计算整个时间段的平均发放率
+      # firing_rates.append(np.mean(runner.mon[neuron_type + '.spike'][start: end]))  # 计算整个时间段的平均发放率
+      sps = runner.mon[neuron_type + '.spike'][start: end]
+      firing_rates.append(sps.sum() / 0.4 / sps.shape[1])  # 计算整个时间段的平均发放率
     firing_rates = np.asarray(firing_rates)
 
     plt.scatter(Is, firing_rates, color=color, alpha=0.7)
@@ -183,8 +184,8 @@ def rate_current_relation():
   # 可视化
   fit_fr('E', u'#d62728', linestyle='dotted')
   fit_fr('I', u'#1f77b4', linestyle='dashed')
-  plt.xlabel('External input')
-  plt.ylabel('Mean firing rate')
+  plt.xlabel('External input (mA)')
+  plt.ylabel('Firing rate (Hz)')
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   plt.legend()
@@ -209,8 +210,8 @@ def I_tracking():
   runner_einet(duration)
 
   # 构建无连接的LIF神经元群并运行数值模拟
-  lif = bp.dyn.LIF(4000, V_rest=-60., V_th=-50., V_reset=-60., tau=20.,
-                   tau_ref=5., V_initializer=bp.init.Uniform(-70., -50.))
+  lif = bp.neurons.LIF(4000, V_rest=-60., V_th=-50., V_reset=-60., tau=20.,
+                       tau_ref=5., V_initializer=bp.init.Uniform(-70., -50.))
   lif.tau = bm.random.normal(30., 3., size=lif.size)
   runner_lif = bp.DSRunner(lif, monitors=['spike'], inputs=('input', current, 'iter'))
   runner_lif(duration)

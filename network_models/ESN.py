@@ -280,10 +280,17 @@ def fit_Lorenz_system():
     fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
     ax = fig.add_subplot(gs[:, 0], projection='3d')
     # 画图时舍去最初20个步长的数据，下同
-    plt.plot(Y[0, num_discard:, 0], Y[0, num_discard:, 1], Y[0, num_discard:, 2],
+    plt.plot(Y[0, num_discard:, 0],
+             Y[0, num_discard:, 1],
+             Y[0, num_discard:, 2],
              alpha=0.8, label='standard output', linestyle='--')
-    plt.plot(predict[0, num_discard:, 0], predict[0, num_discard:, 1], predict[0, num_discard:, 2],
+    plt.plot(predict[0, num_discard:, 0],
+             predict[0, num_discard:, 1],
+             predict[0, num_discard:, 2],
              alpha=0.8, label='prediction')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
     plt.title(title)
     plt.legend()
     ax.spines['top'].set_visible(False)
@@ -293,20 +300,22 @@ def fit_Lorenz_system():
     fig, gs = bp.visualize.get_figure(2, 1, 2.25, 6)
     ax = fig.add_subplot(gs[0, 0])
     t = np.arange(Y.shape[1])[num_discard:]
-    plt.plot(t, Y[0, num_discard:, 0], linewidth=1, label='standard $x$')  # 劳伦兹系统中的x变量
+    plt.plot(t, Y[0, num_discard:, 0], linewidth=1, label='standard $x$', linestyle='--')  # 劳伦兹系统中的x变量
     plt.plot(t, predict[0, num_discard:, 0], linewidth=1, label='predicted $x$')
     plt.ylabel(r'$x$')
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.set_xticks([])
+    plt.legend()
 
     ax = fig.add_subplot(gs[1, 0])
-    plt.plot(t, Y[0, num_discard:, 2], linewidth=1, label='standard $z$')  # 劳伦兹系统中的z变量
+    plt.plot(t, Y[0, num_discard:, 2], linewidth=1, label='standard $z$', linestyle='--')  # 劳伦兹系统中的z变量
     plt.plot(t, predict[0, num_discard:, 2], linewidth=1, label='predicted $z$')
     plt.ylabel(r'$z$')
     plt.xlabel('Time step')
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    plt.legend()
 
     # if name: plt.savefig(f'{name}_xz.pdf', transparent=True, dpi=500)
     plt.show()
@@ -370,7 +379,7 @@ def train_esn_with_ridge(num_in=100, num_out=30):
 
 
 if __name__ == '__main__':
-  show_ESN_property()
-  fit_sine_wave()
+  # show_ESN_property()
+  # fit_sine_wave()
   fit_Lorenz_system()
-  train_esn_with_ridge(10, 30)
+  # train_esn_with_ridge(10, 30)

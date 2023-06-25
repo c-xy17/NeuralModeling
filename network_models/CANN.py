@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class CANN1D(bp.dyn.NeuGroup):
+class CANN1D(bp.NeuGroupNS):
   def __init__(self, num, tau=1., k=8.1, a=0.5, A=10., J0=4.,
                z_min=-bm.pi, z_max=bm.pi, **kwargs):
     super(CANN1D, self).__init__(size=num, **kwargs)
@@ -60,8 +60,8 @@ class CANN1D(bp.dyn.NeuGroup):
   def get_stimulus_by_pos(self, pos):
     return self.A * bm.exp(-0.25 * bm.square(self.dist(self.x - pos) / self.a))
 
-  def update(self, tdi, x=None):
-    _t = tdi['t']
+  def update(self, x=None):
+    _t = bp.share['t']
     self.u[:] = self.integral(self.u, _t, self.input)
     self.input[:] = 0.  # 重置外部电流
 
