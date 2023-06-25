@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class QIF(bp.NeuGroup):
+class QIF(bp.NeuGroupNS):
   def __init__(self, size, V_rest=-65., V_reset=-68., V_th=-0., V_c=-50.0, a_0=.07, R=1., tau=10., t_ref=5., **kwargs):
     # 初始化父类
     super(QIF, self).__init__(size=size, **kwargs)
@@ -36,8 +36,8 @@ class QIF(bp.NeuGroup):
     dvdt = (self.a_0 * (V - self.V_rest) * (V - self.V_c) + self.R * Iext) / self.tau
     return dvdt
 
-  def update(self, tdi):
-    _t, _dt = tdi.t, tdi.dt
+  def update(self):
+    _t, _dt = bp.share['t'], bp.share['dt']
     # 以数组的方式对神经元进行更新
     refractory = (_t - self.t_last_spike) <= self.t_ref  # 判断神经元是否处于不应期
     V = self.integral(self.V, _t, self.input, dt=_dt)  # 根据时间步长更新膜电位

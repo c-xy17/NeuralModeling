@@ -1,6 +1,5 @@
 import brainpy as bp
 import brainpy.math as bm
-from jax.ops import segment_sum
 
 from run_synapse import run_syn_GJ
 

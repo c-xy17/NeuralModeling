@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class LIF(bp.NeuGroup):
+class LIF(bp.NeuGroupNS):
   def __init__(self, size, V_rest=0., V_reset=-5., V_th=20., R=1., tau=10., t_ref=5.,
                method='exp_auto', **kwargs):
     # 初始化父类
@@ -37,8 +37,8 @@ class LIF(bp.NeuGroup):
     dvdt = (-V + self.V_rest + self.R * Iext) / self.tau
     return dvdt
 
-  def update(self, tdi):
-    _t, _dt = tdi.t, tdi.dt
+  def update(self):
+    _t, _dt = bp.share['t'], bp.share['dt']
     # 以数组的方式对神经元进行更新
     self.input += self.E_input + self.I_input
     refractory = (_t - self.t_last_spike) <= self.t_ref  # 判断神经元是否处于不应期
@@ -101,7 +101,7 @@ def visualize_current(ts, V, V_th, E_input, I_input, ext_input, duration):
   ax.spines['top'].set_visible(False)
   ax.spines['right'].set_visible(False)
   ax.set_xlim(-1, duration + 50)
-  plt.savefig('EI_net_example_current.pdf', transparent=True, dpi=500)
+  # plt.savefig('EI_net_example_current.pdf', transparent=True, dpi=500)
 
   fig, gs = bp.visualize.get_figure(1, 1, 2.25, 6)
   ax = fig.add_subplot(gs[0, 0])

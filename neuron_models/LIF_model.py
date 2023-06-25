@@ -7,7 +7,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class LIF(bp.NeuGroup):
+class LIF(bp.NeuGroupNS):
   def __init__(self, size, V_rest=0., V_reset=-5., V_th=20., R=1., tau=10., t_ref=5., **kwargs):
     # 初始化父类
     super(LIF, self).__init__(size=size, **kwargs)
@@ -35,8 +35,8 @@ class LIF(bp.NeuGroup):
     dvdt = (-V + self.V_rest + self.R * Iext) / self.tau
     return dvdt
 
-  def update(self, tdi):
-    _t, _dt = tdi.t, tdi.dt
+  def update(self):
+    _t, _dt = bp.share['t'], bp.share['dt']
     # 以数组的方式对神经元进行更新
     refractory = (_t - self.t_last_spike) <= self.t_ref  # 判断神经元是否处于不应期
     V = self.integral(self.V, _t, self.input, dt=_dt)  # 根据时间步长更新膜电位

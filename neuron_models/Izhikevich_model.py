@@ -7,7 +7,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class Izhikevich(bp.NeuGroup):
+class Izhikevich(bp.NeuGroupNS):
   def __init__(self, size, a=0.02, b=0.20, c=-65., d=2., tau_ref=0.,
                V_th=30., **kwargs):
     # 初始化父类
@@ -43,8 +43,8 @@ class Izhikevich(bp.NeuGroup):
   def derivative(self):
     return bp.JointEq([self.dV, self.du])
 
-  def update(self, tdi):
-    _t, _dt = tdi.t, tdi.dt
+  def update(self):
+    _t, _dt = bp.share['t'], bp.share['dt']
     V, u = self.integral(self.V, self.u, _t, self.input, dt=_dt)  # 更新变量V, u
     refractory = (_t - self.t_last_spike) <= self.tau_ref  # 判断神经元是否处于不应期
     V = bm.where(refractory, self.V, V)  # 若处于不应期，则返回原始膜电位self.V，否则返回更新后的膜电位V

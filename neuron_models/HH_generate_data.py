@@ -444,15 +444,13 @@ def INa_inactivation_steady_state2():
   plt.show()
 
 
-
 if __name__ == '__main__':
   pass
-  # separation_of_Na_and_K_currents()
+  separation_of_Na_and_K_currents()
   try_step_voltage2()
-  # try_step_voltage_for_gNa()
-  # INa_inactivation()
-  # INa_inactivation_1()
-  # INa_inactivation_2()
-  # INa_inactivation_steady_state1()
-  # INa_inactivation_steady_state2()
-
+  try_step_voltage_for_gNa()
+  INa_inactivation()
+  INa_inactivation_1()
+  INa_inactivation_2()
+  INa_inactivation_steady_state1()
+  INa_inactivation_steady_state2()

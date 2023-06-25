@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class HindmarshRose(bp.NeuGroup):
+class HindmarshRose(bp.NeuGroupNS):
   def __init__(self, size, a=1., b=3., c=1., d=5., r=0.001, s=4., x_r=-1.6,
                theta=1.0, **kwargs):
     # 初始化父类
@@ -46,8 +46,10 @@ class HindmarshRose(bp.NeuGroup):
   def derivative(self):
     return bp.JointEq([self.dx, self.dy, self.dz])
 
-  def update(self, tdi):
-    x, y, z = self.integral(self.x, self.y, self.z, tdi.t, self.input, tdi.dt)  # 更新变量x, y, z
+  def update(self,):
+    t = bp.share['t']
+    dt = bp.share['dt']
+    x, y, z = self.integral(self.x, self.y, self.z, t, self.input, dt)  # 更新变量x, y, z
     self.spike.value = bm.logical_and(x >= self.theta, self.x < self.theta)  # 判断神经元是否发放脉冲
     self.x.value = x
     self.y.value = y

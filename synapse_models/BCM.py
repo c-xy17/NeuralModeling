@@ -1,7 +1,6 @@
 import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
-from neuron_models.FRNeuron import FR
 
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
@@ -66,6 +65,7 @@ def bcm_dw():
   ax.spines['right'].set_visible(False)
   ax.spines['bottom'].set_visible(False)
   ax.set_xticks([])
+  ax.set_yticks([])
   plt.text(theta, -0.3, r'$\theta_M$')
   plt.text(2.3, -0.4, 'LTD')
   plt.text(6.5, 0.4, 'LTP')
@@ -87,9 +87,12 @@ def try_bcm_rule():
   # 运行模拟
   def f_input(tdi):  model.pre.value = I_pre[tdi.i]
 
-  runner = bp.dyn.DSRunner(model, fun_inputs=f_input,
-                           monitors=['pre', 'post', 'w', 'theta_M'],
-                           fun_monitors={'w': lambda tdi: model.w.flatten()})
+  runner = bp.DSRunner(model,
+                       inputs=f_input,
+                       monitors={'pre': model.pre,
+                                 'post': model.post,
+                                 'theta_M': model.theta_M,
+                                 'w': lambda tdi: model.w.flatten()})
   runner.run(dur)
 
   # 可视化
@@ -119,10 +122,10 @@ def try_bcm_rule():
   ax.spines['right'].set_visible(False)
 
   plt.xlabel(r'$t$ (ms)')
-  plt.savefig('BCM_output1.pdf', transparent=True, dpi=500)
+  # plt.savefig('BCM_output1.pdf', transparent=True, dpi=500)
   plt.show()
 
 
 if __name__ == '__main__':
   bcm_dw()
-  try_bcm_rule()
+  # try_bcm_rule()

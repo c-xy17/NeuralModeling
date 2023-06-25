@@ -4,7 +4,7 @@ import brainpy.math as bm
 from synapse_models.run_synapse import run_FR
 
 
-class Oja(bp.dyn.TwoEndConn):
+class Oja(bp.TwoEndConn):
   def __init__(self, pre, post, conn, eta=0.05, delay_step=0, method='exp_auto', **kwargs):
     super(Oja, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
     self.check_pre_attrs('r', 'input')

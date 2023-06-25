@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 
+import brainpy as bp
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import optimize
-import brainpy as bp
 
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']

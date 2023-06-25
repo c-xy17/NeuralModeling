@@ -8,7 +8,7 @@ plt.rcParams['font.sans-serif'] = ['Times New Roman']
 plt.rcParams['axes.unicode_minus'] = False
 
 
-class HH(bp.NeuGroup):
+class HH(bp.NeuGroupNS):
   def __init__(self, size, ENa=50., gNa=120., EK=-77., gK=36.,
                EL=-54.387, gL=0.03, V_th=20., C=1.0, T=6.3):
     # 初始化
@@ -75,8 +75,9 @@ class HH(bp.NeuGroup):
     return dVdt
 
   # 更新函数：每个时间步都会运行此函数完成变量更新
-  def update(self, tdi):
-    t, dt = tdi.t, tdi.dt
+  def update(self):
+    t = bp.share.load('t')
+    dt = bp.share.load('dt')
     # 更新下一时刻变量的值
     V, m, h, n = self.integral(self.V, self.m, self.h, self.n, t, dt=dt)
     # 判断神经元是否产生膜电位

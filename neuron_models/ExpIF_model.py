@@ -69,6 +69,7 @@ def run_ExpIF():
   plt.savefig('ExpIF_output2.pdf', transparent=True, dpi=500)
   # plt.show()
 
+
 def effect_of_delta_T_v1():
   duration = 200
   I = 6.
@@ -138,7 +139,6 @@ def effect_of_delta_T_v2():
 
 
 def dvdt():
-
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
   ax = fig.add_subplot(gs[0, 0])
   expif = ExpIF(1)
@@ -250,10 +250,12 @@ def phase_plane():
     plt.annotate('unstable point', xy=(-58.06315, 0), xytext=(-55, 1.), arrowprops=dict(arrowstyle="->"))
     plt.scatter([-70, -55], [0., 0.], marker='4', s=100, color='k')
     plt.scatter([-62, ], [0., ], marker='3', s=100, color='k')
+
   _ppa(0., extra_fun=f)
 
   def f():
     plt.scatter([-65], [0.], marker='4', s=100, color='k')
+
   _ppa(20., extra_fun=f)
 
   # plt.show()
@@ -264,4 +266,3 @@ if __name__ == '__main__':
   effect_of_delta_T_v2()
   dvdt()
   phase_plane()
-

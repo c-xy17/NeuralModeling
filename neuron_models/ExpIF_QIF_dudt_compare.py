@@ -5,8 +5,8 @@ import numpy as np
 from neuron_models.ExpIF_model import ExpIF
 from neuron_models.QIF_model import QIF
 
-
 bp.math.enable_x64()
+
 
 def phase_plane_analysis(i, model, I_ext, res=0.005):
   fig.sca(axes[i])
@@ -21,6 +21,7 @@ def phase_plane_analysis(i, model, I_ext, res=0.005):
   plt.ylim(-2, 10)
   plt.title('Input = {}'.format(I_ext))
 
+
 fig, axes = plt.subplots(1, 2, figsize=(8, 4), sharey='all')  # 设置子图并共享y轴
 inputs = [0., 20.]  # 设置不同大小的电流输入
 expif = ExpIF(1, delta_T=2., V_T=-54.03)
@@ -32,7 +33,6 @@ phase_plane_analysis(1, expif, inputs[1])
 
 plt.tight_layout()
 plt.show()
-
 
 expif = ExpIF(1, delta_T=2., V_T=-54.03)
 qif = QIF(1)
