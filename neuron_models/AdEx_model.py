@@ -301,7 +301,75 @@ def AdEx_phase_plane_analysis():
   plt.show()
 
 
+def AdEx_bifurcation_analysis():
+  bp.math.enable_x64()
+
+  bif = bp.analysis.Bifurcation2D(
+    model=AdEx(1, tau=10, tau_w=100, a=1, b=10, V_reset=-60, V_rest=-70, V_T=-50, delta_T=2., R=0.5),
+    target_vars={'V': [-70., -40.], 'w': [0., 40.]},  # 设置变量的分析范围
+    target_pars={'Iext': [20., 70.]},  # 设置参数的范围
+    resolutions={'Iext': 0.1}  # 设置分辨率
+  )
+
+  bif.plot_bifurcation(show=True)
+
+
+def AdEx_ppa2d_transient_spiking():
+  bp.math.enable_x64()
+
+  group = AdEx(1, tau=10., a=1., tau_w=100., b=10., V_reset=-60.,
+               V_rest=-70., V_th=0., V_T=-50., R=0.5, delta_T=2.)
+
+  v_range = [-70., -40.]
+  w_range = [-5, 60.]
+  Iext = 56.
+  sp_text = dict()
+  num_text_sp = 0
+
+  fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
+  ax = fig.add_subplot(gs[0, 0])
+  # 使用BrainPy中的相平面分析工具
+  phase_plane_analyzer = bp.analysis.PhasePlane2D(
+    model=group,
+    target_vars={'V': v_range, 'w': w_range, },  # 待分析变量
+    pars_update={'Iext': Iext},  # 需要更新的变量
+    resolutions=0.05
+  )
+
+  # 画出V, w的零增长曲线
+  phase_plane_analyzer.plot_nullcline()
+  # 画出奇点
+  phase_plane_analyzer.plot_fixed_point()
+  # 画出向量场
+  phase_plane_analyzer.plot_vector_field(with_return=True)
+
+  # 分段画出V, w的变化轨迹
+  group.V[:] = group.V_reset
+  runner = bp.DSRunner(group, monitors=['V', 'w', 'spike'], inputs=('input', Iext))
+  runner(500)
+  spike = runner.mon.spike.squeeze()
+  s_idx = np.where(spike)[0]  # 找到所有发放动作电位对应的index
+  s_idx = np.concatenate(([0], s_idx, [len(spike) - 1]))  # 加上起始点和终止点的index
+  for i in range(len(s_idx) - 1):
+    vs = runner.mon.V[s_idx[i]: s_idx[i + 1]]
+    ws = runner.mon.w[s_idx[i]: s_idx[i + 1]]
+    plt.plot(vs, ws, color='darkslateblue')
+    if i < num_text_sp:
+      plt.text(group.V_reset - 1, ws[0] - 0.5, sp_text.get(i, str(i)))
+  # 画出虚线 x = V_reset
+  plt.plot([group.V_reset, group.V_reset], w_range, '--', color='grey', zorder=-1)
+  plt.show()
+
+  # if extra_fun:
+  #   extra_fun()
+  # ax.get_legend().remove()
+  # ax.spines['top'].set_visible(False)
+  # ax.spines['right'].set_visible(False)
+  # plt.savefig(f'adex_phase_plane_{title.replace(" ", "-")}.pdf', transparent=True, dpi=500)
+
+
 if __name__ == '__main__':
-  run_AdEx_model()
-  AdEx_patterns()
-  AdEx_phase_plane_analysis()
+  # run_AdEx_model()
+  # AdEx_patterns()
+  AdEx_ppa2d_transient_spiking()
+  # AdEx_bifurcation_analysis()
