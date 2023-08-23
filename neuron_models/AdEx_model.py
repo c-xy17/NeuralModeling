@@ -323,8 +323,6 @@ def AdEx_ppa2d_transient_spiking():
   v_range = [-70., -40.]
   w_range = [-5, 60.]
   Iext = 56.
-  sp_text = dict()
-  num_text_sp = 0
 
   fig, gs = bp.visualize.get_figure(1, 1, 4.5, 6)
   ax = fig.add_subplot(gs[0, 0])
@@ -354,18 +352,10 @@ def AdEx_ppa2d_transient_spiking():
     vs = runner.mon.V[s_idx[i]: s_idx[i + 1]]
     ws = runner.mon.w[s_idx[i]: s_idx[i + 1]]
     plt.plot(vs, ws, color='darkslateblue')
-    if i < num_text_sp:
-      plt.text(group.V_reset - 1, ws[0] - 0.5, sp_text.get(i, str(i)))
+
   # 画出虚线 x = V_reset
   plt.plot([group.V_reset, group.V_reset], w_range, '--', color='grey', zorder=-1)
   plt.show()
-
-  # if extra_fun:
-  #   extra_fun()
-  # ax.get_legend().remove()
-  # ax.spines['top'].set_visible(False)
-  # ax.spines['right'].set_visible(False)
-  # plt.savefig(f'adex_phase_plane_{title.replace(" ", "-")}.pdf', transparent=True, dpi=500)
 
 
 if __name__ == '__main__':
