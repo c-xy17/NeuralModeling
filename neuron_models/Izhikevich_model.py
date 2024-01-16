@@ -7,7 +7,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class Izhikevich(bp.NeuGroupNS):
+class Izhikevich(bp.dyn.NeuDyn):
   def __init__(self, size, a=0.02, b=0.20, c=-65., d=2., tau_ref=0.,
                V_th=30., **kwargs):
     # 初始化父类

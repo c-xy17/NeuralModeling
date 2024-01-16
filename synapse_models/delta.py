@@ -4,7 +4,7 @@ import brainpy.math as bm
 from run_synapse import run_delta_syn
 
 
-class VoltageJump(bp.TwoEndConn):
+class VoltageJump(bp.synapses.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=1., delay_step=2, E=0., **kwargs):
     super().__init__(pre=pre, post=post, conn=conn, **kwargs)
     self.check_pre_attrs('spike')
@@ -22,7 +22,7 @@ class VoltageJump(bp.TwoEndConn):
     self.g = bm.Variable(bm.zeros(self.post.num))
     self.delay = bm.LengthDelay(self.pre.spike, delay_step)  # 定义一个延迟处理器
 
-  def update(self, tdi):
+  def update(self):
     # 将突触前神经元传来的信号延迟delay_step的时间步长
     delayed_pre_spike = self.delay(self.delay_step)
     self.delay.update(self.pre.spike)

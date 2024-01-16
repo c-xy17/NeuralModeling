@@ -33,7 +33,9 @@ class BCM(bp.DynamicalSystem):
     dwdt = self.eta * y * (y - theta) * bm.reshape(x, (-1, 1)) - self.eps * w
     return dwdt
 
-  def update(self, tdi):
+  def update(self):
+    tdi = bp.share.get_shargs()
+
     # 更新w
     w = self.integral(self.w, tdi.t, self.pre, self.post, self.theta_M, tdi.dt)
     # 将w限制在[w_min, w_max]范围内
@@ -128,4 +130,4 @@ def try_bcm_rule():
 
 if __name__ == '__main__':
   bcm_dw()
-  # try_bcm_rule()
+  try_bcm_rule()

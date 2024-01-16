@@ -4,7 +4,7 @@ import brainpy.math as bm
 from synapse_models.run_synapse import run_FR
 
 
-class Oja(bp.TwoEndConn):
+class Oja(bp.synapses.TwoEndConn):
   def __init__(self, pre, post, conn, eta=0.05, delay_step=0, method='exp_auto', **kwargs):
     super(Oja, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
     self.check_pre_attrs('r', 'input')
@@ -29,7 +29,9 @@ class Oja(bp.TwoEndConn):
     dwdt = self.eta * y * (x - y * w)
     return dwdt
 
-  def update(self, tdi):
+  def update(self):
+    tdi = bp.share.get_shargs()
+
     # 将突触前的信号延迟delay_step的时间步长
     delayed_pre_r = self.delay(self.delay_step)
     self.delay.update(self.pre.r)

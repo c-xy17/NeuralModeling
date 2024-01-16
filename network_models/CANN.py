@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class CANN1D(bp.NeuGroupNS):
+class CANN1D(bp.dyn.NeuDyn):
   def __init__(self, num, tau=1., k=8.1, a=0.5, A=10., J0=4.,
                z_min=-bm.pi, z_max=bm.pi, **kwargs):
     super(CANN1D, self).__init__(size=num, **kwargs)

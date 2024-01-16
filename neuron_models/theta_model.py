@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class Theta(bp.NeuGroup):
+class Theta(bp.dyn.NeuDyn):
 	def __init__(self, size, b=0., c=0., t_ref=0., **kwargs):
 		# 初始化父类
 		super(Theta, self).__init__(size=size, **kwargs)
@@ -29,8 +29,8 @@ class Theta(bp.NeuGroup):
 		dthetadt = -bm.cos(theta) + (1. + bm.cos(theta)) * (2 * self.c + 1 / 2 + 2 * self.b * I_ext)
 		return dthetadt
 
-	def update(self, tdi):
-		_t, _dt = tdi.t, tdi.dt
+	def update(self):
+		_t, _dt = bp.share['t'], bp.share['dt']
 		# 以数组的方式对神经元进行更新
 		theta = self.integral(self.theta, _t, self.input, dt=_dt) % (2 * bm.pi)  # 根据时间步长更新theta
 		spike = (theta < bm.pi) & (self.theta > bm.pi)  # 将theta从2*pi跳跃到0的神经元标记为发放了脉冲

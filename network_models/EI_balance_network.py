@@ -8,7 +8,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class EINet(bp.Network):
+class EINet(bp.DynSysGroup):
   def __init__(self, num_exc, num_inh, method='exp_auto', **kwargs):
     super(EINet, self).__init__(**kwargs)
 
@@ -31,13 +31,13 @@ class EINet(bp.Network):
     self.I2I = bp.synapses.Exponential(I, I, bp.conn.FixedProb(prob=0.02), method=method,
                                        output=bp.synouts.COBA(E=-80.), **I_pars)
 
-  def update(self, tdi):
-    e2e_current = self.E2E(tdi)
-    self.E2I(tdi)
-    self.I2E(tdi)
-    self.I2I(tdi)
-    self.E(tdi)
-    self.I(tdi)
+  def update(self):
+    e2e_current = self.E2E()
+    self.E2I()
+    self.I2E()
+    self.I2I()
+    self.E()
+    self.I()
 
 
 def define_EI_v2():

@@ -5,7 +5,7 @@ from run_synapse import run_syn
 
 
 # first-order kinetics
-class AMPA(bp.TwoEndConn):
+class AMPA(bp.synapses.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.02, E=0., alpha=0.98, beta=0.18,
                delay_step=2, method='exp_auto', **kwargs):
     super(AMPA, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
@@ -30,7 +30,7 @@ class AMPA(bp.TwoEndConn):
     # 定义积分函数
     self.integral = bp.odeint(method=method, f=lambda s, t: - self.beta * s)
 
-  def update(self, tdi):
+  def update(self):
     # 将突触前神经元传来的信号延迟delay_step的时间步长
     delayed_pre_spike = self.delay(self.delay_step)
     self.delay.update(self.pre.spike)
@@ -39,7 +39,7 @@ class AMPA(bp.TwoEndConn):
     post_sp = bm.pre2post_event_sum(delayed_pre_spike, self.pre2post, self.post.num, 1.)
 
     # 更新s和g
-    self.s.value = self.integral(self.s, tdi.t, tdi.dt) + self.alpha * post_sp
+    self.s.value = self.integral(self.s, bp.share['t'], bp.share['dt']) + self.alpha * post_sp
     self.g.value = self.g_max * self.s
 
     # 电导模式下计算突触后电流大小

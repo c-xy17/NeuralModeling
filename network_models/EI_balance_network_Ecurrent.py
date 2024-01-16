@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class LIF(bp.NeuGroupNS):
+class LIF(bp.dyn.NeuDyn):
   def __init__(self, size, V_rest=0., V_reset=-5., V_th=20., R=1., tau=10., t_ref=5.,
                method='exp_auto', **kwargs):
     # 初始化父类

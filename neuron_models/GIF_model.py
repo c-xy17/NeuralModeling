@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class GIF(bp.NeuGroupNS):
+class GIF(bp.dyn.NeuDyn):
   def __init__(self, size, V_rest=-70., V_reset=-70., theta_inf=-50., theta_reset=-60.,
                R=20., tau=20., a=0., b=0.01, k1=0.2, k2=0.02, R1=0., R2=1., A1=0.,
                A2=0., **kwargs):

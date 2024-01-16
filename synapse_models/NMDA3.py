@@ -5,7 +5,7 @@ from run_synapse import run_syn_NMDA
 
 
 # second-order kinetics
-class NMDA(bp.TwoEndConn):
+class NMDA(bp.synapses.TwoEndConn):
 	def __init__(self, pre, post, conn, g_max=0.02, E=0., c_Mg=1.2, alpha1=2.,
 	             beta1=0.01, alpha2=0.2, beta2=0.5, delay_step=2,
 	             method='exp_auto', **kwargs):
@@ -38,7 +38,9 @@ class NMDA(bp.TwoEndConn):
 		                       f=lambda s, t, x: self.alpha1 * x * (1 - s) - self.beta1 * s)
 		self.int_x = bp.odeint(method=method, f=lambda x, t,: - self.beta2 * x)
 
-	def update(self, tdi):
+	def update(self):
+		tdi = bp.share.get_shargs()
+
 		# 将突触前神经元传来的信号延迟delay_step的时间步长
 		delayed_pre_spike = self.delay(self.delay_step)
 		self.delay.update(self.pre.spike)

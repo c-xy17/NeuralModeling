@@ -4,7 +4,7 @@ import brainpy.math as bm
 from run_synapse import run_syn
 
 
-class DualExponential(bp.TwoEndConn):
+class DualExponential(bp.synapses.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.01, tau_decay=20., tau_rise=2., delay_step=2,
                E=0., syn_type='CUBA', method='exp_auto', **kwargs):
     super(DualExponential, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
@@ -33,7 +33,9 @@ class DualExponential(bp.TwoEndConn):
     self.int_h = bp.odeint(method=method, f=lambda h, t: -h / self.tau_rise)
     self.int_g = bp.odeint(method=method, f=lambda g, t, h: -g / self.tau_decay + h)
 
-  def update(self, tdi):
+  def update(self):
+    tdi = bp.share.get_shargs()
+
     # 将突触前神经元传来的信号延迟delay_step的时间步长
     delayed_pre_spike = self.delay(self.delay_step)
     self.delay.update(self.pre.spike)

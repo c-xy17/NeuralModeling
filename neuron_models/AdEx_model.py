@@ -7,7 +7,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class AdEx(bp.NeuGroup):
+class AdEx(bp.dyn.NeuDyn):
   def __init__(self, size, V_rest=-65., V_reset=-68., V_th=20., V_T=-60., delta_T=1., a=1.,
                b=2.5, R=1., tau=10., tau_w=30., tau_ref=0., name=None):
     # 初始化父类
@@ -51,8 +51,8 @@ class AdEx(bp.NeuGroup):
   def derivative(self):
     return bp.JointEq([self.dV, self.dw])
 
-  def update(self, tdi):
-    _t, _dt = tdi.t, tdi.dt
+  def update(self,):
+    _t, _dt = bp.share['t'], bp.share['dt']
     # 以数组的方式对神经元进行更新
     V, w = self.integral(self.V, self.w, _t, self.input, dt=_dt)  # 更新膜电位V和权重值w
     refractory = (_t - self.t_last_spike) <= self.tau_ref  # 判断神经元是否处于不应期
@@ -359,7 +359,7 @@ def AdEx_ppa2d_transient_spiking():
 
 
 if __name__ == '__main__':
-  # run_AdEx_model()
-  # AdEx_patterns()
+  run_AdEx_model()
+  AdEx_patterns()
   AdEx_ppa2d_transient_spiking()
-  # AdEx_bifurcation_analysis()
+  AdEx_bifurcation_analysis()

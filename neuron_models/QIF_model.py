@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class QIF(bp.NeuGroupNS):
+class QIF(bp.dyn.NeuDyn):
   def __init__(self, size, V_rest=-65., V_reset=-68., V_th=-0., V_c=-50.0, a_0=.07, R=1., tau=10., t_ref=5., **kwargs):
     # 初始化父类
     super(QIF, self).__init__(size=size, **kwargs)
