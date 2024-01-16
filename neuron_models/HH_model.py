@@ -8,7 +8,7 @@ plt.rcParams['font.sans-serif'] = ['Times New Roman']
 plt.rcParams['axes.unicode_minus'] = False
 
 
-class HH(bp.NeuGroupNS):
+class HH(bp.dyn.NeuDyn):
   def __init__(self, size, ENa=50., gNa=120., EK=-77., gK=36.,
                EL=-54.387, gL=0.03, V_th=20., C=1.0, T=6.3):
     # 初始化

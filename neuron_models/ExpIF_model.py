@@ -7,7 +7,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class ExpIF(bp.NeuGroup):
+class ExpIF(bp.dyn.NeuDyn):
   def __init__(self, size, V_rest=-65., V_reset=-68., V_th=20., V_T=-60., delta_T=1.,
                R=1., tau=10., tau_ref=2., method='exp_euler'):
     # 初始化父类
@@ -39,7 +39,8 @@ class ExpIF(bp.NeuGroup):
     dvdt = (- (V - self.V_rest) + exp_v + self.R * Iext) / self.tau
     return dvdt
 
-  def update(self, tdi):
+  def update(self):
+    tdi = bp.share.get_shargs()
     # 以数组的方式对神经元进行更新
     refractory = (tdi.t - self.t_last_spike) <= self.tau_ref  # 判断神经元是否处于不应期
     V = self.integral(self.V, tdi.t, self.input, tdi.dt)  # 根据时间步长更新膜电位

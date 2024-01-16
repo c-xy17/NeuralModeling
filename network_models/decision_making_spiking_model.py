@@ -14,7 +14,7 @@ total_period = pre_stimulus_period + stimulus_period + delay_period
 
 
 # 产生随机泊松刺激的神经元群（用于生成I_A和I_B）
-class PoissonStim(bp.NeuGroup):
+class PoissonStim(bp.dyn.NeuDyn):
   def __init__(self, size, freq_mean, freq_var, t_interval, **kwargs):
     super(PoissonStim, self).__init__(size=size, **kwargs)
 
@@ -30,8 +30,9 @@ class PoissonStim(bp.NeuGroup):
     self.spike = bm.Variable(bm.zeros(self.num, dtype=bool))
     self.rng = bm.random.RandomState()  # 随机数生成器
 
-  def update(self, tdi):
-    _t, _dt = tdi.t, tdi.dt
+  def update(self):
+    _t = bp.share['t']
+    _dt = bp.share['dt']
     # 下两行代码相当于：
     # if pre_stimulus_period < _t < pre_stimulus_period + stimulus_period:
     #   freq = self.freq[0]
@@ -49,7 +50,7 @@ class PoissonStim(bp.NeuGroup):
     self.spike.value = self.rng.random(self.num) < self.freq[0] * self.dt
 
 
-class DecisionMaking(bp.Network):
+class DecisionMaking(bp.DynSysGroup):
   def __init__(self, scale=1., mu0=40., coherence=25.6, f=0.15):
     super(DecisionMaking, self).__init__()
 

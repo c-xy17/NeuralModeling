@@ -59,8 +59,8 @@ class SeparateNaK(bp.DynamicalSystem):
     dndt = alpha * (1 - n) - beta * n
     return dndt
 
-  def update(self, tdi):
-    t, dt = tdi.t, tdi.dt
+  def update(self):
+    t, dt = bp.share['t'], bp.share['dt']
     m, h, n = self.integral(self.m, self.h, self.n, t, dt)
     self.m.value = m
     self.h.value = h

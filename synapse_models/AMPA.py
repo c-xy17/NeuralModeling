@@ -5,7 +5,7 @@ from run_synapse import run_syn
 
 
 # [T] modeling
-class AMPA(bp.TwoEndConn):
+class AMPA(bp.synapses.TwoEndConn):
 	def __init__(self, pre, post, conn, g_max=0.08, E=0., alpha=0.98, beta=0.18,
 	             T_0=0.5, T_dur=0.5, delay_step=2, method='exp_auto', **kwargs):
 		super(AMPA, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
@@ -37,7 +37,8 @@ class AMPA(bp.TwoEndConn):
 		dsdt = self.alpha * T * (1 - s) - self.beta * s
 		return dsdt
 
-	def update(self, tdi):
+	def update(self):
+		tdi = bp.share.get_shargs()
 		# 将突触前神经元传来的信号延迟delay_step的时间步长
 		delayed_pre_spike = self.delay(self.delay_step)
 		self.delay.update(self.pre.spike)

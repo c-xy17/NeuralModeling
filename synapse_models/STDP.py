@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
-class STDP(bp.TwoEndConn):
+class STDP(bp.synapses.TwoEndConn):
   def __init__(self, pre, post, conn, tau_s=16.8, tau_t=33.7, tau=8., A1=0.96,
                A2=0.53, E=1., delay_step=0, method='exp_auto', **kwargs):
     super(STDP, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
@@ -42,7 +42,8 @@ class STDP(bp.TwoEndConn):
     dg = lambda g, t: -g / self.tau
     return bp.JointEq([dApre, dApost, dg])  # 将三个微分方程联合求解
 
-  def update(self, tdi):
+  def update(self):
+
     # 将g的计算延迟delay_step的时间步长
     delayed_g = self.delay(self.delay_step)
 
@@ -55,7 +56,8 @@ class STDP(bp.TwoEndConn):
     post_spikes = bm.pre2syn(self.post.spike, self.post_ids)  # 哪些突触后神经元产生了脉冲
 
     # 计算积分后的Apre, Apost, g
-    self.Apre.value, self.Apost.value, self.g.value = self.integral(self.Apre, self.Apost, self.g, tdi.t, tdi.dt)
+    self.Apre.value, self.Apost.value, self.g.value = self.integral(self.Apre, self.Apost, self.g,
+                                                                    bp.share['t'], bp.share['dt'])
 
     # if (pre spikes)
     Apre = bm.where(pre_spikes, self.Apre + self.A1, self.Apre)

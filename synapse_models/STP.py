@@ -6,7 +6,7 @@ import numpy as np
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
-class STP(bp.TwoEndConn):
+class STP(bp.synapses.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.1, U=0.15, tau_f=1500., tau_d=200.,
                tau=8., E=1., delay_step=2, method='exp_auto', **kwargs):
     super(STP, self).__init__(pre=pre, post=post, conn=conn, **kwargs)
@@ -42,7 +42,7 @@ class STP(bp.TwoEndConn):
     dg = lambda g, t: -g / self.tau
     return bp.JointEq([du, dx, dg])  # 将三个微分方程联合求解
 
-  def update(self, tdi):
+  def update(self):
     # 将g的计算延迟delay_step的时间步长
     delayed_g = self.delay(self.delay_step)
 
@@ -52,7 +52,7 @@ class STP(bp.TwoEndConn):
 
     # 更新各个变量
     syn_sps = bm.pre2syn(self.pre.spike, self.pre_ids)  # 哪些突触前神经元产生了脉冲
-    u, x, g = self.integral(self.u, self.x, self.g, tdi.t, tdi.dt)  # 计算积分后的u, x, g
+    u, x, g = self.integral(self.u, self.x, self.g, bp.share['t'], bp.share['dt'])  # 计算积分后的u, x, g
     u = bm.where(syn_sps, u + self.U * (1 - self.u), u)  # 更新后的u
     x = bm.where(syn_sps, x - u * self.x, x)  # 更新后的x
     g = bm.where(syn_sps, g + self.g_max * u * self.x, g)  # 更新后的g

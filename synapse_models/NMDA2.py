@@ -4,7 +4,7 @@ import brainpy.math as bm
 from run_synapse import run_syn_NMDA
 
 
-class NMDA(bp.TwoEndConn):
+class NMDA(bp.synapses.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.02, E=0., c_Mg=1.2, alpha1=2.,
                beta1=0.01, alpha2=1., beta2=0.5, T_0=1., T_dur=0.5, delay_step=2,
                method='exp_auto', **kwargs):
@@ -44,7 +44,9 @@ class NMDA(bp.TwoEndConn):
   def dx(self, x, t, s, T):
     return self.alpha2 * T * (1 - x) - self.beta2 * x
 
-  def update(self, tdi):
+  def update(self):
+    tdi = bp.share.get_shargs()
+
     # 将突触前神经元传来的信号延迟delay_step的时间步长
     delayed_pre_spike = self.delay(self.delay_step)
     self.delay.update(self.pre.spike)
@@ -64,7 +66,7 @@ class NMDA(bp.TwoEndConn):
     self.post.input += self.g * self.b * (self.E - self.post.V)
 
 
-class NMDA_with_DE(bp.TwoEndConn):
+class NMDA_with_DE(bp.synapses.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=0.02, E=0., c_Mg=1.2,
                tau_decay=100., tau_rise=2., delay_step=2,
                method='exp_auto', **kwargs):
@@ -95,7 +97,9 @@ class NMDA_with_DE(bp.TwoEndConn):
     self.int_x = bp.odeint(method=method, f=lambda x, t: -x / self.tau_rise)
     self.int_s = bp.odeint(method=method, f=lambda s, t, x: -s / self.tau_decay + x)
 
-  def update(self, tdi):
+  def update(self):
+    tdi = bp.share.get_shargs()
+
     # 将突触前神经元传来的信号延迟delay_step的时间步长
     delayed_pre_spike = self.delay(self.delay_step)
     self.delay.update(self.pre.spike)

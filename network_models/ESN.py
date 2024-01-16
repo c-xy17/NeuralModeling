@@ -1,8 +1,8 @@
 import brainpy as bp
 import brainpy.math as bm
+import brainpy_datasets as bd
 import matplotlib.pyplot as plt
 import numpy as np
-import brainpy_datasets as bd
 
 plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
@@ -51,9 +51,9 @@ class ESN(bp.DynamicalSystem):
       self.state.value = bm.zeros((int(batch_size),) + self.state.shape[1:])
       self.y.value = bm.zeros((int(batch_size),) + self.y.shape[1:])
 
-  def update(self, sha, u):
+  def update(self, u):
     self.state.value = bm.tanh(bm.dot(u, self.W_in) + bm.dot(self.state, self.W))
-    out = self.readout(sha, self.state.value)
+    out = self.readout(self.state.value)
     self.y.value = out
     return out
 
@@ -332,19 +332,19 @@ def fit_Lorenz_system():
 class ESNv2(bp.DynamicalSystem):
   def __init__(self, num_in, num_hidden, num_out, lambda_max=None):
     super(ESNv2, self).__init__(mode=bm.batching_mode)
-    self.r = bp.layers.Reservoir(num_in, num_hidden,
-                                 Win_initializer=bp.init.Uniform(-0.1, 0.1),
-                                 Wrec_initializer=bp.init.Normal(scale=0.1),
-                                 in_connectivity=0.02,
-                                 rec_connectivity=0.05,
-                                 spectral_radius=lambda_max,
-                                 comp_type='dense',
-                                 mode=bm.batching_mode)
-    self.o = bp.layers.Dense(num_hidden, num_out, W_initializer=bp.init.Normal(),
-                             mode=bm.training_mode)
+    self.r = bp.dyn.Reservoir(num_in, num_hidden,
+                              Win_initializer=bp.init.Uniform(-0.1, 0.1),
+                              Wrec_initializer=bp.init.Normal(scale=0.1),
+                              in_connectivity=0.02,
+                              rec_connectivity=0.05,
+                              spectral_radius=lambda_max,
+                              comp_type='dense',
+                              mode=bm.batching_mode)
+    self.o = bp.dnn.Dense(num_hidden, num_out, W_initializer=bp.init.Normal(),
+                          mode=bm.training_mode)
 
-  def update(self, shared_args, x):
-    return self.o(shared_args, self.r(shared_args, x))
+  def update(self, x):
+    return self.o(self.r(x))
 
 
 def train_esn_with_ridge(num_in=100, num_out=30):

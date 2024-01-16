@@ -4,7 +4,7 @@ import brainpy.math as bm
 from run_synapse import run_syn_GABAb
 
 
-class GABAb(bp.TwoEndConn):
+class GABAb(bp.synapses.TwoEndConn):
   def __init__(self, pre, post, conn, g_max=1., E=-95., alpha=0.09, beta=0.0012,
                T_0=0.5, T_dur=0.5, k1=0.18, k2=0.034, K_d=0.1, delay_step=2,
                method='exp_auto', **kwargs):
@@ -44,7 +44,9 @@ class GABAb(bp.TwoEndConn):
   def dG(self, G, t, r):
     return self.k1 * r - self.k2 * G
 
-  def update(self, tdi):
+  def update(self):
+    tdi = bp.share.get_shargs()
+
     # 将突触前神经元传来的信号延迟delay_step的时间步长
     delayed_pre_spike = self.delay(self.delay_step)
     self.delay.update(self.pre.spike)

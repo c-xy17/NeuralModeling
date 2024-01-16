@@ -6,7 +6,7 @@ plt.rcParams.update({"font.size": 15})
 plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 
-class DecisionMakingRateModel(bp.NeuGroupNS):
+class DecisionMakingRateModel(bp.dyn.NeuDyn):
   def __init__(
       self, size, coherence, JE=0.2609, JI=0.0497, Jext=5.2e-4, I0=0.3255,
       gamma=6.41e-4, tau=100., tau_n=2., sigma_n=0.02, a=270., b=108., d=0.154,
@@ -72,8 +72,8 @@ class DecisionMakingRateModel(bp.NeuGroupNS):
     self.noise2.update()
 
     # 更新s1、s2、I1_noise、I2_noise
-    integral = self.integral(self.s1, self.s2, self.I1_noise, self.I2_noise, tdi.t,
-                             mu0=self.mu0, noise1=self.noise1, noise2=self.noise2, dt=tdi.dt)
+    integral = self.integral(self.s1, self.s2, self.I1_noise, self.I2_noise, bp.share['t'],
+                             mu0=self.mu0, noise1=self.noise1, noise2=self.noise2, dt=bp.share['dt'])
     self.s1.value, self.s2.value, self.I1_noise.value, self.I2_noise.value = integral
 
     # 用更新后的s1、s2计算r1、r2
