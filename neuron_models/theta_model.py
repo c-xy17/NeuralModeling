@@ -26,7 +26,7 @@ class Theta(bp.dyn.NeuDyn):
 
 	# 定义膜电位关于时间变化的微分方程
 	def derivative(self, theta, t, I_ext):
-		dthetadt = -bm.cos(theta) + (1. + bm.cos(theta)) * (2 * self.c + 1 / 2 + 2 * self.b * I_ext)
+		dthetadt = 1-bm.cos(theta) + (1. + bm.cos(theta)) * (2 * self.c + 1 / 2 + 2 * self.b * I_ext)
 		return dthetadt
 
 	def update(self):
@@ -48,7 +48,7 @@ c = a_0 ** 2 / tau ** 2 * (V_rest * V_c - ((V_rest + V_c) / 2) ** 2)
 # 运行theta神经元模型
 neu = Theta(1, b=b, c=c, t_ref=t_ref)
 runner = bp.DSRunner(neu, monitors=['theta'], inputs=('input', 6.))
-runner(500)
+runner(50)
 
 # 可视化
 
